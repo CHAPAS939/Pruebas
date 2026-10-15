@@ -1,0 +1,30 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "status": 200,
+      "heading": "A little less\nordinary."
+    },
+    {
+      "path": "/library",
+      "status": 200,
+      "heading": "Small details.\nBig difference."
+    },
+    {
+      "path": "/prompts/ai-status-orb",
+      "status": 200,
+      "heading": "AI status orb"
+    },
+    {
+      "path": "/legal",
+      "status": 200,
+      "heading": "A few particulars."
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "heading": "Privacy, simply."
+    }
+  ],
+  "errors": []
+}
