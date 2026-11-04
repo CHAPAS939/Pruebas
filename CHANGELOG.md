@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Visual study v2 (browser prototype)** — a live 3D diorama and sculpted Mochi, Manrope type, warm materials, responsive controls and WebGL fallback; the native renderer port remains pending.
+
 - **Mochi’s room (experimental, macOS)** — a separate lamp-tab destination with a code-drawn desk, plant and rainy window, local day/night/lamp preferences and reduced-motion support. Existing overview and approval layouts stay intact.
 
 - **Android phone link (Mac)** — Coucou for Android can now pair with your Mac, the way it already does with Windows and Linux (Settings → Android phone, off by default). Scan the QR code on the same Wi-Fi, see your agent sessions, and allow or deny a permission request from the phone; Allow still needs the phone's fingerprint or screen lock. Optional switches show session details, let the phone answer Claude Code's questions and show your plan usage. Coucou listens on your local network only while the switch is on, the certificate and the pairing code stay in the Keychain, and nothing runs while it is off (GitHub build; not in the App Store build)
