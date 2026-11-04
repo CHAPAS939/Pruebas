@@ -16,6 +16,8 @@ final class DesktopBotViewState: ObservableObject {
     @Published var isHovered: Bool = false
     @Published var isPerched = false
     @Published var perchLean: Double = 0
+    @Published var sceneEmote: String? = nil
+    var sceneReady = false
     /// Bot center in the same coord space as AppState.mousePosition (DesktopSpace, y-down).
     /// Updated every poll frame; Canvas reads it inside TimelineView — @Published not needed.
     var lookOrigin: CGPoint = .zero
@@ -26,12 +28,16 @@ final class DesktopBotViewState: ObservableObject {
 /// Full Mochi character rendered inside the desktop floating panel.
 struct DesktopBotView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var sceneReady = false
     @ObservedObject var appState: AppState
     /// Engine owned by DesktopMochiController; controller calls methods on it directly.
     let engine: BotEngine
     @ObservedObject var viewState: DesktopBotViewState
 
     var body: some View {
+        let useScene = viewState.isPerched && appState.resolvedOutfit == .none
+        ZStack {
+        if !useScene || !sceneReady {
         TimelineView(.animation(minimumInterval: viewState.isSleeping ? 0.1 : 1.0 / 30.0, paused: viewState.paused)) { timeline in
             Canvas { ctx, size in
                 _ = timeline.date   // force redraw every tick (see BotCanvasView)
@@ -98,6 +104,19 @@ struct DesktopBotView: View {
                 }
             }
         }
+        }
+        if useScene {
+            MochiSceneWebView(kind: .perch,
+                settings: MochiSceneSettings(state: viewState.isSleeping ? "sleeping" : appState.effectiveState.rawValue,
+                    emote: viewState.sceneEmote,
+                    paused: viewState.paused, reduceMotion: reduceMotion, perched: true,
+                    lookX: Double(tanh((appState.mousePosition.x - viewState.lookOrigin.x) / 260)),
+                    lookY: Double(-tanh((appState.mousePosition.y - viewState.lookOrigin.y) / 200))),
+                onReady: { sceneReady = $0; viewState.sceneReady = $0 })
+                .opacity(sceneReady ? 1 : 0)
+        }
+        }
+        .onChange(of: useScene) { _, _ in sceneReady = false; viewState.sceneReady = false }
         .rotationEffect(.radians(reduceMotion ? 0 : viewState.perchLean))
         .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.65), value: viewState.perchLean)
         .scaleEffect(viewState.isHovered ? 1.07 : 1.0)
@@ -615,6 +634,25 @@ final class DesktopMochiController: NSObject {
     private func pollFrame() {
         guard let p = panel else { return }
         if !isDragging && perch != nil && Date.now >= nextPerchPoll { updatePerch() }
+        if p.alphaValue < 0.01 {
+            p.ignoresMouseEvents = true
+            return
+        }
+        // Keep native pokes, emote expiry and dizzy callbacks alive when Canvas is replaced.
+        if viewState?.sceneReady == true, let engine {
+            MochiFrameClock.advance(engine)
+            let emote: String? = switch engine.eyeOverride {
+            case .heart: "love"
+            case .happy: "happy"
+            case .star: "proud"
+            case .wink: "wink"
+            case .dot, .wide: "surprised"
+            case .tired, .closed: "yawn"
+            case .line, .flat: "annoyed"
+            default: nil
+            }
+            if viewState?.sceneEmote != emote { viewState?.sceneEmote = emote }
+        }
         let mouse = NSEvent.mouseLocation
         let pf    = p.frame
         let local = CGPoint(x: mouse.x - pf.minX, y: mouse.y - pf.minY)

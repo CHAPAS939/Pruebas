@@ -213,6 +213,10 @@ struct Carry {
 struct Inner {
     /// The window is on screen.
     shown: bool,
+    /// Ephemeral OS window identity: never written to settings or restored across launches.
+    perch: Option<crate::window_perch::Target>,
+    perch_hidden: bool,
+    perch_lean: f64,
     /// Sitting on the desktop, taking pokes (not flying, not carried).
     landed: bool,
     asleep: bool,
@@ -240,6 +244,10 @@ impl Desktop {
         Self { mode, gate: PollGate::new(), inner: Mutex::new(Inner::default()), flight: AtomicU64::new(0) }
     }
 }
+
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct PerchState { perched: bool, lean: f64 }
 
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -479,7 +487,7 @@ fn hide(app: &AppHandle, d: &Desktop) {
 fn refresh(app: &AppHandle, d: &Desktop) {
     let (active, ignore, shape) = {
         let mut i = d.inner.lock().unwrap();
-        let active = i.shown && (i.carry.is_some() || (i.landed && !i.asleep));
+        let active = i.shown && (i.carry.is_some() || (i.landed && (!i.asleep || i.perch.is_some())));
         // Poll mode: Some(flag) is decided here; None leaves it to the poll.
         let ignore = if !i.shown || (!i.landed && i.carry.is_none()) {
             Some(true)
@@ -592,7 +600,7 @@ fn target_spot(app: &AppHandle, d: &Desktop, anywhere: bool) -> Option<(f64, f64
 
 /// The drop, wherever it came from: home if it is over the island's panel,
 /// otherwise his new spot.
-async fn finish_drop(app: &AppHandle, d: &Desktop, pos: (f64, f64), from: Source) {
+async fn finish_drop(app: &AppHandle, d: &Desktop, pos: (f64, f64), from: Source, prefer_perch: bool) {
     let s = side(app, d);
     let center = (pos.0 + s / 2.0, pos.1 + s / 2.0);
     let home = island_anchor(app, d)
@@ -612,7 +620,21 @@ async fn finish_drop(app: &AppHandle, d: &Desktop, pos: (f64, f64), from: Source
             refresh(app, d);
         }
     } else {
-        let spot = logic::settle(pos, &displays(app, d), SIZE, MARGIN);
+        let all = displays(app, d);
+        let candidate = if prefer_perch && d.mode == DesktopMode::Poll {
+            let scale = logic::display_near(center, &all).map(|v| v.scale).unwrap_or(1.0);
+            crate::window_perch::capture(center, scale).and_then(|target| {
+                if let crate::window_perch::Probe::Visible(frame) = crate::window_perch::probe(target) {
+                    let display = logic::display_near((frame.x + frame.w * target.fraction, frame.y + 1.0), &all)?;
+                    crate::window_perch::origin(frame, target.fraction, display.scale, display.work).map(|spot| (target, spot))
+                } else { None }
+            })
+        } else { None };
+        let spot = if let Some((target, spot)) = candidate {
+            d.inner.lock().unwrap().perch = Some(target);
+            let _ = app.emit_to(LABEL, "desktop-perch", PerchState { perched: true, lean: 0.0 });
+            spot
+        } else { logic::settle(pos, &all, SIZE, MARGIN) };
         refresh(app, d);
         if spot != pos {
             fly(app, d, spot, SNAP_MS, logic::ease_out_back).await;
@@ -620,6 +642,75 @@ async fn finish_drop(app: &AppHandle, d: &Desktop, pos: (f64, f64), from: Source
         remember_spot(app, d, spot, true);
     }
     let _ = app.emit_to(island::WINDOW_LABEL, "desktop-mochi-dropped", Dropped { from, home });
+}
+
+// ── Attached native window (Windows) ────────────────────────────────────────
+
+fn detach_perch(app: &AppHandle, d: &Desktop) {
+    let changed = {
+        let mut i = d.inner.lock().unwrap();
+        let changed = i.perch.take().is_some();
+        i.perch_hidden = false; i.perch_lean = 0.0;
+        changed
+    };
+    if changed { let _ = app.emit_to(LABEL, "desktop-perch", PerchState { perched: false, lean: 0.0 }); }
+}
+
+fn update_perch(app: &AppHandle, d: &Desktop) {
+    let target = { let i = d.inner.lock().unwrap(); if !i.shown || !i.landed || i.carry.is_some() { return; } i.perch };
+    let Some(target) = target else { return };
+    let all = displays(app, d);
+    let spot = match crate::window_perch::probe(target) {
+        crate::window_perch::Probe::Gone => {
+            let (pos, hidden) = { let i = d.inner.lock().unwrap(); (i.pos, i.perch_hidden) };
+            detach_perch(app, d);
+            if hidden { d.inner.lock().unwrap().asleep = false; }
+            place(app, d, logic::settle(pos, &all, SIZE, MARGIN));
+            if hidden { let _ = app.emit_to(LABEL, "desktop-visible", true); }
+            refresh(app, d);
+            return;
+        }
+        crate::window_perch::Probe::Hidden => None,
+        crate::window_perch::Probe::Visible(frame) => {
+            logic::display_near((frame.x + frame.w * target.fraction, frame.y + 1.0), &all)
+                .and_then(|display| crate::window_perch::origin(frame, target.fraction, display.scale, display.work))
+        }
+    };
+    let Some(spot) = spot else {
+        let changed = {
+            let mut i = d.inner.lock().unwrap();
+            let changed = !i.perch_hidden;
+            i.perch_hidden = true; i.ignoring = Some(true);
+            changed
+        };
+        if changed {
+            if let Some(win) = window(app) {
+                let _ = win.set_ignore_cursor_events(true);
+                // Preserve the logical seat and lifecycle; only the native window is parked.
+                let _ = win.set_position(PhysicalPosition::new(PARKED.0 as i32, PARKED.1 as i32));
+            }
+            let _ = app.emit_to(LABEL, "desktop-visible", false);
+        }
+        return;
+    };
+    let (previous, was_hidden, old_lean) = {
+        let mut i = d.inner.lock().unwrap();
+        let before = (i.pos, i.perch_hidden, i.perch_lean);
+        i.perch_hidden = false;
+        if before.1 { i.asleep = false; }
+        before
+    };
+    let scale = side(app, d) / SIZE;
+    let lean = (-(spot.0 - previous.0) / scale * 0.008).clamp(-0.12, 0.12);
+    if was_hidden || spot != previous { place(app, d, spot); }
+    if was_hidden {
+        let _ = app.emit_to(LABEL, "desktop-visible", true);
+        refresh(app, d);
+    }
+    if was_hidden || (lean - old_lean).abs() > 0.002 {
+        d.inner.lock().unwrap().perch_lean = lean;
+        let _ = app.emit_to(LABEL, "desktop-perch", PerchState { perched: true, lean });
+    }
 }
 
 // ── Poll (Windows) ────────────────────────────────────────────────────────────
@@ -630,8 +721,16 @@ fn spawn_poll(app: AppHandle, d: Arc<Desktop>) {
     std::thread::spawn(move || loop {
         d.gate.wait_until_active();
         let mut last = (f64::MIN, f64::MIN);
+        let mut perch_due = std::time::Instant::now();
         while d.gate.is_active() {
-            std::thread::sleep(Duration::from_millis(TICK_MS));
+            let sleeping_perch = { let i = d.inner.lock().unwrap(); i.perch.is_some() && (i.asleep || i.perch_hidden) };
+            std::thread::sleep(Duration::from_millis(if sleeping_perch { 100 } else { TICK_MS }));
+            if std::time::Instant::now() >= perch_due {
+                update_perch(&app, &d);
+                let hidden = d.inner.lock().unwrap().perch_hidden;
+                perch_due = std::time::Instant::now() + Duration::from_millis(if hidden { 250 } else { 33 });
+            }
+            if d.inner.lock().unwrap().perch_hidden { continue; }
             let Some(win) = window(&app) else { continue };
             let Some((cx, cy)) = platform::cursor_physical() else { continue };
             let carry = d.inner.lock().unwrap().carry;
@@ -646,9 +745,10 @@ fn spawn_poll(app: AppHandle, d: Arc<Desktop>) {
                     // Released: hand the drop to the async pool, where the
                     // snap animation may wait.
                     d.inner.lock().unwrap().carry = None;
+                    let prefer_perch = crate::window_perch::modifier_down();
                     let app2 = app.clone();
                     let d2 = d.clone();
-                    tauri::async_runtime::spawn(async move { finish_drop(&app2, &d2, pos, c.from).await });
+                    tauri::async_runtime::spawn(async move { finish_drop(&app2, &d2, pos, c.from, prefer_perch).await });
                 }
                 continue;
             }
@@ -733,7 +833,7 @@ pub async fn desktop_mochi_carry_end(app: AppHandle, x: f64, y: f64) {
     let pos = from_island_client(&app, &d, x, y)
         .map(|c| (c.0 - s / 2.0, c.1 - s / 2.0))
         .unwrap_or_else(|| d.inner.lock().unwrap().pos);
-    finish_drop(&app, &d, pos, Source::Island).await;
+    finish_drop(&app, &d, pos, Source::Island, false).await;
 }
 
 /// The page saw a drag start on Mochi. Returns his top-left corner in the
@@ -748,6 +848,7 @@ pub async fn desktop_mochi_drag_begin(app: AppHandle) -> Option<(f64, f64)> {
         }
         i.pos
     };
+    detach_perch(&app, &d);
     // A drag takes over from a snap still settling him.
     d.flight.fetch_add(1, Ordering::SeqCst);
     match d.mode {
@@ -802,7 +903,7 @@ pub async fn desktop_mochi_drag_end(app: AppHandle, x: f64, y: f64) {
         }
     }
     place(&app, &d, (x, y));
-    finish_drop(&app, &d, (x, y), Source::Desktop).await;
+    finish_drop(&app, &d, (x, y), Source::Desktop, false).await;
 }
 
 /// Launch or the end of an alert: from the island to his spot. False when the
@@ -846,6 +947,7 @@ pub async fn desktop_mochi_fly_out(app: AppHandle, anywhere: Option<bool>) -> bo
 #[tauri::command]
 pub async fn desktop_mochi_fly_home(app: AppHandle, forget: bool) -> bool {
     let d = app.state::<Arc<Desktop>>().inner().clone();
+    if forget { detach_perch(&app, &d); }
     if !d.inner.lock().unwrap().shown {
         if forget {
             remember(&app, |p| p.on_desktop = false);

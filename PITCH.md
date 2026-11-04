@@ -8,6 +8,6 @@ Option-drag explicitly chooses this interaction. A normal drop keeps Coucou’s 
 
 This is independent from the room experiment, so either idea can be reviewed on its own.
 
-The browser demo passed 36 interaction checks across both projects and 16 additional checks for 3D rendering, reduced motion and fallback behavior. The visual 3D direction still needs a native renderer port; the included SwiftUI/AppKit integration is the earlier implementation. Native geometry tests pass in Swift. The AppKit integration still needs a full Mac build and review across Spaces, fullscreen windows, app switching and the existing approval-return lifecycle.
+The browser demo passed 36 interaction checks across both projects and 16 additional checks for 3D rendering, reduced motion and fallback behavior. The contribution now includes the shared offline 3D renderer in both the macOS app (WKWebView) and Windows app (Tauri), driven by real Coucou state. Native geometry tests pass in Swift. The Win32 integration includes Alt-drop, DPI-aware positioning and transient HWND/PID tracking. Full Xcode and Windows app builds and runtime checks still need to run using the included dual-platform CI workflow, especially virtual desktops, fullscreen, app switching and the existing approval-return lifecycle. The current GitHub connection cannot push the contribution (HTTP 403).
 
 Would you be interested in this direction for desktop Mochi?

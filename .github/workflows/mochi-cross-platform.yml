@@ -1,0 +1,101 @@
+name: Mochi macOS and Windows
+
+on:
+  pull_request:
+    paths: ['NotchBuddy/**', 'windows/**', 'shared/**', 'tests/**', 'scripts/**', '.github/workflows/mochi-cross-platform.yml']
+  push:
+    branches: ['concept/mochi-*', 'contrib/mochi-*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Native (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: windows/package-lock.json
+      - name: Shared renderer contract (both hosts)
+        run: node --test tests/mochi-scene.test.mjs
+      - name: Install frontend dependencies
+        working-directory: windows
+        run: npm ci
+      - name: Type check
+        working-directory: windows
+        run: npx tsc --noEmit
+      - name: Frontend regression tests
+        working-directory: windows
+        run: npm test
+      - name: Install XcodeGen
+        if: runner.os == 'macOS'
+        run: brew install xcodegen
+      - name: Native feature geometry
+        if: runner.os == 'macOS'
+        run: bash scripts/test-window-perch.sh
+      - name: Generate Mac project
+        if: runner.os == 'macOS'
+        working-directory: NotchBuddy
+        run: xcodegen generate
+      - name: Build Mac app (unsigned)
+        if: runner.os == 'macOS'
+        run: xcodebuild -project NotchBuddy/NotchBuddy.xcodeproj -scheme NotchBuddy -configuration Debug -destination 'platform=macOS' -derivedDataPath build/mac CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
+      - name: Package Mac review build
+        if: runner.os == 'macOS'
+        run: |
+          test -f build/mac/Build/Products/Debug/Coucou.app/Contents/Resources/mochi-scenes/runtime.js
+          node scripts/test-mochi-resources.mjs build/mac/Build/Products/Debug/Coucou.app/Contents/Resources/mochi-scenes
+          ditto -c -k --keepParent build/mac/Build/Products/Debug/Coucou.app Coucou-macOS-review.zip
+      - name: Build Windows relay
+        if: runner.os == 'Windows'
+        working-directory: windows
+        run: cargo build --release --locked -p coucou-hook
+      - name: Native Windows regression and feature tests
+        if: runner.os == 'Windows'
+        working-directory: windows
+        run: cargo test --workspace --locked
+      - name: Build Windows app (unsigned)
+        if: runner.os == 'Windows'
+        working-directory: windows
+        run: npx tauri build --debug --no-bundle
+      - name: Verify bundled Windows resources
+        if: runner.os == 'Windows'
+        working-directory: windows
+        run: node ../scripts/test-mochi-resources.mjs dist/mochi-scenes
+      - name: Package Windows review build
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $sourceHash = (Get-FileHash shared/mochi-scenes/runtime.js).Hash
+          $bundledHash = (Get-FileHash windows/dist/mochi-scenes/runtime.js).Hash
+          if ($sourceHash -ne $bundledHash) { throw 'Shared scene resource mismatch' }
+          New-Item -ItemType Directory -Path build/windows -Force
+          Copy-Item windows/target/debug/coucou.exe build/windows/Coucou.exe
+          Copy-Item windows/target/release/coucou-hook.exe build/windows/
+          Get-ChildItem windows/target/debug/*.dll -ErrorAction SilentlyContinue | Copy-Item -Destination build/windows/
+          Compress-Archive -Path build/windows/* -DestinationPath Coucou-Windows-review.zip
+      - name: Save review build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Coucou-${{ runner.os }}-review
+          path: Coucou-*-review.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  both-platforms:
+    name: Both native builds required
+    needs: native
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Both native build jobs succeeded. Review builds are unsigned.'

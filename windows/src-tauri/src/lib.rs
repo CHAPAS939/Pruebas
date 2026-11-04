@@ -9,6 +9,7 @@ mod cli_relay;
 mod codex_plan;
 mod config_file;
 mod desktop;
+mod window_perch;
 mod files;
 mod flow;
 mod github;

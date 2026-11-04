@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- **Visual study v2 (browser prototype)** — a live 3D diorama and sculpted Mochi, Manrope type, warm materials, responsive controls and WebGL fallback; the native renderer port remains pending.
+- **Mochi Perch on macOS and Windows** — integrate the shared offline 3D scene with real app state, preserve the Canvas/outfit fallback, suspend hidden rendering, and add dual-platform native build CI. Full native builds remain unverified.
+
+- **Visual study v2 (browser prototype)** — a live 3D diorama and sculpted Mochi, Manrope type, warm materials, responsive controls and WebGL fallback; a shared native-app renderer is now included, with native builds pending.
 
 - **Mochi on window edges (experimental, macOS)** — Option-drag to a window’s top edge to perch; follows geometry, adds swinging feet and movement lean, hides while minimized or without edge clearance, and detaches when the window closes. Ordinary context drops are unchanged.
 
