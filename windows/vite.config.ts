@@ -42,8 +42,35 @@ function sharedSounds(): Plugin {
   };
 }
 
+
+// The same offline scene resources are bundled by XcodeGen and Vite.
+export const SCENES_DIR = resolve(__dirname, "../shared/mochi-scenes");
+function sharedScenes(): Plugin {
+  const allowed = new Set(["index.html", "scene.css", "runtime.js", "three.min.js", "home.js", "perch.js", "THREE-LICENSE.txt"]);
+  return {
+    name: "coucou-shared-scenes",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (!req.url?.startsWith("/mochi-scenes/")) return next();
+        const name = req.url.slice("/mochi-scenes/".length).split("?")[0];
+        if (!allowed.has(name)) return next();
+        const file = join(SCENES_DIR, name);
+        if (!existsSync(file)) return next();
+        const mime = name.endsWith(".js") ? "text/javascript" : name.endsWith(".css") ? "text/css" : name.endsWith(".html") ? "text/html" : "text/plain";
+        res.setHeader("Content-Type", `${mime}; charset=utf-8`);
+        createReadStream(file).pipe(res);
+      });
+    },
+    closeBundle() {
+      const out = resolve(__dirname, "dist/mochi-scenes");
+      mkdirSync(out, { recursive: true });
+      for (const name of readdirSync(SCENES_DIR)) if (allowed.has(name)) copyFileSync(join(SCENES_DIR, name), join(out, name));
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [sharedSounds()],
+  plugins: [sharedSounds(), sharedScenes()],
   clearScreen: false,
   server: {
     port: 1420,

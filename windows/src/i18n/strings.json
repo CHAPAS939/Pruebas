@@ -2672,6 +2672,21 @@
    "ko": "사용자 지정…",
    "ja": "カスタム…"
   },
+  "Daylight": {
+   "zh-Hans": "日光",
+   "hi": "दिन की रोशनी",
+   "es": "Luz de día",
+   "ar": "ضوء النهار",
+   "fr": "Lumière du jour",
+   "bn": "দিনের আলো",
+   "pt-BR": "Luz do dia",
+   "ru": "Дневной свет",
+   "id": "Cahaya siang",
+   "de": "Tageslicht",
+   "tr": "Gün ışığı",
+   "ko": "낮빛",
+   "ja": "昼の光"
+  },
   "DeepSeek key saved.": {
    "zh-Hans": "DeepSeek 密钥已保存。",
    "hi": "DeepSeek कुंजी सहेजी गई।",
@@ -2821,6 +2836,21 @@
    "tr": "Dağıtımlar",
    "ko": "배포",
    "ja": "デプロイ"
+  },
+  "Desk lamp": {
+   "zh-Hans": "台灯",
+   "hi": "डेस्क लैंप",
+   "es": "Lámpara del escritorio",
+   "ar": "مصباح المكتب",
+   "fr": "Lampe de bureau",
+   "bn": "ডেস্ক ল্যাম্প",
+   "pt-BR": "Luminária de mesa",
+   "ru": "Настольная лампа",
+   "id": "Lampu meja",
+   "de": "Schreibtischlampe",
+   "tr": "Masa lambası",
+   "ko": "책상 램프",
+   "ja": "デスクライト"
   },
   "Dictate (right-click to choose the language)": {
    "zh-Hans": "听写（右键点按选择语言）",
@@ -3511,6 +3541,21 @@
    "tr": "Flow dikte",
    "ko": "Flow 받아쓰기",
    "ja": "Flow 口述"
+  },
+  "Follow the time of day": {
+   "zh-Hans": "随一天的时间变化",
+   "hi": "दिन के समय के अनुसार",
+   "es": "Seguir la hora del día",
+   "ar": "حسب وقت اليوم",
+   "fr": "Suivre l’heure de la journée",
+   "bn": "দিনের সময় অনুযায়ী",
+   "pt-BR": "Acompanhar a hora do dia",
+   "ru": "По времени суток",
+   "id": "Ikuti waktu setempat",
+   "de": "Der Tageszeit folgen",
+   "tr": "Günün saatini izle",
+   "ko": "시간대에 맞추기",
+   "ja": "時間帯に合わせる"
   },
   "For a more natural voice, download a Premium voice: System Settings → Accessibility → Spoken Content → System Voice → Manage Voices. In English: Ava for a woman, Jamie for a man (British).": {
    "zh-Hans": "想要更自然的声音，请下载 Premium 语音：系统设置 → 辅助功能 → 朗读内容 → 系统语音 → 管理语音。英语：女声选 Ava，男声选 Jamie（英式）。",
@@ -5522,6 +5567,21 @@
    "ko": "모찌들의 사운드, 노치가 움직이는 방식이에요.",
    "ja": "Mochi、そのサウンド、ノッチの動作。"
   },
+  "Mochi’s room": {
+   "zh-Hans": "Mochi 的房间",
+   "hi": "Mochi का कमरा",
+   "es": "La habitación de Mochi",
+   "ar": "غرفة Mochi",
+   "fr": "La chambre de Mochi",
+   "bn": "Mochi-এর ঘর",
+   "pt-BR": "O quarto do Mochi",
+   "ru": "Комната Mochi",
+   "id": "Kamar Mochi",
+   "de": "Mochis Zimmer",
+   "tr": "Mochi’nin odası",
+   "ko": "Mochi의 방",
+   "ja": "Mochi の部屋"
+  },
   "Model": {
    "zh-Hans": "模型",
    "hi": "मॉडल",
@@ -5941,6 +6001,21 @@
    "tr": "Sonraki parça",
    "ko": "다음 곡",
    "ja": "次の曲"
+  },
+  "Night": {
+   "zh-Hans": "夜晚",
+   "hi": "रात",
+   "es": "Noche",
+   "ar": "ليل",
+   "fr": "Nuit",
+   "bn": "রাত",
+   "pt-BR": "Noite",
+   "ru": "Ночь",
+   "id": "Malam",
+   "de": "Nacht",
+   "tr": "Gece",
+   "ko": "밤",
+   "ja": "夜"
   },
   "No PDF found in that message": {
    "zh-Hans": "该邮件中没有 PDF",
@@ -7966,6 +8041,21 @@
    "tr": "Qwen anahtarı kaydedildi.",
    "ko": "Qwen 키 저장 완료!",
    "ja": "Qwen のキーを保存しました。"
+  },
+  "Rain at the window": {
+   "zh-Hans": "窗外下雨",
+   "hi": "खिड़की के बाहर बारिश",
+   "es": "Lluvia en la ventana",
+   "ar": "مطر خلف النافذة",
+   "fr": "Pluie à la fenêtre",
+   "bn": "জানালার বাইরে বৃষ্টি",
+   "pt-BR": "Chuva na janela",
+   "ru": "Дождь за окном",
+   "id": "Hujan di jendela",
+   "de": "Regen am Fenster",
+   "tr": "Pencerede yağmur",
+   "ko": "창밖의 비",
+   "ja": "窓の外の雨"
   },
   "Reads": {
    "zh-Hans": "读取",

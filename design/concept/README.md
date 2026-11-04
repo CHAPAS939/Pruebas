@@ -6,4 +6,4 @@ The 3D renderer is also supplied separately as `room-3d.js` for review. `visual-
 
 This is an interactive browser design study, with simulated agents and desktop windows. Reduced motion stops its animation loop; unsupported WebGL devices retain the illustrated/original character renderer. The character behaviors derive from Louis Raillé’s prototype.
 
-See `PROJECT.md` for the included native implementation and its verification limits. The new 3D treatment has not yet been ported into the macOS renderer.
+See `PROJECT.md` for the included native implementation and its verification limits. The shared 3D renderer is now integrated into macOS and Windows source; full native builds and runtime checks remain pending.

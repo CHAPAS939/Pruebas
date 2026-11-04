@@ -1248,7 +1248,7 @@ export class Island {
     const visible = p.opacity > 0 && !greetingActive && !this.uploadActive && !away;
     this.botCanvas.style.opacity = visible ? "1" : "0";
 
-    if (State.mode === "expanded" && State.view !== "uploading" && !greetingActive && !this.uploadActive && !away) {
+    if (State.mode === "expanded" && State.view !== "room" && State.view !== "uploading" && !greetingActive && !this.uploadActive && !away) {
       const d = p.diameter;
       const color = botGlowColor(State.effectiveState);
       this.botGlow.style.display = "block";
@@ -1395,7 +1395,7 @@ export class Island {
     for (const [name, view] of this.views) {
       const on = name === State.view;
       view.el.classList.toggle("on", on);
-      if (on) view.sync();
+      if (on || name === "room") view.sync();
     }
 
     // The chat is the only view with a text field, so it is the only time the

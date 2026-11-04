@@ -13,6 +13,9 @@ use std::sync::{Mutex, MutexGuard, PoisonError};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct Settings {
+    pub mochi_room_lighting: String,
+    pub mochi_room_rain: bool,
+    pub mochi_room_lamp: bool,
     pub sound_enabled: bool,
     pub sound_volume: f64,
     pub auto_close_interval: f64,
@@ -141,6 +144,9 @@ fn default_model() -> String {
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            mochi_room_lighting: "automatic".into(),
+            mochi_room_rain: true,
+            mochi_room_lamp: true,
             sound_enabled: true,
             sound_volume: 0.12,
             auto_close_interval: 15.0,

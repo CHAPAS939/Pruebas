@@ -8,6 +8,6 @@ The room is a separate destination behind a lamp icon. It doesn’t replace the 
 
 This is one of two independent experiments; the other lets Mochi sit on window edges. They can be reviewed separately.
 
-The browser demo passed 36 interaction checks across both projects and 16 additional checks for 3D rendering, reduced motion and fallback behavior. The visual 3D direction still needs a native renderer port; the included SwiftUI/AppKit integration is the earlier implementation. The contribution includes native SwiftUI source, local preferences and Swift logic tests. The full macOS app still needs to be built and checked on a Mac, especially alert transitions, screen locking and the return from desktop Mochi.
+The browser demo passed 36 interaction checks across both projects and 16 additional checks for 3D rendering, reduced motion and fallback behavior. The contribution now includes the shared offline 3D renderer in both the macOS app (WKWebView) and Windows app (Tauri), driven by real Coucou state. The contribution includes native SwiftUI source, local preferences and Swift logic tests. Full macOS and Windows builds still need to run in the included dual-platform CI workflow; the GitHub connection currently cannot push the contribution (HTTP 403). Runtime checks remain required on both systems, especially alert transitions, screen locking and the return from desktop Mochi.
 
 Would this fit the direction you want for Coucou?

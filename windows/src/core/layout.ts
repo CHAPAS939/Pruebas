@@ -24,6 +24,7 @@ export type IslandViewName =
   | "greeting"
   | "recap"
   | "wardrobe"
+  | "room"
   | "update"
   | "whatsNew";
 
@@ -94,6 +95,7 @@ export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   // day, longest session, permissions and questions, which the Mac card leaves
   // to the shared image.
   recap: { height: 184, botX: 62, botY: null, botDiameter: 58, agentMode: "column" },
+  room: { height: 300, botX: 0, botY: 0, botDiameter: 0, agentMode: "none" },
   wardrobe: { height: 160, botX: 68, botY: null, botDiameter: 58, agentMode: "none" },
   // New version: Mochi on the left, the version and Update now (Mac: .update).
   update: { height: 160, botX: 62, botY: null, botDiameter: 58, agentMode: "none" },

@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- **Visual study v2 (browser prototype)** — a live 3D diorama and sculpted Mochi, Manrope type, warm materials, responsive controls and WebGL fallback; the native renderer port remains pending.
+- **Mochi Home on macOS and Windows** — integrate the shared offline 3D scene with real app state, preserve the Canvas/outfit fallback, suspend hidden rendering, and add dual-platform native build CI. Full native builds remain unverified.
+
+- **Visual study v2 (browser prototype)** — a live 3D diorama and sculpted Mochi, Manrope type, warm materials, responsive controls and WebGL fallback; a shared native-app renderer is now included, with native builds pending.
 
 - **Mochi’s room (experimental, macOS)** — a separate lamp-tab destination with a code-drawn desk, plant and rainy window, local day/night/lamp preferences and reduced-motion support. Existing overview and approval layouts stay intact.
 

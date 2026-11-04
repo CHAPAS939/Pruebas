@@ -1,0 +1,25 @@
+[
+  {
+    "kind": "home",
+    "ready": true,
+    "canvas": 1,
+    "states": 5,
+    "pause": true,
+    "reducedMotion": true,
+    "externalRequests": [],
+    "errors": []
+  },
+  {
+    "kind": "perch",
+    "ready": true,
+    "canvas": 1,
+    "states": 5,
+    "pause": true,
+    "reducedMotion": true,
+    "externalRequests": [],
+    "errors": []
+  },
+  {
+    "noWebGLFallback": true
+  }
+]

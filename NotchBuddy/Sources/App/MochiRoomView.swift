@@ -41,30 +41,11 @@ struct MochiRoomView: View {
 
             // The island keeps inactive destinations mounted. Do not create a clock there.
             if active && state.mode == .expanded && !screenPaused {
-                TimelineView(.periodic(from: .now, by: reduceMotion ? 60 : 1.0 / 24.0)) { timeline in
+                TimelineView(.periodic(from: .now, by: 60)) { timeline in
                     let hour = Calendar.current.component(.hour, from: timeline.date)
                     let night = (MochiRoomLighting(rawValue: lighting) ?? .automatic).isNight(hour: hour)
-                    Canvas { context, size in
-                        let time = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
-                        var c = context
-                        c.scaleBy(x: size.width / 600, y: size.height / 176)
-                        MochiRoomDrawing.draw(in: &c, night: night, rain: rain, lamp: lamp, time: time)
-                        engine.setOutfit(state.resolvedOutfit, animated: !reduceMotion)
-                        if !reduceMotion { MochiFrameClock.advance(engine) }
-                        if !state.mochiOnDesktop {
-                            var bot = c
-                            bot.translateBy(x: 235, y: 54)
-                            let botSize = CGSize(width: 104, height: 104)
-                            engine.drawHandsBehind(context: bot, size: botSize)
-                            engine.drawOutfitBehind(context: bot, size: botSize)
-                            engine.draw(context: bot, size: botSize)
-                            engine.drawOutfitFront(context: bot, size: botSize)
-                            engine.drawHandsAndExtras(context: bot, size: botSize)
-                        }
-                        // Laptop is in front of Mochi, as on a real desk.
-                        MochiRoomDrawing.laptop(in: &c, night: night)
-                    }
-                    .accessibilityLabel(String(localized: "room.scene"))
+                    MochiRoomStage(state: state, engine: engine, night: night, rain: rain, lamp: lamp, reduceMotion: reduceMotion)
+                        .accessibilityLabel(String(localized: "room.scene"))
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 14))
             } else {
@@ -103,6 +84,57 @@ struct MochiRoomView: View {
         case .automatic: String(localized: "room.auto")
         case .day: String(localized: "room.day")
         case .night: String(localized: "room.night")
+        }
+    }
+}
+
+/// Real app state → shared offline WebGL scene; the Canvas preserves outfits and unsupported GPUs.
+private struct MochiRoomStage: View {
+    @ObservedObject var state: AppState
+    let engine: BotEngine
+    let night: Bool
+    let rain: Bool
+    let lamp: Bool
+    let reduceMotion: Bool
+    @State private var sceneReady = false
+
+    var body: some View {
+        let dressed = state.resolvedOutfit != .none
+        ZStack {
+            if !sceneReady || dressed { fallback }
+            if !dressed {
+                MochiSceneWebView(kind: .home,
+                    settings: MochiSceneSettings(state: state.effectiveState.rawValue,
+                        paused: false, reduceMotion: reduceMotion, night: night, rain: rain, lamp: lamp,
+                        character: !state.mochiOnDesktop),
+                    onReady: { sceneReady = $0 })
+                    .opacity(sceneReady ? 1 : 0)
+            }
+        }
+        .onChange(of: state.resolvedOutfit) { _, _ in sceneReady = false }
+    }
+
+    private var fallback: some View {
+        TimelineView(.periodic(from: .now, by: reduceMotion ? 60 : 1.0 / 24.0)) { timeline in
+            Canvas { context, size in
+                let time = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
+                var c = context
+                c.scaleBy(x: size.width / 600, y: size.height / 176)
+                MochiRoomDrawing.draw(in: &c, night: night, rain: rain, lamp: lamp, time: time)
+                engine.setOutfit(state.resolvedOutfit, animated: !reduceMotion)
+                if !reduceMotion { MochiFrameClock.advance(engine) }
+                if !state.mochiOnDesktop {
+                    var bot = c
+                    bot.translateBy(x: 235, y: 54)
+                    let botSize = CGSize(width: 104, height: 104)
+                    engine.drawHandsBehind(context: bot, size: botSize)
+                    engine.drawOutfitBehind(context: bot, size: botSize)
+                    engine.draw(context: bot, size: botSize)
+                    engine.drawOutfitFront(context: bot, size: botSize)
+                    engine.drawHandsAndExtras(context: bot, size: botSize)
+                }
+                MochiRoomDrawing.laptop(in: &c, night: night)
+            }
         }
     }
 }

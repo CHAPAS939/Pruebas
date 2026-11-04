@@ -98,6 +98,9 @@ export interface IntegrationInfo {
 }
 
 export interface Settings {
+  mochiRoomLighting: string;
+  mochiRoomRain: boolean;
+  mochiRoomLamp: boolean;
   soundEnabled: boolean;
   soundVolume: number;
   autoCloseInterval: number;
@@ -175,6 +178,9 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  mochiRoomLighting: "automatic",
+  mochiRoomRain: true,
+  mochiRoomLamp: true,
   soundEnabled: true,
   soundVolume: 0.12,
   autoCloseInterval: 15,

@@ -1,28 +1,22 @@
-# Mochi Home
+# Mochi Home · contribución para macOS y Windows
 
-Una pequeña habitación dentro del notch.
+Una habitación 3D para Mochi, con luz de día o de noche, lluvia y lámpara. Las preferencias se guardan en la configuración local de Coucou.
 
-Una vista propia para Mochi: escritorio, planta, ventana con lluvia, lámpara e iluminación de día o de noche.
+Contribución independiente sobre Coucou, base `74363634b037108393e450428e5f207515c2c29b`. Home y Perch permanecen en proyectos y ramas diferentes. Incluye código real de ambas apps; aún no es una versión binaria verificada en los dos sistemas.
 
-Este es un proyecto independiente basado en [Coucou](https://github.com/Louis-CFM/coucou), commit `74363634b037108393e450428e5f207515c2c29b`. La otra exploración se mantiene en una rama y una carpeta distintas. No es una versión oficial ni una aplicación macOS compilada.
+## Integración
 
-## Dirección visual v2
+En macOS usa SwiftUI/AppKit y un WKWebView local. En Windows se integra en la app Tauri existente. Ambos cargan la misma geometría y el mismo contrato de estado desde `shared/mochi-scenes/`; el dibujo original conserva los conjuntos de ropa y sirve como alternativa si falla WebGL.
 
-La demo de navegador se ha rehecho con geometría 3D generada en código, tipografía Manrope y una paleta de madera, lino y salvia. La habitación incorpora iluminación real, sombras, lluvia y una ligera respuesta al cursor. Mochi tiene volumen y expresiones en ambas demos. Se conservan la navegación por teclado, el movimiento reducido y un renderer alternativo para dispositivos sin WebGL.
+Los estados vienen de las sesiones reales de Coucou. No se usan agentes ni ventanas simulados en la integración. Los recursos están incluidos en la app: no hay CDN, descargas de código ni servicios añadidos. Three.js 0.170.0 se incluye con su licencia MIT para mantener un solo renderer en ambas plataformas. Es la única dependencia nueva de renderizado y no añade paquetes npm ni crates.
 
-Three.js 0.170.0 y los archivos de fuente están incluidos dentro del HTML; la demo no descarga librerías ni fuentes de terceros al abrirse. Sus licencias están en `design/concept/THIRD-PARTY-LICENSES.txt`.
+El renderer se crea al mostrarse, deja de programar cuadros cuando está oculto o pausado y muestra un cuadro estático con Reducir movimiento. Los mensajes contienen únicamente estado visual, preferencias y mirada; no contienen comandos, prompts, rutas ni credenciales. El iframe de Windows solo permite scripts y no recibe APIs de Tauri.
 
-La nueva dirección 3D corresponde a la demo web. La integración nativa incluida sigue siendo el punto de partida SwiftUI/AppKit anterior: llevar este acabado 3D al renderer nativo y comprobarlo con Xcode quedan pendientes. No se presenta la captura como una app macOS en ejecución.
+Abre la pestaña con la lámpara en la isla. Día, noche o reloj local, lluvia y lámpara son controles independientes.
 
-Validación visual v2: 36 comprobaciones de interacción y 16 de escena 3D, modo sin WebGL y suspensión del renderizado; capturas revisadas a 1440 px y 390 px. El renderer deja de dibujar al reducir movimiento o cerrar la habitación.
+## Compilar y probar
 
-## Probar la demo
-
-Abre `design/concept/index.html` en un navegador. Todo está incluido en un único HTML y no necesita servicios, claves ni instalación. Los estados del agente y las ventanas de la demo son simulados. Las preferencias visuales se guardan únicamente en el navegador.
-
-## Probar la integración en macOS
-
-Requiere macOS 15+, Xcode compatible con el proyecto y XcodeGen.
+macOS 15+, Xcode compatible y XcodeGen:
 
 ```sh
 cd NotchBuddy
@@ -30,27 +24,33 @@ xcodegen generate
 xcodebuild -scheme NotchBuddy -configuration Debug -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
 ```
 
-Abre la isla y pulsa el icono de la lámpara. Elige iluminación automática, día o noche; activa lluvia y lámpara. Abrir la habitación trae a Mochi de vuelta desde el escritorio. Las alertas conservan su flujo actual.
+Windows, con las herramientas de compilación requeridas por `windows/README.md`:
 
-## Validación realizada
+```sh
+cd windows
+npm ci
+cargo build --release --locked -p coucou-hook
+npm run tauri dev
+```
 
-- Demo: pruebas automatizadas de interacción en Chromium, capturas a 1440 px y 390 px, sin errores JavaScript ni peticiones de red externas.
-- Lógica nativa: compilada y ejecutada con Swift 6.0.3 en Linux. `bash scripts/test-mochi-room.sh` comprueba las horas límite de día/noche, las preferencias explícitas y los límites de la lluvia.
-- Regresión: pruebas existentes de `DesktopMochiLogic` ejecutadas con Foundation en Linux, omitiendo únicamente su importación de CoreGraphics en una copia temporal.
-- Sintaxis nativa: archivos nuevos y modificados analizados con el compilador Swift. Catálogo de localización validado con `python3 scripts/test-localization.py`.
-- Pendiente: compilación completa y ejecución de AppKit/SwiftUI con Xcode en macOS. Las capturas muestran la demo de navegador, no una app nativa en ejecución.
+Para generar la app de revisión: `npx tauri build --debug --no-bundle`. El workflow `.github/workflows/mochi-cross-platform.yml` compila macOS y Windows en una matriz, ejecuta las regresiones y guarda dos ZIP de revisión sin firmar. La comprobación final requiere que los dos sistemas pasen. No publica releases.
 
-## Revisión pendiente en un Mac
+## Validación realizada en este entorno Linux
 
-- Abrir y cerrar la habitación desde el notch y desde cada esquina.
-- Recibir una aprobación y una pregunta mientras la habitación está abierta.
-- Comprobar que no hay reloj de animación al cerrar o bloquear la pantalla.
-- Comprobar el regreso desde la mascota de escritorio, el vestuario y la opción Reducir movimiento.
+- TypeScript y Vite: compilación correcta en ambos proyectos; recursos compartidos comparados byte a byte con los incluidos en el build.
+- Regresiones existentes: Perch, 38 archivos de pruebas aprobados; Home, 37 aprobados inicialmente y el archivo de traducciones corregido después (33 pruebas aprobadas). Las 25 pruebas del ciclo de vida de escritorio también pasan en Home.
+- Pruebas nuevas: 5 del contrato compartido y 1 del adaptador de Windows por proyecto; 1 adicional de preferencias y límites día/noche en Home.
+- Escenas reales empaquetadas: comprobadas en Chromium dentro del iframe aislado, cinco estados, pausa, movimiento reducido y alternativa sin WebGL, sin peticiones externas ni errores. Las capturas de recursos no son capturas de la app nativa.
+- Swift: lógica de habitación compilada y ejecutada; análisis sintáctico de archivos nuevos y modificados; catálogo de traducciones validado.
 
-## Presentación
+## Pendiente antes de darlo por listo
 
-`PITCH.md` contiene una propuesta breve para Louis en inglés. Se entrega como borrador; no se ha enviado ningún mensaje, issue ni pull request.
+Los builds completos con Xcode y Windows todavía no se han ejecutado: este entorno es Linux. El workflow queda preparado, pero no se ha podido activar en GitHub con la conexión actual (escritura denegada, HTTP 403). No hay PR abierto ni instaladores verificados.
 
-## Créditos
+Revisar en ambos sistemas: transiciones de aprobación/preguntas y regreso al escritorio, conjuntos de ropa, movimiento reducido, bloqueo y suspensión de pantalla, clics transparentes y fallback de GPU.
 
-Código base, personaje y motor de Coucou: Louis Raillé y colaboradores. La demo reutiliza el renderer JavaScript del prototipo original, con sus créditos y licencias preservados. Código bajo `LICENSE`; nombre, personaje y recursos bajo `LICENSE-ASSETS.md`. Esta contribución se prepara para revisión del autor.
+## Demo y propuesta
+
+`design/concept/index.html` conserva la demo estética independiente. Sus agentes y ventanas son simulados. `PITCH.md` es un borrador para Louis; no se ha enviado.
+
+Código base, personaje y recursos de Coucou: Louis Raillé y colaboradores. Se preservan `LICENSE`, `LICENSE-ASSETS.md` y las licencias de terceros. Esta contribución se prepara para revisión del proyecto.
