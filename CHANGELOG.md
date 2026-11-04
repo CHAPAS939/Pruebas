@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Mochi on window edges (experimental, macOS)** — Option-drag to a window’s top edge to perch; follows geometry, adds swinging feet and movement lean, hides while minimized or without edge clearance, and detaches when the window closes. Ordinary context drops are unchanged.
+
 - **Android phone link (Mac)** — Coucou for Android can now pair with your Mac, the way it already does with Windows and Linux (Settings → Android phone, off by default). Scan the QR code on the same Wi-Fi, see your agent sessions, and allow or deny a permission request from the phone; Allow still needs the phone's fingerprint or screen lock. Optional switches show session details, let the phone answer Claude Code's questions and show your plan usage. Coucou listens on your local network only while the switch is on, the certificate and the pairing code stay in the Keychain, and nothing runs while it is off (GitHub build; not in the App Store build)
 
 ## Android 0.4.0 — Unreleased

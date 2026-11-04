@@ -1024,6 +1024,14 @@ final class IslandWindowController: NSWindowController {
                     return
                 }
 
+                // Explicit Option-drop perches; ordinary window-context drops are unchanged.
+                if NSEvent.modifierFlags.contains(.option),
+                   DesktopMochiController.shared.tryInstallPerched(ghostPanel: self.dragGhostPanel, at: mouse) {
+                    self.dragGhostPanel = nil
+                    self.hideDragGhost()
+                    return
+                }
+
                 #if !APPSTORE
                 let windowCtx = self.windowContextAtPoint(mouse)
                 let inNotchZone = self.window?.frame.contains(mouse) == true

@@ -14,6 +14,8 @@ final class DesktopBotViewState: ObservableObject {
     @Published var paused: Bool = false
     /// Mouse is over Mochi's body — drives hover scale animation.
     @Published var isHovered: Bool = false
+    @Published var isPerched = false
+    @Published var perchLean: Double = 0
     /// Bot center in the same coord space as AppState.mousePosition (DesktopSpace, y-down).
     /// Updated every poll frame; Canvas reads it inside TimelineView — @Published not needed.
     var lookOrigin: CGPoint = .zero
@@ -23,13 +25,14 @@ final class DesktopBotViewState: ObservableObject {
 
 /// Full Mochi character rendered inside the desktop floating panel.
 struct DesktopBotView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var appState: AppState
     /// Engine owned by DesktopMochiController; controller calls methods on it directly.
     let engine: BotEngine
     @ObservedObject var viewState: DesktopBotViewState
 
     var body: some View {
-        TimelineView(.animation(paused: viewState.paused)) { timeline in
+        TimelineView(.animation(minimumInterval: viewState.isSleeping ? 0.1 : 1.0 / 30.0, paused: viewState.paused)) { timeline in
             Canvas { ctx, size in
                 _ = timeline.date   // force redraw every tick (see BotCanvasView)
 
@@ -78,8 +81,25 @@ struct DesktopBotView: View {
                     engine.drawOutfitFront(context: c, size: size)
                 }
                 engine.drawHandsAndExtras(context: c, size: size)
+                if viewState.isPerched {
+                    // Two little feet extend over the edge. The original body stays intact.
+                    let t = reduceMotion || viewState.isSleeping ? 0 : timeline.date.timeIntervalSinceReferenceDate
+                    for side in [-1.0, 1.0] {
+                        let swing = sin(t * 2.4 + side) * (reduceMotion ? 0 : 2.0)
+                        let x = size.width * (0.5 + side * 0.12)
+                        let y = size.height * 0.76
+                        var leg = Path()
+                        leg.move(to: CGPoint(x: x, y: y))
+                        leg.addQuadCurve(to: CGPoint(x: x + swing, y: y + 11),
+                                         control: CGPoint(x: x + side * 2, y: y + 7))
+                        c.stroke(leg, with: .color(Color(hex: "#C4C5CA")),
+                                 style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                    }
+                }
             }
         }
+        .rotationEffect(.radians(reduceMotion ? 0 : viewState.perchLean))
+        .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.65), value: viewState.perchLean)
         .scaleEffect(viewState.isHovered ? 1.07 : 1.0)
         .animation(.spring(response: 0.25, dampingFraction: 0.6), value: viewState.isHovered)
         .onChange(of: appState.effectiveState) { _, newState in
@@ -103,9 +123,10 @@ struct DesktopBotView: View {
 ///   `retractForAlert()` (panel gone, flag stays true) → both nil → `launchFlyIfNeeded()`.
 /// - **User flies home**: double-click → `flyHome()` → full teardown.
 @MainActor
-final class DesktopMochiController {
+final class DesktopMochiController: NSObject {
     static let shared = DesktopMochiController()
-    private init() {
+    private override init() {
+        super.init()
         observeScreenSleep()
         observeScreenLock()
         observeAlerts()   // permanent — lives for the lifetime of the singleton
@@ -115,6 +136,68 @@ final class DesktopMochiController {
     private var engine: BotEngine?
     private var viewState: DesktopBotViewState?
     private var frameTimer: Timer?
+
+    private var perch: WindowPerchTarget?
+    private var nextPerchPoll = Date.distantPast
+    private var previousPerchFrame: CGRect?
+
+    /// Option-drop on a window's top edge explicitly chooses the new interaction.
+    /// A normal drop still attaches window context, exactly as on main.
+    func tryInstallPerched(ghostPanel: NSPanel?, at point: NSPoint) -> Bool {
+        guard phase == .home, panel == nil,
+              let window = WindowPerchReader.atTopEdge(point),
+              let origin = WindowPerchLogic.origin(frame: window.frame,
+                fraction: WindowPerchLogic.fraction(at: point, frame: window.frame),
+                panelSize: Self.panelSize, visibleFrames: NSScreen.screens.map(\.visibleFrame)) else { return false }
+        perch = WindowPerchTarget(windowID: window.id, ownerPID: window.pid,
+                                  horizontalFraction: WindowPerchLogic.fraction(at: point, frame: window.frame))
+        previousPerchFrame = window.frame
+        install(ghostPanel: ghostPanel, at: NSPoint(x: origin.x + Self.panelSize / 2, y: origin.y + Self.panelSize / 2))
+        return true
+    }
+
+    private func updatePerch() {
+        guard let target = perch, let p = panel else { return }
+        nextPerchPoll = Date.now.addingTimeInterval(0.1)
+        guard let window = WindowPerchReader.window(target.windowID), window.pid == target.ownerPID else {
+            // A closed window never strands Mochi invisibly or attaches him to a reused ID.
+            detachFromPerch()
+            return
+        }
+        let front = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        let ownerIsFront = front == target.ownerPID || front == ProcessInfo.processInfo.processIdentifier
+        let ownerTop = ownerIsFront ? WindowPerchReader.onScreenWindows().first(where: { $0.pid == target.ownerPID })?.id : nil
+        let origin = WindowPerchLogic.origin(frame: window.frame,
+            fraction: target.horizontalFraction, panelSize: Self.panelSize,
+            visibleFrames: NSScreen.screens.map(\.visibleFrame))
+        let visible = window.onScreen && ownerIsFront && ownerTop == target.windowID && origin != nil
+        p.alphaValue = visible ? 1 : 0
+        viewState?.paused = screenSleeping || !visible
+        if visible, let origin {
+            let delta = window.frame.minX - (previousPerchFrame?.minX ?? window.frame.minX)
+            viewState?.perchLean = WindowPerchLogic.lean(horizontalDelta: delta,
+                reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
+            p.setFrameOrigin(origin)
+        }
+        previousPerchFrame = window.frame
+    }
+
+    @objc private func detachFromPerch() {
+        perch = nil
+        previousPerchFrame = nil
+        viewState?.isPerched = false
+        viewState?.perchLean = 0
+        viewState?.paused = screenSleeping
+        if let p = panel {
+            p.alphaValue = 1
+            p.setFrameOrigin(clampToVisibleFrame(p.frame.origin))
+        }
+        persistPosition()
+    }
+
+    @objc private func openDesktopWardrobe() {
+        NotificationCenter.default.post(name: .openWardrobeFromDesktop, object: nil)
+    }
 
     // Alert state machine
     private var phase: DesktopPhase = .home
@@ -191,6 +274,7 @@ final class DesktopMochiController {
         let vs = DesktopBotViewState()
         vs.lookOrigin = lookOriginFor(panel: p)
         vs.paused = screenSleeping
+        vs.isPerched = perch != nil
         self.viewState = vs
 
         let hosting = NSHostingView(rootView:
@@ -275,6 +359,7 @@ final class DesktopMochiController {
         let vs = DesktopBotViewState()
         vs.lookOrigin = lookOriginFor(panel: p)
         vs.paused = screenSleeping
+        vs.isPerched = perch != nil
         self.viewState = vs
 
         let hosting = NSHostingView(rootView:
@@ -393,6 +478,8 @@ final class DesktopMochiController {
     }
 
     private func fullTearDown() {
+        perch = nil
+        previousPerchFrame = nil
         phase = .home
         cancellables.removeAll()
         pendingSlapWorkItem?.cancel()
@@ -527,13 +614,14 @@ final class DesktopMochiController {
 
     private func pollFrame() {
         guard let p = panel else { return }
+        if !isDragging && perch != nil && Date.now >= nextPerchPoll { updatePerch() }
         let mouse = NSEvent.mouseLocation
         let pf    = p.frame
         let local = CGPoint(x: mouse.x - pf.minX, y: mouse.y - pf.minY)
         let s     = DesktopMochiController.panelSize
 
         // Toggle click-through
-        let overBody   = DesktopMochiLogic.isOverBody(localPoint: local, panelSize: s)
+        let overBody   = p.alphaValue > 0.01 && DesktopMochiLogic.isOverBody(localPoint: local, panelSize: s)
         let needsMouse = overBody || isDragging
         if p.ignoresMouseEvents == needsMouse {
             p.ignoresMouseEvents = !needsMouse
@@ -585,6 +673,7 @@ final class DesktopMochiController {
                     let dist = hypot(m.x - self.dragMouseStart.x, m.y - self.dragMouseStart.y)
                     guard self.dragMouseStart != .zero, dist > 3 else { return }
                     self.isDragging = true
+                    if self.perch != nil { self.detachFromPerch() }
                 }
                 guard let p = self.panel else { return }
                 let dx = m.x - self.dragMouseStart.x
@@ -627,7 +716,20 @@ final class DesktopMochiController {
             guard let self else { return event }
             MainActor.assumeIsolated {
                 guard event.window === self.panel else { return }
-                NotificationCenter.default.post(name: .openWardrobeFromDesktop, object: nil)
+                let menu = NSMenu()
+                if self.perch != nil {
+                    let detach = NSMenuItem(title: String(localized: "perch.detach"), action: #selector(self.detachFromPerch), keyEquivalent: "")
+                    detach.target = self
+                    menu.addItem(detach)
+                    menu.addItem(.separator())
+                }
+                let wardrobe = NSMenuItem(title: String(localized: "Wardrobe"), action: #selector(self.openDesktopWardrobe), keyEquivalent: "")
+                wardrobe.target = self
+                menu.addItem(wardrobe)
+                let hint = NSMenuItem(title: String(localized: "perch.hint"), action: nil, keyEquivalent: "")
+                hint.isEnabled = false
+                menu.addItem(hint)
+                menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
             }
             return event
         }
@@ -653,6 +755,21 @@ final class DesktopMochiController {
 
         if inNotchZone {
             flyHome()
+            return
+        }
+
+        if NSEvent.modifierFlags.contains(.option),
+           let window = WindowPerchReader.atTopEdge(mouse),
+           let origin = WindowPerchLogic.origin(frame: window.frame,
+               fraction: WindowPerchLogic.fraction(at: mouse, frame: window.frame),
+               panelSize: Self.panelSize, visibleFrames: NSScreen.screens.map(\.visibleFrame)) {
+            perch = WindowPerchTarget(windowID: window.id, ownerPID: window.pid,
+                horizontalFraction: WindowPerchLogic.fraction(at: mouse, frame: window.frame))
+            previousPerchFrame = window.frame
+            viewState?.isPerched = true
+            panel?.setFrameOrigin(origin)
+            engine?.triggerEmote(.happy, duration: 0.6, silent: true)
+            persistPosition()
             return
         }
 
