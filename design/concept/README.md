@@ -1,7 +1,9 @@
-# Mochi Perch browser demo
+# Mochi Perch · visual study v2
 
-Open `index.html` directly or serve this directory with `python3 -m http.server 8080`.
+Open `index.html` directly, or serve this directory on localhost. The HTML is self-contained: Three.js 0.170.0 and Manrope font files are embedded, and there are no CDN requests. Keep `THIRD-PARTY-LICENSES.txt` with the contribution.
 
-This self-contained demo simulates agent states and (for Perch) desktop windows. It does not control other applications. The native integration is in `NotchBuddy/Sources/App/`; see `PROJECT.md` at the repository root for build instructions and verification limits.
+The 3D renderer is also supplied separately as `perch-3d.js` for review. `visual-v2.css` contains the art direction. The standalone page contains these same sources inline.
 
-The character engine is adapted from Louis Raillé’s `design/prototype/notch-buddy.html`. Keep `LICENSE` and `LICENSE-ASSETS.md` when sharing for contribution review.
+This is an interactive browser design study, with simulated agents and desktop windows. Reduced motion stops its animation loop; unsupported WebGL devices retain the illustrated/original character renderer. The character behaviors derive from Louis Raillé’s prototype.
+
+See `PROJECT.md` for the included native implementation and its verification limits. The new 3D treatment has not yet been ported into the macOS renderer.
