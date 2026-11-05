@@ -7,7 +7,7 @@ const IDS: [&str; 3] = ["cup", "cushion", "plant"];
 const SIDE: f64 = 92.0;
 const PARK: (i32,i32) = (-32000,-32000);
 #[derive(Default)]
-struct Objects { listening: Mutex<BTreeSet<String>>, spots: Mutex<BTreeMap<String,[i32;2]>>, revision: AtomicU64 }
+struct Objects { syncing: Mutex<()>, listening: Mutex<BTreeSet<String>>, spots: Mutex<BTreeMap<String,[i32;2]>>, revision: AtomicU64 }
 fn spots_path() -> std::path::PathBuf { crate::platform::config_dir().join("mochi-object-positions.json") }
 fn label(id: &str) -> String { format!("mochi-prop-{id}") }
 fn wanted(app: &AppHandle) -> Vec<String> {
@@ -39,6 +39,16 @@ pub fn setup(app: &AppHandle) {
     sync(app);
 }
 pub fn sync(app: &AppHandle) {
+    // WebView2 creation can deadlock inside a synchronous Tauri command.
+    // Serialize on a worker so rapid cosmetic updates never create duplicates.
+    let app=app.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let state=app.state::<Arc<Objects>>();
+        let _gate=state.syncing.lock().unwrap();
+        sync_now(&app);
+    });
+}
+fn sync_now(app: &AppHandle) {
     let list=wanted(app);
     for (index,id) in IDS.into_iter().enumerate() {
         let name=label(id);
