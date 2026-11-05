@@ -90,7 +90,7 @@ struct DesktopBotView: View {
                     engine.drawOutfitFront(context: c, size: size)
                 }
                 engine.drawHandsAndExtras(context: c, size: size)
-                if viewState.isPerched {
+                if viewState.isPerched && !viewState.isJumping {
                     // The grip stays on the same 76% contact line as the native tracker.
                     for side in [-1.0, 1.0] {
                         let hand = CGPoint(x: size.width * (0.5 + side * 0.24), y: size.height * 0.76)
@@ -157,6 +157,7 @@ final class DesktopMochiController: NSObject {
     private var frameTimer: Timer?
     private var jumpTimer: Timer?
     private var jumping = false
+    private var jumpDestination: (window: WindowPerchReader.Snapshot, fraction: CGFloat, origin: CGPoint)?
 
     private var perch: WindowPerchTarget?
     private var nextPerchPoll = Date.distantPast
@@ -215,7 +216,15 @@ final class DesktopMochiController: NSObject {
     }
 
     private func cancelJump() {
-        jumpTimer?.invalidate(); jumpTimer = nil; jumping = false; viewState?.isJumping = false
+        jumpTimer?.invalidate(); jumpTimer = nil; jumping = false; viewState?.isJumping = false; jumpDestination = nil
+    }
+
+    private func landJump() {
+        guard let destination = jumpDestination else { cancelJump(); return }
+        cancelJump()
+        perch = WindowPerchTarget(windowID: destination.window.id, ownerPID: destination.window.pid, horizontalFraction: destination.fraction)
+        previousPerchFrame = destination.window.frame; viewState?.isPerched = true
+        panel?.setFrameOrigin(destination.origin); updatePerch(); persistPosition()
     }
 
     @objc private func jumpToNextWindow() {
@@ -232,25 +241,21 @@ final class DesktopMochiController: NSObject {
         let from = panel.frame.origin
         let distance: (CGPoint) -> CGFloat = { pow($0.x-from.x,2)+pow($0.y-from.y,2) }
         guard let choice = choices.min(by: { distance($0.2)<distance($1.2) }) else { NSSound.beep(); return }
-        let land = { [weak self] in
-            guard let self else { return }
-            self.cancelJump()
-            self.perch = WindowPerchTarget(windowID: choice.0.id, ownerPID: choice.0.pid, horizontalFraction: choice.1)
-            self.previousPerchFrame = choice.0.frame; self.viewState?.isPerched = true
-            self.panel?.setFrameOrigin(choice.2); self.updatePerch(); self.persistPosition()
-        }
+        jumpDestination = (choice.0, choice.1, choice.2)
         viewState?.isPerched = true
-        if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion { land(); return }
+        if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion { landJump(); return }
         jumping = true; viewState?.isJumping = true
         let started = Date()
         let ceiling = NSScreen.screens.map { $0.visibleFrame.maxY }.max() ?? max(from.y,choice.2.y)+Self.panelSize
         let arc = max(0,min(70,ceiling-Self.panelSize-max(from.y,choice.2.y)))
-        let timer = Timer(timeInterval: 1.0/60, repeats: true) { [weak self] timer in
+        let timer = Timer(timeInterval: 1.0/60, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated {
-                guard let self, self.phase == .onDesktop, !self.screenSleeping, !self.isDragging, self.panel != nil else { timer.invalidate(); self?.cancelJump(); return }
+                guard let self else { return }
+                guard self.phase == .onDesktop, !self.screenSleeping, !self.isDragging, self.panel != nil,
+                      let destination = self.jumpDestination else { self.cancelJump(); return }
                 let t = Date().timeIntervalSince(started)/0.42
-                if t >= 1 { land() }
-                else { self.panel?.setFrameOrigin(WindowPerchLogic.jumpPoint(from: from, to: choice.2, progress: t, arc: arc)) }
+                if t >= 1 { self.landJump() }
+                else { self.panel?.setFrameOrigin(WindowPerchLogic.jumpPoint(from: from, to: destination.origin, progress: t, arc: arc)) }
             }
         }
         jumpTimer = timer; RunLoop.main.add(timer, forMode: .common)

@@ -253,7 +253,7 @@ class DesktopMochi {
     engine.applyDance(ctx, DRAW_W, PANEL_SIZE);
     engine.draw(ctx, DRAW_W, PANEL_SIZE);
     ctx.restore();
-    if (this.perched) {
+    if (this.perched && !this.jumping) {
       ctx.save(); ctx.strokeStyle = "#d0cfc9"; ctx.fillStyle = "#e5e2da"; ctx.lineWidth = 4; ctx.lineCap = "round";
       for (const side of [-1,1]) {
         const handX = DRAW_W / 2 + side * PANEL_SIZE * .24, edgeY = PANEL_SIZE * .76;
