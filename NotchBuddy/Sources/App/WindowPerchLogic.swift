@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 
 /// Quartz window IDs are transient: never persist a perch across launches.
 struct WindowPerchTarget {
