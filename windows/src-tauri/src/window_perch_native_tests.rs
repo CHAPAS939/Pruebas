@@ -7,7 +7,7 @@ use windows::core::w;
 use windows::Win32::Foundation::{HWND, LPARAM, RECT, WPARAM};
 use windows::Win32::UI::WindowsAndMessaging::{CreateWindowExW, DispatchMessageW,
     GetForegroundWindow, GetWindowRect, PeekMessageW, PostMessageW, SetWindowPos,
-    ShowWindow, TranslateMessage, HWND_TOP, MSG, PM_REMOVE, SW_HIDE, SW_MINIMIZE,
+    ShowWindow, TranslateMessage, HWND_TOPMOST, MSG, PM_REMOVE, SW_HIDE, SW_MINIMIZE,
     SW_SHOWNOACTIVATE, SWP_NOACTIVATE, SWP_SHOWWINDOW, WM_CLOSE, WS_EX_NOACTIVATE,
     WS_OVERLAPPEDWINDOW, WS_VISIBLE};
 
@@ -16,10 +16,11 @@ impl Drop for Fixture {
     fn drop(&mut self) { let _ = self.0.kill(); let _ = self.0.wait(); }
 }
 
-fn wait_for(check: impl Fn() -> bool) {
+fn wait_for(label: &str, check: impl Fn() -> bool) {
+    eprintln!("native window regression: {label}");
     let deadline = Instant::now() + Duration::from_secs(3);
     while !check() {
-        assert!(Instant::now() < deadline, "native fixture did not reach the expected window state");
+        assert!(Instant::now() < deadline, "native fixture did not reach state: {label}");
         std::thread::sleep(Duration::from_millis(20));
     }
 }
@@ -46,7 +47,7 @@ fn exposed_background_window_accepts_drop_and_tracks_visibility() {
     let cover = HWND(ids[1] as *mut _);
     // This is precisely the scenario the old foreground-only check rejected.
     assert_ne!(unsafe { GetForegroundWindow() }, handle);
-    wait_for(|| matches!(probe(target), Probe::Visible(_)));
+    wait_for("exposed inactive window is visible", || matches!(probe(target), Probe::Visible(_)));
     let Probe::Visible(frame) = probe(target) else { panic!("exposed inactive window is hidden") };
     let found = capture((frame.x + frame.w * 0.5, frame.y + 4.0), 1.0)
         .expect("Alt-drop could not select the exposed inactive window");
@@ -57,18 +58,18 @@ fn exposed_background_window_accepts_drop_and_tracks_visibility() {
     let mut rect = RECT::default();
     unsafe {
         GetWindowRect(handle, &mut rect).unwrap();
-        SetWindowPos(cover, Some(HWND_TOP), (rect.left + rect.right) / 2 - 80,
+        SetWindowPos(cover, Some(HWND_TOPMOST), (rect.left + rect.right) / 2 - 80,
             rect.top - 30, 200, 180, SWP_NOACTIVATE | SWP_SHOWWINDOW).unwrap();
     }
-    wait_for(|| matches!(probe(target), Probe::Hidden));
+    wait_for("covered contact is hidden", || matches!(probe(target), Probe::Hidden));
     unsafe { let _ = ShowWindow(cover, SW_HIDE); }
-    wait_for(|| matches!(probe(target), Probe::Visible(_)));
+    wait_for("uncovered contact is visible", || matches!(probe(target), Probe::Visible(_)));
     unsafe { let _ = ShowWindow(handle, SW_MINIMIZE); }
-    wait_for(|| matches!(probe(target), Probe::Hidden));
+    wait_for("minimized window is hidden", || matches!(probe(target), Probe::Hidden));
     unsafe { let _ = ShowWindow(handle, SW_SHOWNOACTIVATE); }
-    wait_for(|| matches!(probe(target), Probe::Visible(_)));
+    wait_for("restored window is visible", || matches!(probe(target), Probe::Visible(_)));
     unsafe { PostMessageW(Some(handle), WM_CLOSE, WPARAM(0), LPARAM(0)).unwrap(); }
-    wait_for(|| matches!(probe(target), Probe::Gone));
+    wait_for("closed window is gone", || matches!(probe(target), Probe::Gone));
 }
 
 /// A helper process, not a disabled assertion. Parent test owns its lifetime.
@@ -83,6 +84,11 @@ fn fixture_window_process() {
         let cover = CreateWindowExW(WS_EX_NOACTIVATE, w!("STATIC"), w!("Coucou perch test cover"),
             WS_OVERLAPPEDWINDOW | WS_VISIBLE, 20, 20, 400, 180,
             None, None, None, None).unwrap();
+        // Keep the fixture above the runner's console without taking its focus.
+        SetWindowPos(target, Some(HWND_TOPMOST), 260, 300, 620, 350,
+            SWP_NOACTIVATE | SWP_SHOWWINDOW).unwrap();
+        SetWindowPos(cover, Some(HWND_TOPMOST), 20, 20, 400, 180,
+            SWP_NOACTIVATE | SWP_SHOWWINDOW).unwrap();
         println!("COUCOU_PERCH_WINDOWS={},{}", target.0 as isize, cover.0 as isize);
         std::io::stdout().flush().unwrap();
         let mut message = MSG::default();
