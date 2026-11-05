@@ -12,16 +12,16 @@ function Invoke-Native {
 Push-Location $Root
 try {
     New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
-    Invoke-Native node @('--test', 'tests/mochi-scene.test.mjs')
+    Invoke-Native -File node -Arguments @('--test', 'tests/mochi-scene.test.mjs')
     Push-Location (Join-Path $Root 'windows')
     try {
-        if (-not $SkipInstall) { Invoke-Native npm.cmd @('ci') }
-        Invoke-Native npx.cmd @('tsc', '--noEmit')
-        Invoke-Native npm.cmd @('test')
-        Invoke-Native cargo @('build', '--release', '--locked', '-p', 'coucou-hook')
-        Invoke-Native cargo @('test', '--release', '--workspace', '--locked')
-        Invoke-Native npx.cmd @('tauri', 'build', '--bundles', 'nsis,msi')
-        Invoke-Native node @('../scripts/test-mochi-resources.mjs', 'dist/mochi-scenes')
+        if (-not $SkipInstall) { Invoke-Native -File npm.cmd -Arguments @('ci') }
+        Invoke-Native -File npx.cmd -Arguments @('tsc', '--noEmit')
+        Invoke-Native -File npm.cmd -Arguments @('test')
+        Invoke-Native -File cargo -Arguments @('build', '--release', '--locked', '-p', 'coucou-hook')
+        Invoke-Native -File cargo -Arguments @('test', '--release', '--workspace', '--locked')
+        Invoke-Native -File npx.cmd -Arguments @('tauri', 'build', '--bundles', 'nsis,msi')
+        Invoke-Native -File node -Arguments @('../scripts/test-mochi-resources.mjs', 'dist/mochi-scenes')
         foreach ($Kind in @('nsis', 'msi')) {
             $Suffix = if ($Kind -eq 'nsis') { '*-setup.exe' } else { '*.msi' }
             $Files = @(Get-ChildItem -Path "target/release/bundle/$Kind/$Suffix" -File)
@@ -36,6 +36,6 @@ try {
         Get-ChildItem target/release/*.dll -ErrorAction SilentlyContinue | Copy-Item -Destination $Portable -Force
         Compress-Archive -Path "$Portable/*" -DestinationPath (Join-Path $OutDir 'Coucou-Mochi-Windows-x64-portable.zip') -Force
     } finally { Pop-Location }
-    Invoke-Native node @('scripts/write-mochi-build-manifest.mjs', $OutDir, 'Windows', 'x64')
+    Invoke-Native -File node -Arguments @('scripts/write-mochi-build-manifest.mjs', $OutDir, 'Windows', 'x64')
     Get-ChildItem $OutDir -File | Format-Table Name, Length
 } finally { Pop-Location }
