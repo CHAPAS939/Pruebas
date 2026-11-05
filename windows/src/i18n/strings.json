@@ -2027,6 +2027,21 @@
    "ko": "색상",
    "ja": "色"
   },
+  "Color palette": {
+   "zh-Hans": "配色",
+   "hi": "रंग पैलेट",
+   "es": "Paleta de colores",
+   "ar": "لوحة الألوان",
+   "fr": "Palette de couleurs",
+   "bn": "রঙের প্যালেট",
+   "pt-BR": "Paleta de cores",
+   "ru": "Цветовая палитра",
+   "id": "Palet warna",
+   "de": "Farbpalette",
+   "tr": "Renk paleti",
+   "ko": "색상 팔레트",
+   "ja": "カラーパレット"
+  },
   "Coming soon": {
    "zh-Hans": "即将推出",
    "hi": "जल्द आ रहा है",
@@ -2686,6 +2701,21 @@
    "tr": "Gün ışığı",
    "ko": "낮빛",
    "ja": "昼の光"
+  },
+  "Decorate": {
+   "zh-Hans": "布置",
+   "hi": "सजाएँ",
+   "es": "Decorar",
+   "ar": "تزيين",
+   "fr": "Décorer",
+   "bn": "সাজান",
+   "pt-BR": "Decorar",
+   "ru": "Оформление",
+   "id": "Dekorasi",
+   "de": "Gestalten",
+   "tr": "Dekorasyon",
+   "ko": "꾸미기",
+   "ja": "模様替え"
   },
   "DeepSeek key saved.": {
    "zh-Hans": "DeepSeek 密钥已保存。",
@@ -3542,6 +3572,21 @@
    "ko": "Flow 받아쓰기",
    "ja": "Flow 口述"
   },
+  "Flower": {
+   "zh-Hans": "花朵",
+   "hi": "फूल",
+   "es": "Flor",
+   "ar": "زهرة",
+   "fr": "Fleur",
+   "bn": "ফুল",
+   "pt-BR": "Flor",
+   "ru": "Цветок",
+   "id": "Bunga",
+   "de": "Blume",
+   "tr": "Çiçek",
+   "ko": "꽃",
+   "ja": "お花"
+  },
   "Follow the time of day": {
    "zh-Hans": "随一天的时间变化",
    "hi": "दिन के समय के अनुसार",
@@ -3601,6 +3646,21 @@
    "tr": "Süresiz",
    "ko": "영구 보관",
    "ja": "無期限"
+  },
+  "Frog hat": {
+   "zh-Hans": "青蛙帽",
+   "hi": "मेंढक टोपी",
+   "es": "Gorro de rana",
+   "ar": "قبعة الضفدع",
+   "fr": "Bonnet grenouille",
+   "bn": "ব্যাঙের টুপি",
+   "pt-BR": "Chapéu de sapo",
+   "ru": "Шапка-лягушка",
+   "id": "Topi katak",
+   "de": "Froschmütze",
+   "tr": "Kurbağa şapka",
+   "ko": "개구리 모자",
+   "ja": "カエル帽子"
   },
   "From Open-Meteo for this city, only when you ask.": {
    "zh-Hans": "仅在你询问时，从 Open-Meteo 获取该城市的天气。",
@@ -3886,6 +3946,21 @@
    "tr": "İşlemci tam yükteyken terler, Mac ısındığında kızarır, bellek azaldığında şişer ve pil azaldığında uykusu gelir. Nedenini görmek için imleci Mochi'nin üzerine getir. Bilgiler yalnızca Mochi ekrandayken okunur; hiçbir şey Mac'inden dışarı çıkmaz.",
    "ko": "프로세서가 풀가동이면 땀을 뻘뻘, Mac이 뜨거우면 얼굴이 빨개지고, 메모리가 모자라면 빵빵하게 부풀고, 배터리가 부족하면 꾸벅꾸벅 졸아요. 모찌를 가리키면 이유를 알려 줘요. 모찌가 화면에 있을 때만 읽고, Mac 밖으로는 아무것도 안 나가요.",
    "ja": "プロセッサがフル稼働すると汗をかき、Mac が熱いと赤くなり、メモリが足りないとふくらみ、バッテリーが少ないと眠そうになります。Mochi を指すと理由がわかります。Mochi が画面にいる間だけ読み取り、何も Mac の外に出ません。"
+  },
+  "Headphones": {
+   "zh-Hans": "耳机",
+   "hi": "हेडफ़ोन",
+   "es": "Auriculares",
+   "ar": "سماعات الرأس",
+   "fr": "Casque audio",
+   "bn": "হেডফোন",
+   "pt-BR": "Fones de ouvido",
+   "ru": "Наушники",
+   "id": "Headphone",
+   "de": "Kopfhörer",
+   "tr": "Kulaklık",
+   "ko": "헤드폰",
+   "ja": "ヘッドホン"
   },
   "Heard, e.g. cloud code": {
    "zh-Hans": "听到的，例如 cloud code",
@@ -5461,6 +5536,21 @@
    "tr": "Mikrofon:",
    "ko": "마이크:",
    "ja": "マイク："
+  },
+  "Midnight": {
+   "zh-Hans": "午夜蓝",
+   "hi": "आधी रात",
+   "es": "Medianoche",
+   "ar": "منتصف الليل",
+   "fr": "Minuit",
+   "bn": "মধ্যরাত",
+   "pt-BR": "Meia-noite",
+   "ru": "Полночь",
+   "id": "Tengah malam",
+   "de": "Mitternacht",
+   "tr": "Gece yarısı",
+   "ko": "미드나이트",
+   "ja": "ミッドナイト"
   },
   "Missing recipient.": {
    "zh-Hans": "收件人缺失。",
@@ -7742,6 +7832,21 @@
    "ko": "요금제 사용량",
    "ja": "プランの使用状況"
   },
+  "Plant": {
+   "zh-Hans": "植物",
+   "hi": "पौधा",
+   "es": "Planta",
+   "ar": "نبات",
+   "fr": "Plante",
+   "bn": "গাছ",
+   "pt-BR": "Planta",
+   "ru": "Растение",
+   "id": "Tanaman",
+   "de": "Pflanze",
+   "tr": "Bitki",
+   "ko": "식물",
+   "ja": "植物"
+  },
   "Play": {
    "zh-Hans": "播放",
    "hi": "चलाएँ",
@@ -8597,6 +8702,21 @@
    "ko": "오른쪽 {0}",
    "ja": "右 {0}"
   },
+  "Rose": {
+   "zh-Hans": "玫瑰色",
+   "hi": "गुलाबी",
+   "es": "Rosa",
+   "ar": "وردي",
+   "fr": "Rose",
+   "bn": "গোলাপি",
+   "pt-BR": "Rosa",
+   "ru": "Розовый",
+   "id": "Mawar",
+   "de": "Rosé",
+   "tr": "Gül",
+   "ko": "로즈",
+   "ja": "ローズ"
+  },
   "Round glasses": {
    "zh-Hans": "圆框眼镜",
    "hi": "गोल चश्मा",
@@ -8611,6 +8731,21 @@
    "tr": "Yuvarlak gözlük",
    "ko": "동그란 안경",
    "ja": "丸メガネ"
+  },
+  "Rug": {
+   "zh-Hans": "地毯",
+   "hi": "गलीचा",
+   "es": "Alfombra",
+   "ar": "سجادة",
+   "fr": "Tapis",
+   "bn": "কার্পেট",
+   "pt-BR": "Tapete",
+   "ru": "Ковёр",
+   "id": "Karpet",
+   "de": "Teppich",
+   "tr": "Halı",
+   "ko": "러그",
+   "ja": "ラグ"
   },
   "Rules": {
    "zh-Hans": "规则",
@@ -8672,6 +8807,21 @@
    "ko": "세션",
    "ja": "セッション"
   },
+  "Sage": {
+   "zh-Hans": "鼠尾草绿",
+   "hi": "सेज हरा",
+   "es": "Salvia",
+   "ar": "أخضر المريمية",
+   "fr": "Sauge",
+   "bn": "ঋষি সবুজ",
+   "pt-BR": "Sálvia",
+   "ru": "Шалфей",
+   "id": "Hijau sage",
+   "de": "Salbei",
+   "tr": "Adaçayı",
+   "ko": "세이지",
+   "ja": "セージ"
+  },
   "Said by": {
    "zh-Hans": "说话人",
    "hi": "किसने कहा",
@@ -8686,6 +8836,21 @@
    "tr": "Konuşan",
    "ko": "말한 사람",
    "ja": "発言者"
+  },
+  "Sand": {
+   "zh-Hans": "沙色",
+   "hi": "रेतीला",
+   "es": "Arena",
+   "ar": "رملي",
+   "fr": "Sable",
+   "bn": "বালুরঙা",
+   "pt-BR": "Areia",
+   "ru": "Песочный",
+   "id": "Pasir",
+   "de": "Sand",
+   "tr": "Kum",
+   "ko": "모래",
+   "ja": "サンド"
   },
   "Santa hat": {
    "zh-Hans": "圣诞帽",

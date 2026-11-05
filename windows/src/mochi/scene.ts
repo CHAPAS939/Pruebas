@@ -2,6 +2,7 @@
 export interface SceneSettings {
   state: string; paused: boolean; reduceMotion: boolean;
   night?: boolean; rain?: boolean; lamp?: boolean; character?: boolean;
+  outfit?: string; theme?: string; plant?: boolean; rug?: boolean;
   perched?: boolean; emote?: string | null; lookX?: number; lookY?: number;
 }
 

@@ -93,7 +93,7 @@ export function buildWardrobe(actions: ViewActions): ViewHost {
       // The island drops the preview when the view closes: so does the hover.
       if (State.wardrobePreview == null) hovered = null;
       const current = parseOutfit(State.settings.mochiOutfit);
-      for (const [sel, { button }] of items) button.classList.toggle("on", sel === current);
+      for (const [sel, { button }] of items) { button.classList.toggle("on", sel === current); button.setAttribute("aria-pressed", String(sel === current)); }
       updateNote();
     },
   };

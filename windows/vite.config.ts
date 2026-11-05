@@ -46,7 +46,7 @@ function sharedSounds(): Plugin {
 // The same offline scene resources are bundled by XcodeGen and Vite.
 export const SCENES_DIR = resolve(__dirname, "../shared/mochi-scenes");
 function sharedScenes(): Plugin {
-  const allowed = new Set(["index.html", "scene.css", "runtime.js", "three.min.js", "home.js", "perch.js", "THREE-LICENSE.txt"]);
+  const allowed = new Set(["index.html", "scene.css", "runtime.js", "three.min.js", "home.js", "perch.js", "wardrobe.js", "THREE-LICENSE.txt"]);
   return {
     name: "coucou-shared-scenes",
     configureServer(server) {

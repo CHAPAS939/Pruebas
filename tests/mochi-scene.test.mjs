@@ -5,12 +5,12 @@ import vm from 'node:vm';
 
 const source = readFileSync(new URL('../shared/mochi-scenes/runtime.js', import.meta.url), 'utf8');
 function harness({ fails = false, native = false } = {}) {
-  const events = [], listeners = {}, documentListeners = {}, frames = new Map();
+  const events = [], listeners = {}, documentListeners = {}, canvasListeners = {}, frames = new Map();
   const counters = { mounted: 0, drawn: 0, resized: 0, disposed: 0, disconnected: 0 };
   let sequence = 0, loader;
   const parent = { postMessage: m => events.push(m) };
   const document = { hidden: false, documentElement: { dataset: {} },
-    getElementById: () => ({}), createElement: () => ({}),
+    getElementById: () => ({querySelector: () => ({addEventListener: (name, fn) => { canvasListeners[name] = fn; }})}), createElement: () => ({}),
     head: { appendChild: s => { loader = s; } },
     addEventListener: (name, fn) => { documentListeners[name] = fn; } };
   const window = { parent, addEventListener: (name, fn) => { listeners[name] = fn; } };
@@ -27,6 +27,7 @@ function harness({ fails = false, native = false } = {}) {
   });
   loader.onload();
   return { api: window.MochiScene, counters, events, frames,
+    loseContext() { canvasListeners.webglcontextlost({preventDefault() {}}); },
     hidden(value) { document.hidden = value; documentListeners.visibilitychange(); },
     message(settings, sender = parent) { listeners.message({ source: sender, data: { channel: 'coucou-mochi-scene', event: 'update', settings } }); },
     frame(time) { const callbacks = [...frames.values()]; frames.clear(); callbacks.forEach(fn => fn(time)); } };
@@ -70,4 +71,20 @@ test('sleeping scenes use a slower animation cadence', () => {
   const h = harness(); h.api.update({ state: 'sleeping', paused: false });
   const before = h.counters.drawn; h.frame(100); assert.equal(h.counters.drawn, before);
   h.frame(201); assert.equal(h.counters.drawn, before + 1);
+});
+
+test('losing the GPU context disposes the scene once and selects the fallback without retries', () => {
+  const h = harness(); h.api.update({paused:false, outfit:'frogHat', theme:'rose'});
+  h.loseContext(); h.loseContext(); h.api.update({paused:false, outfit:'headphones'});
+  assert.equal(h.frames.size, 0); assert.equal(h.counters.disposed, 1);
+  assert.equal(h.counters.mounted, 1); assert.equal(h.events.filter(e=>e.event==='fallback').length, 1);
+});
+test('saved room appearance and every wardrobe addition cross the bounded display contract', () => {
+  const h = harness();
+  for (const outfit of ['headphones','frogHat','flower','crown','none']) {
+    const v = h.api.normalize({outfit,theme:'sage',plant:false,rug:false});
+    assert.equal(v.outfit, outfit); assert.equal(v.theme,'sage'); assert.equal(v.plant,false); assert.equal(v.rug,false);
+  }
+  const bad = h.api.normalize({outfit:'../../secret',theme:'unknown'});
+  assert.equal(bad.outfit,'none'); assert.equal(bad.theme,'sand'); assert.equal(bad.plant,true); assert.equal(bad.rug,true);
 });

@@ -3,7 +3,9 @@
   "use strict";
   const states=new Set(["idle","working","thinking","searching","approval","question","error","finished","ratelimit","sleeping","dizzy"]);
   const emotes=new Set(["love","surprised","proud","wink","yawn","happy","annoyed"]);
-  const defaults=Object.freeze({state:"idle",emote:null,paused:true,reduceMotion:false,night:false,rain:true,lamp:true,character:true,perched:false,lookX:0,lookY:0});
+  const outfits=new Set(["none","partyHat","beanie","crown","sunglasses","roundGlasses","bow","scarf","witchHat","pumpkin","santaHat","bunnyEars","headphones","frogHat","flower"]);
+  const themes=new Set(["sand","sage","rose","midnight"]);
+  const defaults=Object.freeze({state:"idle",emote:null,paused:true,reduceMotion:false,night:false,rain:true,lamp:true,character:true,perched:false,lookX:0,lookY:0,outfit:"none",theme:"sand",plant:true,rug:true});
   let settings={...defaults},factory=null,instance=null,raf=0,last=0,disposed=false,failed=false,lastAnchor="",sizeDirty=true;
   const finite=(v)=>typeof v==="number"&&Number.isFinite(v)?Math.max(-1,Math.min(1,v)):0;
   function normalize(value){
@@ -11,7 +13,8 @@
     return {state:states.has(v.state)?v.state:"idle",emote:emotes.has(v.emote)?v.emote:null,
       paused:v.paused!==false,reduceMotion:v.reduceMotion===true,night:v.night===true,
       rain:v.rain!==false,lamp:v.lamp!==false,character:v.character!==false,perched:v.perched===true,
-      lookX:finite(v.lookX),lookY:finite(v.lookY)};
+      lookX:finite(v.lookX),lookY:finite(v.lookY),outfit:outfits.has(v.outfit)?v.outfit:"none",
+      theme:themes.has(v.theme)?v.theme:"sand",plant:v.plant!==false,rug:v.rug!==false};
   }
   function report(event,detail={}){
     const message={channel:"coucou-mochi-scene",event,...detail};
@@ -41,7 +44,12 @@
     stop();if(disposed||failed||settings.paused||document.hidden)return;
     if(!instance&&factory){
       try{
-        instance=factory(document.getElementById("stage"));
+        const stage=document.getElementById("stage");
+        instance=factory(stage);
+        stage.querySelector?.("canvas")?.addEventListener("webglcontextlost",event=>{
+          event.preventDefault();if(disposed||failed)return;
+          stop();instance?.dispose?.();instance=null;failed=true;report("fallback");
+        },{once:true});
         const observer=new ResizeObserver(()=>{sizeDirty=true;resume();});observer.observe(document.getElementById("stage"));
         const dispose=instance.dispose?.bind(instance);instance.dispose=()=>{observer.disconnect();dispose?.();};
         report("ready");

@@ -3606,3 +3606,29 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
 .mochi-room-controls button:focus-visible{outline:2px solid #a5b88d;outline-offset:1px}
 .mochi-room-stage{position:relative;flex:1;min-height:0;border-radius:14px;overflow:hidden;background:#e7dfd2}
 .mochi-room-stage>canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* Compact room studio: the wardrobe stays beside the scene at island size. */
+.mochi-room-content{display:flex;gap:8px;flex:1;min-height:0}
+.mochi-room-stage{min-width:0}
+.mochi-room-editor{width:156px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;overflow:auto;scrollbar-width:thin;padding:2px}
+.room-editor-switch{display:flex;gap:2px;background:#ffffff09;padding:3px;border-radius:9px}
+.room-editor-switch button{flex:1;padding:4px 2px;border:0;border-radius:6px;color:var(--dim);background:transparent;font-size:10px;cursor:pointer}
+.room-editor-switch button[aria-pressed=true]{color:var(--ink);background:#ffffff15}
+.room-caption{display:block;font-size:10px;color:var(--dim);margin-bottom:7px}
+.room-palettes{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.room-palette{display:flex;align-items:center;gap:5px;border:1px solid #ffffff12;border-radius:9px;padding:6px 4px;background:#ffffff05;color:var(--dim);font-size:10px;cursor:pointer}
+.room-palette i{width:15px;height:15px;border-radius:50%;box-shadow:inset 0 0 0 1px #ffffff30;flex-shrink:0}
+.room-palette[aria-pressed=true]{color:var(--ink);border-color:#becaa185;background:#a5b39718}
+.room-toggles{display:flex;gap:5px;margin-top:9px}
+.room-toggle{flex:1;border:1px solid #ffffff12;border-radius:8px;padding:5px;color:var(--dim);background:transparent;font-size:10px;cursor:pointer}
+.room-toggle[aria-pressed=true]{color:var(--ink);background:#ffffff12;border-color:#ffffff30}
+.mochi-room-editor button:focus-visible{outline:2px solid #becaa1;outline-offset:1px}
+.mochi-room-wardrobe{position:static;inset:auto;opacity:1;transform:none;pointer-events:auto;padding:0!important;min-height:0}
+.mochi-room-wardrobe>.card{padding:0;border:0;background:none;box-shadow:none}
+.mochi-room-wardrobe .wardrobe-stack{padding:0;gap:5px}
+.mochi-room-wardrobe .wardrobe-head{padding:0;min-height:14px}
+.mochi-room-wardrobe .wardrobe-title{display:none}
+.mochi-room-wardrobe .wardrobe-note{font-size:10px;max-width:148px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mochi-room-wardrobe .wardrobe-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0;overflow:visible}
+.mochi-room-wardrobe .wardrobe-item{width:32px;height:31px;min-width:0}
+.mochi-room-editor [hidden]{display:none!important}

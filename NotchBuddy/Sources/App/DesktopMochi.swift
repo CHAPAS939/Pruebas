@@ -35,7 +35,7 @@ struct DesktopBotView: View {
     @ObservedObject var viewState: DesktopBotViewState
 
     var body: some View {
-        let useScene = viewState.isPerched && appState.resolvedOutfit == .none
+        let useScene = viewState.isPerched
         ZStack {
         if !useScene || !sceneReady {
         TimelineView(.animation(minimumInterval: viewState.isSleeping ? 0.1 : 1.0 / 30.0, paused: viewState.paused)) { timeline in
@@ -88,18 +88,14 @@ struct DesktopBotView: View {
                 }
                 engine.drawHandsAndExtras(context: c, size: size)
                 if viewState.isPerched {
-                    // Two little feet extend over the edge. The original body stays intact.
-                    let t = reduceMotion || viewState.isSleeping ? 0 : timeline.date.timeIntervalSinceReferenceDate
+                    // The grip stays on the same 76% contact line as the native tracker.
                     for side in [-1.0, 1.0] {
-                        let swing = sin(t * 2.4 + side) * (reduceMotion ? 0 : 2.0)
-                        let x = size.width * (0.5 + side * 0.12)
-                        let y = size.height * 0.76
-                        var leg = Path()
-                        leg.move(to: CGPoint(x: x, y: y))
-                        leg.addQuadCurve(to: CGPoint(x: x + swing, y: y + 11),
-                                         control: CGPoint(x: x + side * 2, y: y + 7))
-                        c.stroke(leg, with: .color(Color(hex: "#C4C5CA")),
-                                 style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                        let hand = CGPoint(x: size.width * (0.5 + side * 0.24), y: size.height * 0.76)
+                        var arm = Path()
+                        arm.move(to: CGPoint(x: size.width * 0.5 + side * 26, y: size.height * 0.55))
+                        arm.addQuadCurve(to: hand, control: CGPoint(x: hand.x + side * 5, y: hand.y - 7))
+                        c.stroke(arm, with: .color(Color(hex: "#D0CFC9")), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                        c.fill(Path(ellipseIn: CGRect(x: hand.x-5, y: hand.y-3, width: 10, height: 6)), with: .color(Color(hex: "#E5E2DA")))
                     }
                 }
             }
@@ -111,7 +107,8 @@ struct DesktopBotView: View {
                     emote: viewState.sceneEmote,
                     paused: viewState.paused, reduceMotion: reduceMotion, perched: true,
                     lookX: Double(tanh((appState.mousePosition.x - viewState.lookOrigin.x) / 260)),
-                    lookY: Double(-tanh((appState.mousePosition.y - viewState.lookOrigin.y) / 200))),
+                    lookY: Double(-tanh((appState.mousePosition.y - viewState.lookOrigin.y) / 200)),
+                    outfit: appState.resolvedOutfit.rawValue),
                 onReady: { sceneReady = $0; viewState.sceneReady = $0 })
                 .opacity(sceneReady ? 1 : 0)
         }

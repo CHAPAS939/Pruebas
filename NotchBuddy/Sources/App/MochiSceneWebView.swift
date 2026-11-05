@@ -15,6 +15,10 @@ struct MochiSceneSettings: Encodable, Equatable {
     var perched = false
     var lookX: Double = 0
     var lookY: Double = 0
+    var outfit = "none"
+    var theme = "sand"
+    var plant = true
+    var rug = true
 }
 
 /// The exact same offline geometry is bundled by XcodeGen and by the Windows Vite build.

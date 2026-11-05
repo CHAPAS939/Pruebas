@@ -233,7 +233,7 @@ class DesktopMochi {
     engine.setDancing(this.snap.dancing && !this.asleep);
     engine.update(dt);
     this.syncScene();
-    if (this.scene.ready && this.perched && this.snap.outfit === "none") return;
+    if (this.scene.ready && this.perched) return;
     const dpr = this.dpr();
     // Dragged onto a monitor of another scale, the bitmap follows the ratio.
     if (this.canvas.width !== Math.round(PANEL_SIZE * dpr)) {
@@ -246,15 +246,25 @@ class DesktopMochi {
     engine.applyDance(ctx, DRAW_W, PANEL_SIZE);
     engine.draw(ctx, DRAW_W, PANEL_SIZE);
     ctx.restore();
+    if (this.perched) {
+      ctx.save(); ctx.strokeStyle = "#d0cfc9"; ctx.fillStyle = "#e5e2da"; ctx.lineWidth = 4; ctx.lineCap = "round";
+      for (const side of [-1,1]) {
+        const handX = DRAW_W / 2 + side * PANEL_SIZE * .24, edgeY = PANEL_SIZE * .76;
+        ctx.beginPath();ctx.moveTo(DRAW_W / 2 + side * 26, PANEL_SIZE * .55);
+        ctx.quadraticCurveTo(handX + side * 5, edgeY - 7, handX, edgeY);ctx.stroke();
+        ctx.beginPath();ctx.ellipse(handX, edgeY, 5, 3, 0, 0, Math.PI*2);ctx.fill();
+      }
+      ctx.restore();
+    }
   }
 
   private syncScene() {
-    const useScene = this.perched && this.snap.outfit === "none";
+    const useScene = this.perched;
     const eye = this.engine.eyeOverride;
     const emote = eye === "heart" ? "love" : eye === "happy" ? "happy" : eye === "line" ? "annoyed" : this.sceneEmote;
     this.scene.update({ state: this.asleep ? "sleeping" : this.snap.state, emote,
       paused: !this.visible || this.snap.paused || !useScene, reduceMotion: this.motion.matches,
-      perched: this.perched, lookX: this.engine.lookX, lookY: this.engine.lookY });
+      perched: this.perched, outfit: this.snap.outfit, lookX: this.engine.lookX, lookY: this.engine.lookY });
     const showing = useScene && this.scene.ready;
     this.scene.el.style.opacity = showing ? "1" : "0";
     this.canvas.style.visibility = showing ? "hidden" : "visible";

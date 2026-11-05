@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { roomIsNight, roomLighting } from '../src/mochi/room-logic.ts';
+import { roomIsNight, roomLighting, roomTheme } from '../src/mochi/room-logic.ts';
 import { DEFAULT_SETTINGS } from '../src/core/state.ts';
 
 test('room follows local time at dawn and dusk; explicit lighting takes precedence', () => {
@@ -10,4 +10,11 @@ test('room follows local time at dawn and dusk; explicit lighting takes preceden
   assert.equal(roomLighting('old-preference'), 'automatic');
   assert.equal(DEFAULT_SETTINGS.mochiRoomLighting, 'automatic');
   assert.equal(DEFAULT_SETTINGS.mochiRoomRain, true); assert.equal(DEFAULT_SETTINGS.mochiRoomLamp, true);
+});
+
+test('old or invalid room preferences retain a usable default without losing customization', () => {
+  for (const value of ['sand','sage','rose','midnight']) assert.equal(roomTheme(value),value);
+  for (const value of [null,undefined,{},'obsolete',true]) assert.equal(roomTheme(value),'sand');
+  assert.equal(DEFAULT_SETTINGS.mochiRoomTheme,'sand');
+  assert.equal(DEFAULT_SETTINGS.mochiRoomPlant,true); assert.equal(DEFAULT_SETTINGS.mochiRoomRug,true);
 });

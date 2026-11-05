@@ -18,18 +18,28 @@ window.MochiScene.register("perch",(host)=>{
     const sparkles=new T.Group();scene.add(sparkles);for(let i=0;i<4;i++){const s=new T.Mesh(new T.OctahedronGeometry(.035,0),new T.MeshBasicMaterial({color:'#c7a356'}));s.position.set(Math.sin(i*1.8)*.64,.56+(i%2)*.1,0);sparkles.add(s);}
     scene.add(new T.HemisphereLight('#fff9e6','#9ca88e',3));const key=new T.DirectionalLight('#fff5d9',4);key.position.set(-3,5,6);scene.add(key);const rim=new T.DirectionalLight('#dce7cc',2);rim.position.set(4,1,-2);scene.add(rim);
 
-    const feet=new T.Group();group.add(feet);
-    for(const side of [-1,1]){
-      const curve=new T.CatmullRomCurve3([new T.Vector3(side*.18,-.43,.15),new T.Vector3(side*.19,-.55,.17),new T.Vector3(side*.2,-.62,.23)]);
-      const foot=new T.Mesh(new T.TubeGeometry(curve,12,.036,10,false),bodyMaterial);feet.add(foot);
+    const wardrobe=window.createMochiWardrobe(T,group,()=>{},true);
+    const arms=new T.Group();scene.add(arms);
+    function positionArms(){
+      while(arms.children.length){const part=arms.children[0];part.geometry.dispose();arms.remove(part);}
+      group.updateMatrixWorld(true);camera.updateMatrixWorld(true);
+      const depth=new T.Vector3(0,0,.32).project(camera).z;
+      for(const side of [-1,1]){
+        // Projected tips stay exactly at 76% of the native panel: the real edge.
+        const tip=new T.Vector3(side*.48,-.52,depth).unproject(camera);
+        const shoulder=new T.Vector3(side*.53,-.12,.14).applyMatrix4(group.matrixWorld);
+        const elbow=shoulder.clone().lerp(tip,.60);elbow.x+=side*.06;
+        const limb=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([shoulder,elbow,tip]),16,.041,10,false),bodyMaterial);arms.add(limb);
+        const hand=new T.Mesh(new T.SphereGeometry(.075,20,12),bodyMaterial);hand.scale.set(1.22,.65,.8);hand.position.copy(tip);arms.add(hand);
+      }
     }
     let gaze=0,frames=0;
     function draw(time=0,settings){gaze=settings.lookX*.15;const quiet=settings.reduceMotion,t=quiet?0:time/1000,state=settings.state,love=settings.emote==='love',happy=state==='finished'||settings.emote==='happy'||settings.emote==='proud',sleeping=state==='sleeping'||settings.emote==='yawn';
-      group.position.y=quiet?0:Math.sin(t*(sleeping?1.4:1.9))*.01+(happy?Math.abs(Math.sin(t*4))*.12:0);group.rotation.y+=(.21+gaze-group.rotation.y)*.08;
+      group.position.y=quiet?0:Math.sin(t*(sleeping?1.4:1.9))*.006;wardrobe.wear(settings.outfit);arms.visible=settings.perched&&settings.character!==false;group.rotation.y+=(.21+gaze-group.rotation.y)*.08;
       const blink=quiet?1:(Math.sin(t*.83)>.996?.12:1);eyes.forEach((e,i)=>{e.visible=!happy&&!sleeping&&!love;e.scale.y=blink*(settings.emote==='wink'&&i===0?.12:settings.emote==='annoyed'?.18:settings.emote==='surprised'||state==='approval'?1.3:state==='error'?.25:1)});happyEyes.forEach(e=>e.visible=happy&&!love);sleepingEyes.forEach(e=>e.visible=sleeping&&!love);hearts.forEach(e=>e.visible=love);sparkles.visible=happy&&!quiet;sparkles.rotation.y=t*.2;
-      bodyMaterial.color.set(({working:'#d3e0e5',thinking:'#d9cee8',searching:'#ced6e9',approval:'#efd5a5',question:'#c4e1df',error:'#e6c4c1',finished:'#dde6cd',ratelimit:'#e4c8ae',sleeping:'#dbdcd4',dizzy:'#e6ccd8'})[state]||'#eeeae0');group.visible=settings.character!==false;feet.visible=settings.perched;feet.children.forEach((f,i)=>{f.rotation.z=quiet||sleeping?0:Math.sin(t*2.4+i)*.12;});renderer.render(scene,camera);frames++;
+      bodyMaterial.color.set(({working:'#d3e0e5',thinking:'#d9cee8',searching:'#ced6e9',approval:'#efd5a5',question:'#c4e1df',error:'#e6c4c1',finished:'#dde6cd',ratelimit:'#e4c8ae',sleeping:'#dbdcd4',dizzy:'#e6ccd8'})[state]||'#eeeae0');group.visible=settings.character!==false;if(settings.outfit==='pumpkin')bodyMaterial.color.set('#eab17d');host.dataset.outfit=settings.outfit;host.dataset.grip=String(arms.visible);renderer.render(scene,camera);frames++;
     }
 
-    function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);const a=w/h;camera.left=-.92*a;camera.right=.92*a;camera.updateProjectionMatrix();}
-    return {draw,resize,dispose(){scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});renderer.dispose();renderer.domElement.remove();}};
+    function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);const a=w/h;camera.left=-.92*a;camera.right=.92*a;camera.updateProjectionMatrix();positionArms();}
+    return {draw,resize,dispose(){wardrobe.dispose();scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});renderer.dispose();renderer.domElement.remove();}};
 });

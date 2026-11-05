@@ -41,7 +41,6 @@ window.MochiScene.register("home",(host)=>{
     const wallGeo=new T.ExtrudeGeometry(wallShape,{depth:.14,bevelEnabled:false,curveSegments:24});
     const backWall=new T.Mesh(wallGeo,palette.wall);backWall.position.z=-2.7;backWall.receiveShadow=true;backWall.castShadow=true;world.add(backWall);
     // Window pane, wooden frame, distant hills and a sun/moon, all behind the wall.
-    const frameGeo=new T.ExtrudeGeometry(roundedShape(ww+.2,wh+.2,wr+.1),{depth:.13,bevelEnabled:true,bevelSize:.035,bevelThickness:.035,bevelSegments:3,curveSegments:24});
     const inner=roundedShape(ww-.06,wh-.06,wr-.03);const ringShape=roundedShape(ww+.2,wh+.2,wr+.1);ringShape.holes.push(new T.Path(inner.getPoints(64)));
     const frame=new T.Mesh(new T.ExtrudeGeometry(ringShape,{depth:.14,bevelEnabled:false,curveSegments:24}),palette.wood);frame.position.set(wx,wy,-2.48);world.add(frame);
     const skyMaterial=new T.MeshBasicMaterial({color:'#c2d8d4'});
@@ -101,6 +100,7 @@ window.MochiScene.register("home",(host)=>{
     const clock=cylinder(.27,.27,.06,palette.wood,.16,3.7,-2.35);clock.rotation.x=Math.PI/2;
     const clockFace=new T.Mesh(new T.CircleGeometry(.235,40),palette.clock);clockFace.position.set(.16,3.7,-2.31);world.add(clockFace);
     rod([[.16,3.7,-2.3],[.16,3.84,-2.3]],.009,palette.woodDark);rod([[.16,3.7,-2.3],[.27,3.66,-2.3]],.009,palette.woodDark);
+    const plantStart=world.children.length;
     // Leafy friend in a terracotta pot.
     cylinder(.36,.25,.64,palette.terracotta,-2.8,.39,.76);cylinder(.38,.38,.1,mat('#cd9370'),-2.8,.72,.76);
     cylinder(.31,.31,.025,mat('#7f6245'),-2.8,.777,.76);
@@ -109,8 +109,9 @@ window.MochiScene.register("home",(host)=>{
       rod([[-2.8,.78,.76],[(x-2.8)/2,1.0,.76],[x,stemH+.75,z]],.013,palette.moss);
       const leaf=sphere(.31,i%2?palette.mint:palette.moss,x,stemH+.8,z,[.48,1,.17]);leaf.rotation.z=-Math.sin(a)*.65;leaf.rotation.y=a;
     }
+    const plantGroup=new T.Group();world.children.slice(plantStart).forEach(part=>plantGroup.add(part));world.add(plantGroup);
     // A soft cushion in the corner, with a book waiting on it.
-    box(1.1,.25,.9,mat('#a7ad8b'),2.7,.25,.78,.16);
+    const cushion=box(1.1,.25,.9,mat('#a7ad8b'),2.7,.25,.78,.16);
     const pillow=box(.7,.14,.6,mat('#cbd0b0'),2.72,.46,.76,.14);pillow.rotation.y=.13;
     box(.42,.06,.5,mat('#c19a7c'),2.72,.58,.72,.03);
     // Mochi: the squircle, eyes and rosy cheeks rendered as real geometry.
@@ -128,6 +129,25 @@ window.MochiScene.register("home",(host)=>{
     const hearts=[-1,1].map(side=>{const m=new T.Mesh(new T.ShapeGeometry(heartShape,16),new T.MeshBasicMaterial({color:'#d47784',side:T.DoubleSide}));m.position.set(side*.218,.015,.37);mochi.add(m);return m;});
     const sparkleGroup=new T.Group();mochi.add(sparkleGroup);
     for(let i=0;i<5;i++){const sp=new T.Mesh(new T.OctahedronGeometry(.055,0),new T.MeshBasicMaterial({color:'#e1b66d'}));sp.position.set(Math.sin(i*1.27)*.83,.63+(i%2)*.2,.15);sparkleGroup.add(sp);}
+    // Accessories are real local geometry, cached only when tried on. They stay
+    // attached to Mochi during breathing and celebration; no renderer is replaced.
+    const wardrobe=window.createMochiWardrobe(T,mochi,()=>{renderer.shadowMap.needsUpdate=true;});
+    const themes={
+      sand:{wall:'#e9dfcf',side:'#dacebc',floor:'#c19f7e',accent:'#a5b397',rug:'#cbbda7',cushion:'#a5b397',bg:'#e9e1d5'},
+      sage:{wall:'#d2dcc8',side:'#bccbae',floor:'#b9a085',accent:'#8da283',rug:'#d9d1b8',cushion:'#859c7c',bg:'#e0e6d9'},
+      rose:{wall:'#ead5d2',side:'#d6bebb',floor:'#c4a18b',accent:'#bb9296',rug:'#ded0bd',cushion:'#c49a9c',bg:'#eee1dd'},
+      midnight:{wall:'#737e91',side:'#566275',floor:'#a88f7e',accent:'#c0a174',rug:'#abb2bf',cushion:'#8c9aaf',bg:'#cbd0d8'}
+    };let lastTheme='';
+    function decorate(settings){
+      const name=themes[settings.theme]?settings.theme:'sand',theme=themes[name];
+      if(lastTheme!==name){lastTheme=name;palette.wall.color.set(theme.wall);palette.wallSide.color.set(theme.side);palette.floor.color.set(theme.floor);palette.mint.color.set(theme.accent);rug.material.color.set(theme.rug);cushion.material.color.set(theme.cushion);pillow.material.color.set(theme.rug);renderer.shadowMap.needsUpdate=true;}
+      const showPlant=settings.plant!==false,showRug=settings.rug!==false;
+      if(plantGroup.visible!==showPlant||rug.visible!==showRug)renderer.shadowMap.needsUpdate=true;
+      plantGroup.visible=showPlant;rug.visible=showRug;rugLine.visible=showRug;
+      host.style.background=`radial-gradient(ellipse at 48% 20%,${settings.night?'#a1a6b1':'#fffaf0'},${theme.bg})`;
+      wardrobe.wear(settings.outfit);host.dataset.outfit=settings.outfit;host.dataset.theme=name;
+    }
+
     // Soft key light and a visible pool of warm light at night.
     const hemi=new T.HemisphereLight('#fff6e5','#b0937c',2.9);scene.add(hemi);
     const key=new T.DirectionalLight('#fff0d7',3.4);key.position.set(3,8,6);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-6;key.shadow.camera.right=6;key.shadow.camera.top=6;key.shadow.camera.bottom=-6;key.shadow.normalBias=.025;key.shadow.bias=-.001;key.shadow.radius=3;key.shadow.blurSamples=8;scene.add(key);
@@ -135,17 +155,17 @@ window.MochiScene.register("home",(host)=>{
     const moonLight=new T.PointLight('#a9b9c8',1.2,8);moonLight.position.set(2,3.4,-1.9);scene.add(moonLight);
     let targetRX=0,targetRY=0,lastLighting='',lastLamp=null,night=false,rendered=0;
     const anchor=new T.Vector3();
-    function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);const aspect=w/h;const zoom=w<540?6.25:4.35;camera.left=-zoom*aspect;camera.right=zoom*aspect;camera.top=zoom;camera.bottom=-zoom;camera.updateProjectionMatrix();}
+    function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);const aspect=w/h;const zoom=Math.max(3.8,5.8/aspect)*1.04;camera.left=-zoom*aspect;camera.right=zoom*aspect;camera.top=zoom;camera.bottom=-zoom;camera.updateProjectionMatrix();}
     function draw(time=0,settings=current){
-      current=settings;
+      current=settings;decorate(settings);
       const quiet=settings.reduceMotion;
       const now=quiet?0:time/1000;
       const wantsNight=settings.night,wantsLamp=settings.lamp;
       if(lastLighting!==String(wantsNight)||lastLamp!==wantsLamp){
         night=wantsNight;lastLighting=String(night);lastLamp=wantsLamp;
         skyMaterial.color.set(night?'#53647d':'#c8dcdb');hillMaterial.color.set(night?'#516975':'#9bac93');sun.material.color.set(night?'#f6e9c4':'#fff2ce');
-        hemi.intensity=night?.9:2.4;hemi.color.set(night?'#b9c2cd':'#fff6e5');key.intensity=night?1:3.1;key.color.set(night?'#f5ceab':'#fff0d7');fill.color.set(night?'#a6b6d4':'#e9e1da');fill.intensity=night?.6:1.2;
-        lampLight.intensity=wantsLamp?(night?6:3):0;bulb.visible=wantsLamp;renderer.toneMappingExposure=night?1.08:1.4;renderer.shadowMap.needsUpdate=true;
+        hemi.intensity=night?.9:1.7;hemi.color.set(night?'#b9c2cd':'#fff6e5');key.intensity=night?1:2.4;key.color.set(night?'#f5ceab':'#fff0d7');fill.color.set(night?'#a6b6d4':'#e9e1da');fill.intensity=night?.6:.9;
+        lampLight.intensity=wantsLamp?(night?6:3):0;bulb.visible=wantsLamp;renderer.toneMappingExposure=night?1.0:1.08;renderer.shadowMap.needsUpdate=true;
         stars.forEach(s=>s.visible=night);
       }
       rain.visible=settings.rain;
@@ -159,6 +179,7 @@ window.MochiScene.register("home",(host)=>{
       eyes.forEach(e=>{e.visible=!happy&&!asleep&&!love;e.scale.y=blink*(state==='approval'?1.3:state==='error'?.25:1)});happyEyes.forEach(e=>e.visible=happy&&!love);sleepyEyes.forEach(e=>e.visible=asleep&&!love);hearts.forEach(e=>e.visible=love);
       sparkleGroup.visible=happy&&!quiet;sparkleGroup.rotation.y=now*.25;
       bodyMaterial.color.set(({working:'#d3e0e5',thinking:'#d9cee8',searching:'#ced6e9',approval:'#efd5a5',question:'#c4e1df',error:'#e6c4c1',finished:'#dde6cd',ratelimit:'#e4c8ae',sleeping:'#dbdcd4',dizzy:'#e6ccd8'})[state]||'#eeeae0');
+      if(settings.outfit==='pumpkin')bodyMaterial.color.set('#eab17d');
       world.rotation.y+=(targetRY-world.rotation.y)*.08;world.rotation.x+=(targetRX-world.rotation.x)*.08;
       mochi.visible=settings.character!==false;
       renderer.render(scene,camera);rendered++;
@@ -175,5 +196,5 @@ window.MochiScene.register("home",(host)=>{
       targetRX=-((event.clientY-r.top)/r.height-.5)*.035;
     });
     host.addEventListener("pointerleave",()=>{targetRX=targetRY=0;});
-    return {draw,resize,dispose(){scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material]){m.map?.dispose();m.dispose();}}});renderer.dispose();renderer.domElement.remove();}};
+    return {draw,resize,dispose(){wardrobe.dispose();scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material]){m.map?.dispose();m.dispose();}}});renderer.dispose();renderer.domElement.remove();}};
 });

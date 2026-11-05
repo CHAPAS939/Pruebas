@@ -1389,7 +1389,7 @@ export class Island {
     if (this.greetingShown && !greetingActive) this.greeting.leave();
     this.greetingShown = greetingActive;
     // A wardrobe try-on never outlives the wardrobe.
-    if (State.wardrobePreview && !(expanded && State.view === "wardrobe")) State.wardrobePreview = null;
+    if (State.wardrobePreview && !(expanded && (State.view === "wardrobe" || State.view === "room"))) State.wardrobePreview = null;
 
     this.header.sync();
     for (const [name, view] of this.views) {

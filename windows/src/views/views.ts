@@ -869,7 +869,7 @@ export function buildViews(
   map.set("choose", buildChoose(actions));
   map.set("recap", buildRecap(actions));
   map.set("wardrobe", buildWardrobe(actions));
-  map.set("room", buildRoom());
+  map.set("room", buildRoom(actions));
   map.set("update", buildUpdate());
   map.set("whatsNew", buildWhatsNew());
   // Not in the Windows v1: sending a file by email, window attach + web result.

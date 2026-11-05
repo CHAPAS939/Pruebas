@@ -101,6 +101,9 @@ export interface Settings {
   mochiRoomLighting: string;
   mochiRoomRain: boolean;
   mochiRoomLamp: boolean;
+  mochiRoomTheme: string;
+  mochiRoomPlant: boolean;
+  mochiRoomRug: boolean;
   soundEnabled: boolean;
   soundVolume: number;
   autoCloseInterval: number;
@@ -181,6 +184,9 @@ export const DEFAULT_SETTINGS: Settings = {
   mochiRoomLighting: "automatic",
   mochiRoomRain: true,
   mochiRoomLamp: true,
+  mochiRoomTheme: "sand",
+  mochiRoomPlant: true,
+  mochiRoomRug: true,
   soundEnabled: true,
   soundVolume: 0.12,
   autoCloseInterval: 15,

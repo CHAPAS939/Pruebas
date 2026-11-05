@@ -16,6 +16,9 @@ pub struct Settings {
     pub mochi_room_lighting: String,
     pub mochi_room_rain: bool,
     pub mochi_room_lamp: bool,
+    pub mochi_room_theme: String,
+    pub mochi_room_plant: bool,
+    pub mochi_room_rug: bool,
     pub sound_enabled: bool,
     pub sound_volume: f64,
     pub auto_close_interval: f64,
@@ -147,6 +150,9 @@ impl Default for Settings {
             mochi_room_lighting: "automatic".into(),
             mochi_room_rain: true,
             mochi_room_lamp: true,
+            mochi_room_theme: "sand".into(),
+            mochi_room_plant: true,
+            mochi_room_rug: true,
             sound_enabled: true,
             sound_volume: 0.12,
             auto_close_interval: 15.0,
@@ -457,6 +463,9 @@ mod tests {
   "mochiRoomLighting": "night",
   "mochiRoomRain": false,
   "mochiRoomLamp": false,
+  "mochiRoomTheme": "rose",
+  "mochiRoomPlant": false,
+  "mochiRoomRug": false,
   "soundEnabled": false,
   "soundVolume": 0.5,
   "autoCloseInterval": 30.0,
@@ -591,6 +600,8 @@ mod tests {
         let loaded = parse(br#"{"soundEnabled":false,"mochiOutfit":"witchHat"}"#).unwrap();
         assert_eq!(loaded.mochi_room_lighting, "automatic");
         assert!(loaded.mochi_room_rain && loaded.mochi_room_lamp);
+        assert_eq!(loaded.mochi_room_theme, "sand");
+        assert!(loaded.mochi_room_plant && loaded.mochi_room_rug);
         assert!(!loaded.sound_enabled);
         assert_eq!(loaded.mochi_outfit, "witchHat");
     }
@@ -776,6 +787,9 @@ mod tests {
             ("mochiRoomLighting", json!(true)),
             ("mochiRoomRain", json!("yes")),
             ("mochiRoomLamp", json!(1)),
+            ("mochiRoomTheme", json!(false)),
+            ("mochiRoomPlant", json!("yes")),
+            ("mochiRoomRug", json!(1)),
             ("soundVolume", json!("loud")),
             ("soundEnabled", json!(1)),
             ("activeIntegrations", json!("integration_n8n")),
@@ -994,6 +1008,9 @@ mod tests {
                 "mochiRoomLighting",
                 "mochiRoomRain",
                 "mochiRoomLamp",
+                "mochiRoomTheme",
+                "mochiRoomPlant",
+                "mochiRoomRug",
                 "soundEnabled",
                 "soundVolume",
                 "autoCloseInterval",

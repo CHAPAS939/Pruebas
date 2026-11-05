@@ -98,6 +98,10 @@ enum MochiWardrobeTests {
             check("'\(removed)' stored → .auto", Outfit.stored == .auto)
         }
 
+        for outfit in [Outfit.headphones, .frogHat, .flower] {
+            Outfit.stored = outfit
+            check("new outfit survives stored preference", Outfit.stored == outfit)
+        }
         print("Outfit.stored unknown → auto")
         UserDefaults.standard.set("totallyUnknown", forKey: "mochiOutfit")
         check("unknown → .auto", Outfit.stored == .auto)
