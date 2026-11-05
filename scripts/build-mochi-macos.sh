@@ -21,7 +21,7 @@ xcodebuild -project NotchBuddy/NotchBuddy.xcodeproj -scheme NotchBuddy \
   CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
 APP="$DERIVED/Build/Products/Debug/Coucou.app"
 test -x "$APP/Contents/MacOS/Coucou"
-lipo -verify_arch arm64 x86_64 "$APP/Contents/MacOS/Coucou"
+lipo "$APP/Contents/MacOS/Coucou" -verify_arch arm64 x86_64
 node scripts/test-mochi-resources.mjs "$APP/Contents/Resources/mochi-scenes"
 test -f "$APP/Contents/Resources/mochi-scenes/home.js"
 test -f "$APP/Contents/Resources/mochi-scenes/perch.js"

@@ -24,9 +24,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - uses: actions/cache/restore@v4
+        id: xcode-cache
+        with:
+          path: build/mochi-xcode
+          key: mochi-xcode-${{ hashFiles('NotchBuddy/project.yml') }}-${{ github.sha }}
+          restore-keys: mochi-xcode-${{ hashFiles('NotchBuddy/project.yml') }}-
       - run: brew install xcodegen
       - name: Build and verify DMG
         run: bash scripts/build-mochi-macos.sh
+      - name: Keep native Mac build cache
+        if: ${{ always() && steps.xcode-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: build/mochi-xcode
+          key: ${{ steps.xcode-cache.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@v4
         with:
           name: Coucou-Mochi-macOS-universal
