@@ -37,4 +37,4 @@ En la habitación, **Decorar** permite elegir Arena, Salvia, Rosa o Medianoche y
 
 ## Estado
 
-Código integrado sobre `74363634b037108393e450428e5f207515c2c29b`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Los builds nativos y los instaladores de la revisión `d77866afa21d6ad146cb1e189b75dad76166ea9b` han terminado correctamente en ambas plataformas. El repositorio de Louis devuelve 403 para la conexión CHAPAS939; el usuario ha autorizado compilar en una rama nueva de `CHAPAS939/Pruebas`, conservando su rama principal.
+Código integrado sobre `74363634b037108393e450428e5f207515c2c29b`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Los builds nativos y los instaladores de la revisión `c9eeb21bd40a499baeacb8d57ae8fa796a7240ff` han terminado correctamente en ambas plataformas. El repositorio de Louis devuelve 403 para la conexión CHAPAS939; el usuario ha autorizado compilar en una rama nueva de `CHAPAS939/Pruebas`, conservando su rama principal.
