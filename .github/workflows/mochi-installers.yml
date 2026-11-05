@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: mochi-installers-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   macos:
