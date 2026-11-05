@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
+const studioSource = readFileSync(new URL('../shared/mochi-scenes/studio-data.js', import.meta.url), 'utf8');
 const source = readFileSync(new URL('../shared/mochi-scenes/runtime.js', import.meta.url), 'utf8');
 function harness({ fails = false, native = false } = {}) {
   const events = [], listeners = {}, documentListeners = {}, canvasListeners = {}, frames = new Map();
@@ -19,6 +20,7 @@ function harness({ fails = false, native = false } = {}) {
     performance: { now: () => 100 }, requestAnimationFrame: fn => { const id = ++sequence; frames.set(id, fn); return id; },
     cancelAnimationFrame: id => frames.delete(id),
     ResizeObserver: class { observe() {} disconnect() { counters.disconnected++; } } });
+  vm.runInContext(studioSource, context);window.MochiStudioData=context.MochiStudioData;
   vm.runInContext(source, context);
   window.MochiScene.register('home', () => {
     counters.mounted++; if (fails) throw new Error('WebGL unavailable');
@@ -108,4 +110,15 @@ test('detail zoom is bounded and defaults safely for both native hosts', () => {
   assert.equal(h.counters.mounted, 1);
   assert.equal(h.counters.drawn, drawn + 1);
   assert.equal(h.frames.size, 0);
+});
+
+test('body appearance, editing and photo state remain a bounded display-only contract',()=>{
+ const h=harness();const good=h.api.normalize({skin:'diamond',accent:'#AADDFF',portrait:true,transparent:true,photoPose:'love',editing:true,selected:'desk',layout:{desk:{x:999,z:-999,rotation:NaN}},objects:['bed','execute','console'],reaching:true,lean:5,cameraAngle:5,apiKey:'private'});
+ assert.equal(good.skin,'diamond');assert.equal(good.accent,'#aaddff');assert.equal(good.portrait,true);assert.equal(good.transparent,true);assert.equal(good.reaching,true);assert.equal(good.lean,.12);assert.equal(good.cameraAngle,.55);assert.deepEqual(Array.from(good.objects),['bed','console']);assert.equal(good.apiKey,undefined);
+ const bad=h.api.normalize({skin:'constructor',accent:'javascript:alert(1)',selected:'execute',photoPose:'execute'});assert.equal(bad.skin,'classic');assert.equal(bad.accent,'original');assert.equal(bad.selected,'desk');assert.equal(bad.photoPose,'idle');
+});
+
+test('new furniture activities survive the native-to-renderer boundary',()=>{
+ const h=harness();for(const activity of ['bed','console','bookshelf'])assert.equal(h.api.normalize({activity}).activity,activity);
+ assert.equal(h.api.normalize({activity:'execute'}).activity,'desk');
 });

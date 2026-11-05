@@ -29,6 +29,10 @@ struct MochiSceneSettings: Encodable, Equatable {
     var glasses = "none"
     var scarf = false
     var roomZoom: Double = 1
+    var skin = "classic"
+    var accent = "original"
+    var lean: Double = 0
+    var reaching = false
 }
 
 /// The exact same offline geometry is bundled by XcodeGen and by the Windows Vite build.

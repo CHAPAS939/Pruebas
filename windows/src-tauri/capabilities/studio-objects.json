@@ -1,0 +1,1 @@
+{"identifier":"mochi-studio-objects","description":"Dragging and putting away the three local room objects.","windows":["mochi-prop-cup","mochi-prop-cushion","mochi-prop-plant"],"permissions":["core:default","core:window:allow-start-dragging"]}

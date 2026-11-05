@@ -208,7 +208,6 @@ struct Carry {
     /// Cursor minus the window's top-left at pick-up, physical (Poll mode).
     grab: (f64, f64),
     from: Source,
-    perch_modifier: crate::window_perch::DropModifier,
 }
 
 #[derive(Default)]
@@ -600,6 +599,17 @@ fn target_spot(app: &AppHandle, d: &Desktop, anywhere: bool) -> Option<(f64, f64
     }
 }
 
+fn edge_candidate(app: &AppHandle, d: &Desktop, point: (f64,f64)) -> Option<(crate::window_perch::Target,(f64,f64),f64)> {
+    if d.mode != DesktopMode::Poll { return None; }
+    let all=displays(app,d);
+    let scale=logic::display_near(point,&all).map(|v|v.scale).unwrap_or(1.0);
+    let target=crate::window_perch::capture(point,scale)?;
+    let crate::window_perch::Probe::Visible(frame)=crate::window_perch::probe(target) else {return None};
+    let display=logic::display_near((frame.x+frame.w*target.fraction,frame.y+1.0),&all)?;
+    let spot=crate::window_perch::origin(frame,target.fraction,display.scale,display.work)?;
+    Some((target,spot,display.scale))
+}
+
 /// The drop, wherever it came from: home if it is over the island's panel,
 /// otherwise his new spot.
 async fn finish_drop(app: &AppHandle, d: &Desktop, pos: (f64, f64), from: Source, perch_at: Option<(f64, f64)>) {
@@ -608,15 +618,8 @@ async fn finish_drop(app: &AppHandle, d: &Desktop, pos: (f64, f64), from: Source
     let all = displays(app, d);
     // Use the release cursor, not the sprite center: its grab offset can
     // differ after crossing monitors with different DPI or grabbing off-center.
-    let candidate = if let Some(point) = perch_at.filter(|_| d.mode == DesktopMode::Poll) {
-        let scale = logic::display_near(point, &all).map(|v| v.scale).unwrap_or(1.0);
-        crate::window_perch::capture(point, scale).and_then(|target| {
-            if let crate::window_perch::Probe::Visible(frame) = crate::window_perch::probe(target) {
-                let display = logic::display_near((frame.x + frame.w * target.fraction, frame.y + 1.0), &all)?;
-                crate::window_perch::origin(frame, target.fraction, display.scale, display.work).map(|spot| (target, spot))
-            } else { None }
-        })
-    } else { None };
+    let candidate = perch_at.and_then(|point| edge_candidate(app,d,point)).map(|(target,spot,_)|(target,spot));
+    crate::mochi_objects::snap(app,None);
     let over_home = island_anchor(app, d)
         .map(|(cx, top, scale)| logic::home_zone(cx, top, scale).contains(center))
         .unwrap_or(false);
@@ -727,6 +730,8 @@ fn spawn_poll(app: AppHandle, d: Arc<Desktop>) {
         d.gate.wait_until_active();
         let mut last = (f64::MIN, f64::MIN);
         let mut perch_due = std::time::Instant::now();
+        let mut preview_due = std::time::Instant::now();
+        let mut reaching=false;
         while d.gate.is_active() {
             let sleeping_perch = { let i = d.inner.lock().unwrap(); i.perch.is_some() && (i.asleep || i.perch_hidden) };
             std::thread::sleep(Duration::from_millis(if sleeping_perch { 100 } else { TICK_MS }));
@@ -739,17 +744,17 @@ fn spawn_poll(app: AppHandle, d: Arc<Desktop>) {
             let Some(win) = window(&app) else { continue };
             let Some((cx, cy)) = platform::cursor_physical() else { continue };
             let now = std::time::Instant::now();
-            let carry = {
-                let mut i = d.inner.lock().unwrap();
-                if let Some(carry) = i.carry.as_mut() {
-                    carry.perch_modifier.sample(crate::window_perch::modifier_down(), now);
-                }
-                i.carry
-            };
+            let carry = d.inner.lock().unwrap().carry;
 
             if let Some(c) = carry {
                 let pos = (cx - c.grab.0, cy - c.grab.1);
                 if platform::left_button_down() {
+                    if now >= preview_due {
+                        preview_due=now+Duration::from_millis(50);
+                        let candidate=edge_candidate(&app,&d,(cx,cy));
+                        crate::mochi_objects::snap(&app,candidate.map(|(_,spot,scale)|((spot.0+60.0*scale,spot.1+91.2*scale),scale)));
+                        let next=candidate.is_some();if reaching!=next{reaching=next;let _=app.emit_to(LABEL,"desktop-reaching",reaching);}
+                    }
                     if pos != d.inner.lock().unwrap().pos {
                         place(&app, &d, pos);
                     }
@@ -757,13 +762,15 @@ fn spawn_poll(app: AppHandle, d: Arc<Desktop>) {
                     // Released: hand the drop to the async pool, where the
                     // snap animation may wait.
                     d.inner.lock().unwrap().carry = None;
-                    let perch_at = c.perch_modifier.requested(now).then_some((cx, cy));
+                    let perch_at = Some((cx, cy));
+                    crate::mochi_objects::snap(&app,None);
                     let app2 = app.clone();
                     let d2 = d.clone();
                     tauri::async_runtime::spawn(async move { finish_drop(&app2, &d2, pos, c.from, perch_at).await });
                 }
                 continue;
             }
+            if reaching { reaching=false;crate::mochi_objects::snap(&app,None);let _=app.emit_to(LABEL,"desktop-reaching",false);}
             // Between a release and the drop being settled, nothing to decide.
             if !d.inner.lock().unwrap().landed {
                 continue;
@@ -816,9 +823,7 @@ pub async fn desktop_mochi_pick_up(app: AppHandle, x: f64, y: f64) -> bool {
     };
     let Some(center) = center else { return false };
     d.flight.fetch_add(1, Ordering::SeqCst);
-    let mut modifier = crate::window_perch::DropModifier::default();
-    modifier.sample(crate::window_perch::modifier_down(), std::time::Instant::now());
-    d.inner.lock().unwrap().carry = Some(Carry { grab: (s / 2.0, s / 2.0), from: Source::Island, perch_modifier: modifier });
+    d.inner.lock().unwrap().carry = Some(Carry { grab: (s / 2.0, s / 2.0), from: Source::Island });
     show(&app, &d, (center.0 - s / 2.0, center.1 - s / 2.0));
     true
 }
@@ -871,9 +876,7 @@ pub async fn desktop_mochi_drag_begin(app: AppHandle) -> Option<(f64, f64)> {
             let (cx, cy) = platform::cursor_physical()?;
             let origin = win.outer_position().ok()?;
             let grab = (cx - origin.x as f64, cy - origin.y as f64);
-            let mut modifier = crate::window_perch::DropModifier::default();
-            modifier.sample(crate::window_perch::modifier_down(), std::time::Instant::now());
-            d.inner.lock().unwrap().carry = Some(Carry { grab, from: Source::Desktop, perch_modifier: modifier });
+            d.inner.lock().unwrap().carry = Some(Carry { grab, from: Source::Desktop });
             refresh(&app, &d);
         }
         DesktopMode::Layer => {

@@ -15,6 +15,7 @@ final class DesktopBotViewState: ObservableObject {
     /// Mouse is over Mochi's body — drives hover scale animation.
     @Published var isHovered: Bool = false
     @Published var isPerched = false
+    @Published var isReaching = false
     @Published var isJumping = false
     @Published var perchLean: Double = 0
     @Published var sceneEmote: String? = nil
@@ -31,6 +32,8 @@ struct DesktopBotView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("mochiOutfitGlasses") private var glasses = "none"
     @AppStorage("mochiOutfitScarf") private var scarf = false
+    @AppStorage("mochiSkin") private var skin = "classic"
+    @AppStorage("mochiAccent") private var accent = "original"
     @State private var sceneReady = false
     @ObservedObject var appState: AppState
     /// Engine owned by DesktopMochiController; controller calls methods on it directly.
@@ -38,7 +41,7 @@ struct DesktopBotView: View {
     @ObservedObject var viewState: DesktopBotViewState
 
     var body: some View {
-        let useScene = viewState.isPerched
+        let useScene = viewState.isPerched || viewState.isReaching
         ZStack {
         if !useScene || !sceneReady {
         TimelineView(.animation(minimumInterval: viewState.isSleeping ? 0.1 : 1.0 / 30.0, paused: viewState.paused)) { timeline in
@@ -49,6 +52,7 @@ struct DesktopBotView: View {
                 engine.lookX = tanh((appState.mousePosition.x - viewState.lookOrigin.x) / 260)
                 engine.lookY = -tanh((appState.mousePosition.y - viewState.lookOrigin.y) / 200)
                 engine.moodTarget = MachineVitals.shared.mood
+                engine.reaching = viewState.isReaching
 
                 // Desktop Mochi is always the "main" Mochi — always dressed
                 engine.setOutfit(appState.resolvedOutfit, animated: true)
@@ -111,13 +115,13 @@ struct DesktopBotView: View {
                     paused: viewState.paused, reduceMotion: reduceMotion, perched: !viewState.isJumping,
                     lookX: Double(tanh((appState.mousePosition.x - viewState.lookOrigin.x) / 260)),
                     lookY: Double(-tanh((appState.mousePosition.y - viewState.lookOrigin.y) / 200)),
-                    outfit: appState.resolvedOutfit.rawValue, glasses: glasses, scarf: scarf),
+                    outfit: appState.resolvedOutfit.rawValue, glasses: glasses, scarf: scarf, skin: skin, accent: accent, lean: viewState.perchLean, reaching: viewState.isReaching),
                 onReady: { sceneReady = $0; viewState.sceneReady = $0 })
                 .opacity(sceneReady ? 1 : 0)
         }
         }
         .onChange(of: useScene) { _, _ in sceneReady = false; viewState.sceneReady = false }
-        .rotationEffect(.radians(reduceMotion ? 0 : viewState.perchLean))
+        .rotationEffect(.radians(reduceMotion || sceneReady ? 0 : viewState.perchLean))
         .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.65), value: viewState.perchLean)
         .scaleEffect(viewState.isHovered ? 1.07 : 1.0)
         .animation(.spring(response: 0.25, dampingFraction: 0.6), value: viewState.isHovered)
@@ -161,10 +165,10 @@ final class DesktopMochiController: NSObject {
 
     private var perch: WindowPerchTarget?
     private var nextPerchPoll = Date.distantPast
+    private var nextEdgePreview = Date.distantPast
     private var previousPerchFrame: CGRect?
 
-    /// Option-drop on a window's top edge explicitly chooses the new interaction.
-    /// A normal drop still attaches window context, exactly as on main.
+    /// A drop near a valid window edge attaches without keyboard modifiers.
     func tryInstallPerched(ghostPanel: NSPanel?, at point: NSPoint) -> Bool {
         guard phase == .home, panel == nil,
               let window = WindowPerchReader.atTopEdge(point),
@@ -176,6 +180,22 @@ final class DesktopMochiController: NSObject {
         previousPerchFrame = window.frame
         install(ghostPanel: ghostPanel, at: NSPoint(x: origin.x + Self.panelSize / 2, y: origin.y + Self.panelSize / 2))
         return true
+    }
+
+    func previewEdge(at point: NSPoint) {
+        guard Date.now >= nextEdgePreview else { return }
+        nextEdgePreview = Date.now.addingTimeInterval(0.05)
+        if let window = WindowPerchReader.atTopEdge(point),
+           let origin = WindowPerchLogic.origin(frame:window.frame, fraction:WindowPerchLogic.fraction(at:point,frame:window.frame), panelSize:Self.panelSize, visibleFrames:NSScreen.screens.map(\.visibleFrame)) {
+            MochiDesktopPropsController.shared.snap(at:CGPoint(x:origin.x+Self.panelSize/2,y:window.frame.maxY))
+            if !AppState.shared.mochiEdgePreview { AppState.shared.mochiEdgePreview = true }
+            viewState?.isReaching = true
+        } else { clearEdgePreview() }
+    }
+    func clearEdgePreview() {
+        MochiDesktopPropsController.shared.snap(at:nil)
+        if AppState.shared.mochiEdgePreview { AppState.shared.mochiEdgePreview = false }
+        viewState?.isReaching = false
     }
 
     private func updatePerch() {
@@ -768,6 +788,7 @@ final class DesktopMochiController: NSObject {
                 let newOrigin = self.clampToVisibleFrame(
                     NSPoint(x: self.dragOriginAtStart.x + dx, y: self.dragOriginAtStart.y + dy))
                 p.setFrameOrigin(newOrigin)
+                self.previewEdge(at:m)
                 self.viewState?.lookOrigin = self.lookOriginFor(panel: p)
             }
             return event
@@ -841,16 +862,11 @@ final class DesktopMochiController: NSObject {
     }
 
     private func handleDragRelease(at mouse: NSPoint) {
+        clearEdgePreview()
         let islandController = (NSApp.delegate as? AppDelegate)?.islandController
         let inNotchZone = islandController?.window?.frame.contains(mouse) == true
 
-        if inNotchZone {
-            flyHome()
-            return
-        }
-
-        if NSEvent.modifierFlags.contains(.option),
-           let window = WindowPerchReader.atTopEdge(mouse),
+        if let window = WindowPerchReader.atTopEdge(mouse),
            let origin = WindowPerchLogic.origin(frame: window.frame,
                fraction: WindowPerchLogic.fraction(at: mouse, frame: window.frame),
                panelSize: Self.panelSize, visibleFrames: NSScreen.screens.map(\.visibleFrame)) {
@@ -863,6 +879,8 @@ final class DesktopMochiController: NSObject {
             persistPosition()
             return
         }
+
+        if inNotchZone { flyHome();return }
 
         #if !APPSTORE
         if let ctx = islandController?.windowContextAtPoint(mouse) {

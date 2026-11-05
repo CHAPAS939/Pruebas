@@ -1232,6 +1232,21 @@
    "ko": "앗, Claude 계정에 결제 문제가 있어요.",
    "ja": "Claude アカウントの請求に問題があります。"
   },
+  "Body appearance": {
+   "zh-Hans": "身体外观",
+   "hi": "शरीर का रूप",
+   "es": "Apariencia del cuerpo",
+   "ar": "مظهر الجسم",
+   "fr": "Apparence du corps",
+   "bn": "শরীরের চেহারা",
+   "pt-BR": "Aparência do corpo",
+   "ru": "Внешний вид тела",
+   "id": "Tampilan tubuh",
+   "de": "Körperdesign",
+   "tr": "Gövde görünümü",
+   "ko": "몸체 외형",
+   "ja": "ボディの外観"
+  },
   "Botanical": {
    "zh-Hans": "植物画",
    "hi": "वानस्पतिक",
@@ -1696,6 +1711,21 @@
    "tr": "Şehir",
    "ko": "도시",
    "ja": "都市"
+  },
+  "Classic": {
+   "zh-Hans": "经典",
+   "hi": "क्लासिक",
+   "es": "Clásico",
+   "ar": "كلاسيكي",
+   "fr": "Classique",
+   "bn": "ক্লাসিক",
+   "pt-BR": "Clássico",
+   "ru": "Классический",
+   "id": "Klasik",
+   "de": "Klassisch",
+   "tr": "Klasik",
+   "ko": "기본",
+   "ja": "クラシック"
   },
   "Classic token with repo scope, or fine-grained with read access to Pull requests, commit statuses, and Actions.": {
    "zh-Hans": "具有 repo 权限的经典令牌，或具有 Pull requests、Commit statuses 和 Actions 读取权限的细粒度令牌。",
@@ -3002,6 +3032,21 @@
    "ko": "책상 램프",
    "ja": "デスクライト"
   },
+  "Diamonds": {
+   "zh-Hans": "钻石",
+   "hi": "हीरे",
+   "es": "Diamantes",
+   "ar": "ألماس",
+   "fr": "Diamants",
+   "bn": "হীরা",
+   "pt-BR": "Diamantes",
+   "ru": "Бриллианты",
+   "id": "Berlian",
+   "de": "Diamanten",
+   "tr": "Elmaslar",
+   "ko": "다이아몬드",
+   "ja": "ダイヤモンド"
+  },
   "Dictate (right-click to choose the language)": {
    "zh-Hans": "听写（右键点按选择语言）",
    "hi": "डिक्टेट करें (भाषा चुनने के लिए राइट-क्लिक करें)",
@@ -3286,6 +3331,21 @@
    "tr": "Taslak",
    "ko": "초안",
    "ja": "下書き"
+  },
+  "Drag Mochi to a window’s top edge to attach automatically.": {
+   "zh-Hans": "将 Mochi 拖到窗口上沿，它就会自动抓住。",
+   "hi": "मोची को विंडो के ऊपरी किनारे तक खींचें, वह अपने आप पकड़ लेगा।",
+   "es": "Arrastra a Mochi al borde superior de una ventana para que se agarre automáticamente.",
+   "ar": "اسحب موتشي إلى الحافة العلوية للنافذة ليتعلق تلقائيًا.",
+   "fr": "Glissez Mochi vers le bord supérieur d’une fenêtre pour qu’il s’accroche automatiquement.",
+   "bn": "মোচিকে জানালার ওপরের প্রান্তে টেনে আনলে সে নিজেই ধরে থাকবে।",
+   "pt-BR": "Arraste Mochi até a borda superior de uma janela para ele se prender automaticamente.",
+   "ru": "Перетащите Моти к верхнему краю окна: он зацепится автоматически.",
+   "id": "Seret Mochi ke tepi atas jendela agar menempel otomatis.",
+   "de": "Ziehe Mochi an den oberen Fensterrand, damit er sich automatisch festhält.",
+   "tr": "Mochi’yi pencerenin üst kenarına sürükleyin; otomatik olarak tutunur.",
+   "ko": "모치를 창 위쪽 가장자리로 끌면 자동으로 매달립니다.",
+   "ja": "Mochiをウィンドウの上端にドラッグすると、自動でつかまります。"
   },
   "Drop a file named like one of Mochi's sounds (finish.wav, approval.mp3, greet.m4a…) in the sounds folder to replace it, then Reload.": {
    "zh-Hans": "在声音文件夹中放入与 Mochi 某个声音同名的文件（finish.wav、approval.mp3、greet.m4a…）即可替换它，然后重新载入。",
@@ -3827,6 +3887,21 @@
    "ko": "완전한 문장과 문단으로 깔끔하게. 메일 쓸 때 딱이에요.",
    "ja": "メール向けの、整った文と段落。"
   },
+  "Galaxy": {
+   "zh-Hans": "银河",
+   "hi": "आकाशगंगा",
+   "es": "Galaxia",
+   "ar": "مجرة",
+   "fr": "Galaxie",
+   "bn": "ছায়াপথ",
+   "pt-BR": "Galáxia",
+   "ru": "Галактика",
+   "id": "Galaksi",
+   "de": "Galaxie",
+   "tr": "Galaksi",
+   "ko": "은하",
+   "ja": "銀河"
+  },
   "Gamer": {
    "zh-Hans": "电竞",
    "hi": "गेमर",
@@ -4051,6 +4126,21 @@
    "tr": "Coucou aracısı üzerinden Apple'ın anlık bildirim servisine iletilir. Yalnızca ajan adı ve durumu gönderilir; proje adı, komut veya yol gönderilmez.",
    "ko": "Coucou 릴레이를 거쳐 Apple 푸시 서비스로 가요. 에이전트 이름과 상태만 보내고, 프로젝트 이름·명령·경로는 안 보내요.",
    "ja": "Coucou のリレー経由で Apple のプッシュサービスに送られます。送られるのはエージェント名と状態だけで、プロジェクト名、コマンド、パスは送られません。"
+  },
+  "Gold": {
+   "zh-Hans": "黄金",
+   "hi": "सोना",
+   "es": "Oro",
+   "ar": "ذهب",
+   "fr": "Or",
+   "bn": "সোনা",
+   "pt-BR": "Ouro",
+   "ru": "Золото",
+   "id": "Emas",
+   "de": "Gold",
+   "tr": "Altın",
+   "ko": "금",
+   "ja": "ゴールド"
   },
   "Google AI": {
    "zh-Hans": "Google AI",
@@ -4817,6 +4907,21 @@
    "ko": "연동",
    "ja": "連携"
   },
+  "Jelly": {
+   "zh-Hans": "果冻",
+   "hi": "जेली",
+   "es": "Gelatina",
+   "ar": "هلام",
+   "fr": "Gelée",
+   "bn": "জেলি",
+   "pt-BR": "Gelatina",
+   "ru": "Желе",
+   "id": "Jeli",
+   "de": "Gelee",
+   "tr": "Jöle",
+   "ko": "젤리",
+   "ja": "ゼリー"
+  },
   "Journal": {
    "zh-Hans": "记录",
    "hi": "लॉग",
@@ -5071,6 +5176,21 @@
    "tr": "Mac açılışında başlat",
    "ko": "Mac 시작 시 실행",
    "ja": "Mac の起動時に開く"
+  },
+  "Lava": {
+   "zh-Hans": "熔岩",
+   "hi": "लावा",
+   "es": "Lava",
+   "ar": "حمم",
+   "fr": "Lave",
+   "bn": "লাভা",
+   "pt-BR": "Lava",
+   "ru": "Лава",
+   "id": "Lava",
+   "de": "Lava",
+   "tr": "Lav",
+   "ko": "용암",
+   "ja": "溶岩"
   },
   "Leafy plant": {
    "zh-Hans": "绿植",
@@ -5791,6 +5911,21 @@
    "tr": "Alıcı eksik.",
    "ko": "받는 사람이 빠졌어요!",
    "ja": "宛先がありません。"
+  },
+  "Mochi Studio": {
+   "zh-Hans": "Mochi Studio",
+   "hi": "Mochi Studio",
+   "es": "Mochi Studio",
+   "ar": "Mochi Studio",
+   "fr": "Mochi Studio",
+   "bn": "Mochi Studio",
+   "pt-BR": "Mochi Studio",
+   "ru": "Mochi Studio",
+   "id": "Mochi Studio",
+   "de": "Mochi Studio",
+   "tr": "Mochi Studio",
+   "ko": "Mochi Studio",
+   "ja": "Mochi Studio"
   },
   "Mochi and your Mac": {
    "zh-Hans": "Mochi 和你的 Mac",
@@ -7112,6 +7247,21 @@
    "ko": "알겠어요, 그냥 둘게요",
    "ja": "わかりました、そのままにします"
   },
+  "Obsidian": {
+   "zh-Hans": "黑曜石",
+   "hi": "ओब्सीडियन",
+   "es": "Obsidiana",
+   "ar": "سبج",
+   "fr": "Obsidienne",
+   "bn": "অবসিডিয়ান",
+   "pt-BR": "Obsidiana",
+   "ru": "Обсидиан",
+   "id": "Obsidian",
+   "de": "Obsidian",
+   "tr": "Obsidyen",
+   "ko": "흑요석",
+   "ja": "黒曜石"
+  },
   "Off: the chat uses your API key below.": {
    "zh-Hans": "已关闭：聊天使用下方的 API 密钥。",
    "hi": "बंद: चैट नीचे दी गई आपकी API कुंजी का इस्तेमाल करती है।",
@@ -7261,6 +7411,21 @@
    "tr": "Yalnızca: {0}",
    "ko": "{0}만 표시",
    "ja": "{0} のみ"
+  },
+  "Opal": {
+   "zh-Hans": "欧泊",
+   "hi": "ओपल",
+   "es": "Ópalo",
+   "ar": "أوبال",
+   "fr": "Opale",
+   "bn": "ওপাল",
+   "pt-BR": "Opala",
+   "ru": "Опал",
+   "id": "Opal",
+   "de": "Opal",
+   "tr": "Opal",
+   "ko": "오팔",
+   "ja": "オパール"
   },
   "Open": {
    "zh-Hans": "打开",

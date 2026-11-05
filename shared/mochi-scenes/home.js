@@ -81,6 +81,7 @@ window.MochiScene.register("home",(host)=>{
     for(let row=0;row<3;row++)for(let col=0;col<9;col++)box(.065,.008,.038,mat('#95958b'),-.15+col*.076,1.763,.74+row*.055,.004);
     box(.27,.006,.12,mat('#a6a59b'),.22,1.764,1.0,.015);
     const laptopGroup=collect(laptopStart);
+    const deskDetailsStart=world.children.length;
     // Lamp: a warm, shaded pool of light on the desk.
     cylinder(.22,.25,.045,palette.mint,-1.16,1.74,.4);
     rod([[-1.16,1.76,.4],[-1.16,2.27,.4],[-.91,2.5,.4]],.025,palette.mint);
@@ -93,6 +94,7 @@ window.MochiScene.register("home",(host)=>{
     const handle=new T.Mesh(new T.TorusGeometry(.08,.023,10,24),palette.cream);handle.position.set(1.36,1.84,.89);world.add(handle);
     const steamMaterial=new T.MeshBasicMaterial({color:'#fff5e5',transparent:true,opacity:.28});
     const steams=[];for(let i=0;i<2;i++)steams.push(rod([[1.2+i*.06,2.01,.89],[1.17+i*.06,2.13,.89],[1.21+i*.06,2.25,.89]],.007,steamMaterial));
+    const deskDetails=collect(deskDetailsStart);world.updateMatrixWorld(true);deskDetails.attach(lampLight);
     const wallStart=world.children.length;
     // Shelf, books and a little framed botanical print.
     box(2.4,.11,.5,palette.wood,-1.5,2.97,-2.31,.04);
@@ -113,7 +115,7 @@ window.MochiScene.register("home",(host)=>{
     cylinder(.31,.31,.025,mat('#7f6245'),-2.8,.777,.76);
     for(let i=0;i<8;i++){
       const a=i*2.4,stemH=.7+(i%3)*.18,x=-2.8+Math.sin(a)*.42,z=.76+Math.cos(a)*.35;
-      rod([[-2.8,.78,.76],[(x-2.8)/2,1.0,.76],[x,stemH+.75,z]],.013,palette.moss);
+      rod([[-2.8,.78,.76],[(x-2.8)/2,1.0,(z+.76)/2],[x,stemH+.75,z]],.013,palette.moss);
       const leaf=sphere(.31,i%2?palette.mint:palette.moss,x,stemH+.8,z,[.48,1,.17]);leaf.rotation.z=-Math.sin(a)*.65;leaf.rotation.y=a;
     }
     const plantGroup=new T.Group();world.children.slice(plantStart).forEach(part=>plantGroup.add(part));world.add(plantGroup);
@@ -152,10 +154,16 @@ window.MochiScene.register("home",(host)=>{
       if(lastTheme!==name+'|'+settings.roomStyle){lastTheme=name+'|'+settings.roomStyle;palette.wall.color.set(theme.wall);palette.wallSide.color.set(theme.side);palette.floor.color.set(theme.floor);palette.mint.color.set(theme.accent);rug.material.color.set(theme.rug);cushion.material.color.set(theme.cushion);pillow.material.color.set(theme.rug);renderer.shadowMap.needsUpdate=true;}
 
 
-      wardrobe.wear(settings.outfit,settings.glasses,settings.scarf);host.dataset.outfit=settings.outfit;host.dataset.theme=name;host.dataset.glasses=settings.glasses;host.dataset.scarf=String(settings.scarf);
+      wardrobe.wear(settings.outfit,settings.glasses,settings.scarf,settings.accent);host.dataset.outfit=settings.outfit;host.dataset.theme=name;host.dataset.glasses=settings.glasses;host.dataset.scarf=String(settings.scarf);
     }
 
-    const studio=window.createRoomStudio(T,world,{wall:wallGroup,cushion:cushionGroup,laptop:laptopGroup,plant:plantGroup,rug,rugLine,desk:deskGroup,host,renderer},{box,sphere,cylinder,rod,mat,palette});
+    const appearance=window.createMochiAppearance(T,renderer,scene,body,bodyMaterial,eyeMat);
+    const studio=window.createRoomStudio(T,world,{wall:wallGroup,cushion:cushionGroup,laptop:laptopGroup,plant:plantGroup,rug,rugLine,desk:deskGroup,details:deskDetails,host,renderer},{box,sphere,cylinder,rod,mat,palette});
+    const editor=window.createRoomEditor(T,host,camera,world,studio.roots);
+    const diorama=new T.Group();world.children.filter(part=>part!==mochi).forEach(part=>diorama.add(part));world.add(diorama);
+    const gamepad=new T.Group();mochi.add(gamepad);box(.55,.18,.10,palette.black,0,-.29,.48,.08,gamepad);
+    for(const side of [-1,1])sphere(.04,palette.rose,side*.15,-.27,.55,[1,1,.3],gamepad);
+    const reading=new T.Group();mochi.add(reading);box(.48,.43,.055,palette.moss,0,-.22,.49,.02,reading);box(.012,.40,.01,palette.paper,0,-.22,.525,.002,reading);
     const watering=new T.Group();mochi.add(watering);
     cylinder(.13,.13,.24,palette.mint,-.71,-.09,.10,watering);
     rod([[-.80,.03,.10],[-.71,.14,.10],[-.60,.03,.10]],.018,palette.mint,watering);
@@ -169,9 +177,12 @@ window.MochiScene.register("home",(host)=>{
     const moonLight=new T.PointLight('#a9b9c8',1.2,8);moonLight.position.set(2,3.4,-1.9);scene.add(moonLight);
     let targetRX=0,targetRY=0,lastLighting='',lastLamp=null,night=false,rendered=0;
     const anchor=new T.Vector3();
-    function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);const aspect=w/h;const zoom=Math.max(3.8,5.8/aspect)*1.04;camera.left=-zoom*aspect;camera.right=zoom*aspect;camera.top=zoom;camera.bottom=-zoom;camera.updateProjectionMatrix();}
+    let renderAspect=1,capturing=false;
+    function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);renderer.setSize(w,h,false);renderAspect=w/h;}
     function draw(time=0,settings=current){
-      current=settings;decorate(settings);const room=studio.update(settings);
+      current=settings;decorate(settings);const layout=editor.update(settings),room=studio.update({...settings,layout});
+      diorama.visible=!settings.portrait;host.style.background=settings.portrait?(settings.transparent?'transparent':'radial-gradient(ellipse at 50% 25%,#fffaf0,#dcd5cc)'):room.background;
+      renderer.setClearColor('#eee8df',capturing&&!settings.transparent?1:0);
       const delta=Math.max(0,Math.min(.08,(time-lastTime)/1000));lastTime=time;
       const quiet=settings.reduceMotion;
       const now=quiet?0:time/1000;
@@ -186,48 +197,52 @@ window.MochiScene.register("home",(host)=>{
       rain.visible=settings.rain;
       drops.forEach((d,i)=>{d.position.y=wy-wh/2+.1+((i*.317+now*.72)%2.22)});
       steams.forEach((s,i)=>{s.rotation.z=Math.sin(now*1.1+i)*.035;steamMaterial.opacity=.22+Math.sin(now*.9)*.07});
-      const state=settings.state,love=settings.emote==='love';
-      const happy=state==='finished',asleep=state==='sleeping'||(state==='idle'&&settings.activity==='rest');
-      const activity=settings.activity==='plant'&&settings.plant===false?'desk':settings.activity||'desk';
+      const pose=settings.photoPose||'idle',state=pose==='sleeping'?'sleeping':pose==='happy'?'finished':settings.state,love=pose==='love'||settings.emote==='love';
+      const happy=state==='finished'||settings.activity==='console',asleep=state==='sleeping'||(state==='idle'&&['rest','bed'].includes(settings.activity));
+      const activity=(settings.activity==='plant'&&settings.plant===false)||(['bed','console','bookshelf'].includes(settings.activity)&&!settings.objects?.includes(settings.activity))?'desk':settings.activity||'desk';
       const seat=room.seats[activity]||room.seats.desk;
-      const blend=quiet?1:1-Math.exp(-delta*8);
+      const blend=quiet||settings.editing?1:1-Math.exp(-delta*8);
       mochi.position.x+=(seat[0]-mochi.position.x)*blend;mochi.position.z+=(seat[2]-mochi.position.z)*blend;
       const targetY=seat[1]+(quiet?0:Math.sin(now*(asleep?1.3:1.8))*(asleep?.012:.018))+(happy&&!quiet?Math.abs(Math.sin(now*3.7))*.12:0);
       if(Math.abs(seat[0]-mochi.position.x)+Math.abs(seat[2]-mochi.position.z)+Math.abs(targetY-mochi.position.y)>.04)renderer.shadowMap.needsUpdate=true;
       mochi.position.y+=(targetY-mochi.position.y)*blend;
-      mochi.rotation.y+=( (activity==='rest'?.20:.52)-mochi.rotation.y)*blend;
-      watering.visible=activity==='plant';watering.scale.x=room.plantPoint[0]>0?-1:1;waterDrops.forEach((drop,i)=>drop.position.y=-.09-((now*.6+i*.11)%.48));
+      mochi.rotation.y+=( ((activity==='rest'||activity==='bed'?.20:.52)+room.rotation(activity==='plant'?'plant':activity))-mochi.rotation.y)*blend;
+      gamepad.visible=activity==='console';reading.visible=activity==='bookshelf';watering.visible=activity==='plant';watering.scale.x=room.plantPoint[0]>0?-1:1;waterDrops.forEach((drop,i)=>drop.position.y=-.09-((now*.6+i*.11)%.48));
       host.dataset.activity=activity;host.dataset.roomStyle=settings.roomStyle||'cozy';
       mochi.rotation.z=happy&&!quiet?Math.sin(now*3.7)*.055:0;
       const blink=quiet?1:(Math.sin(now*.87)>0.995?.1:1);
-      eyes.forEach(e=>{e.visible=!happy&&!asleep&&!love;e.scale.y=blink*(state==='approval'?1.3:state==='error'?.25:1)});happyEyes.forEach(e=>e.visible=happy&&!love);sleepyEyes.forEach(e=>e.visible=asleep&&!love);hearts.forEach(e=>e.visible=love);
+      eyes.forEach((e,i)=>{e.visible=!happy&&!asleep&&!love;e.scale.y=blink*(pose==='wink'&&i===0?.12:state==='approval'?1.3:state==='error'?.25:1)});happyEyes.forEach(e=>e.visible=happy&&!love);sleepyEyes.forEach(e=>e.visible=asleep&&!love);hearts.forEach(e=>e.visible=love);
       sparkleGroup.visible=happy&&!quiet;sparkleGroup.rotation.y=now*.25;
       bodyMaterial.color.set(({working:'#d3e0e5',thinking:'#d9cee8',searching:'#ced6e9',approval:'#efd5a5',question:'#c4e1df',error:'#e6c4c1',finished:'#dde6cd',ratelimit:'#e4c8ae',sleeping:'#dbdcd4',dizzy:'#e6ccd8'})[state]||'#eeeae0');
       if(settings.outfit==='pumpkin')bodyMaterial.color.set('#eab17d');
-      world.rotation.y+=(targetRY-world.rotation.y)*.08;world.rotation.x+=(targetRX-world.rotation.x)*.08;
+      appearance.update(settings.skin,'#'+bodyMaterial.color.getHexString(),time,settings.reduceMotion);host.dataset.skin=settings.skin||'classic';
+      world.rotation.y=settings.editing?0:world.rotation.y+(targetRY-world.rotation.y)*.08;world.rotation.x=settings.editing?0:world.rotation.x+(targetRX-world.rotation.x)*.08;
       mochi.visible=settings.character!==false;
       // At detail magnification, frame the active spot instead of cropping Mochi off screen.
-      const magnification=settings.roomZoom||1,focus=magnification-1;
-      const cx=seat[0]*focus,cy=1.8+(seat[1]-.15-1.8)*focus,cz=seat[2]*focus;
-      camera.position.set(9+cx,7.4+cy-1.8,11+cz);camera.lookAt(cx,cy,cz);
-      camera.zoom=magnification;camera.updateProjectionMatrix();
+      const magnification=settings.roomZoom||1,portrait=settings.portrait,focus=portrait?1:magnification-1;
+      const cx=seat[0]*focus,cy=portrait?seat[1]+.25:1.8+(seat[1]-.15-1.8)*focus,cz=seat[2]*focus,angle=settings.cameraAngle||0;
+      const vx=portrait?1.8:9,vy=portrait?1:5.6,vz=portrait?8:11;
+      camera.position.set(cx+vx*Math.cos(angle)+vz*Math.sin(angle),cy+vy,cz+vz*Math.cos(angle)-vx*Math.sin(angle));camera.lookAt(cx,cy,cz);
+      const framing=portrait?1.24:Math.max(3.8,5.8/renderAspect)*1.04;
+      camera.left=-framing*renderAspect;camera.right=framing*renderAspect;camera.top=framing;camera.bottom=-framing;camera.zoom=magnification;camera.updateProjectionMatrix();
       host.dataset.roomZoom=String(magnification);
       renderer.render(scene,camera);rendered++;
       // Keep the keyboard/touch target on the actual projected character.
       // The hit target follows the room, not the breathing/jump animation. Quantize to
       // CSS pixels so keyboard focus and pointer hit testing stay steady between frames.
       anchor.set(.05,2.43,-.12).applyMatrix4(world.matrixWorld).project(camera);
-      const targets={};const places={lamp:[-.9,2.45,.4],window:[1.8,2.7,-2.38],desk:[.25,1.85,1.0],rest:[2.7,room.seats.rest[1]-.4,.78]};
-      if(settings.plant!==false)places.plant=[room.plantPoint[0],1.15,room.plantPoint[1]];
+      const targets={},places=settings.portrait?{}:{lamp:room.targets.lamp,window:[1.8,2.7,-2.38],desk:room.targets.desk,rest:room.targets.rest};
+      if(!settings.portrait){if(settings.plant!==false)places.plant=room.targets.plant;for(const id of settings.objects||[])if(room.targets[id])places[id]=room.targets[id]}
       for(const [id,point] of Object.entries(places)){const v=new T.Vector3(...point).applyMatrix4(world.matrixWorld).project(camera);targets[id]={x:v.x*.5+.5,y:-v.y*.5+.5};}
       return {anchor:{x:anchor.x*.5+.5,y:-anchor.y*.5+.5},targets};
     }
 
     host.addEventListener("pointermove",event=>{
-      if(current.reduceMotion)return;
+      if(current.reduceMotion||current.editing)return;
       const r=host.getBoundingClientRect();targetRY=((event.clientX-r.left)/r.width-.5)*.09;
       targetRX=-((event.clientY-r.top)/r.height-.5)*.035;
     });
     host.addEventListener("pointerleave",()=>{targetRX=targetRY=0;});
-    return {draw,resize,dispose(){studio.dispose();wardrobe.dispose();scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material]){m.map?.dispose();m.dispose();}}});renderer.dispose();renderer.domElement.remove();}};
+    function capture(){const ratio=renderer.getPixelRatio();capturing=true;renderer.setPixelRatio(1);renderer.setSize(1600,1600,false);renderAspect=1;draw(performance.now(),current);const png=renderer.domElement.toDataURL('image/png');capturing=false;renderer.setPixelRatio(ratio);resize();draw(performance.now(),current);return png;}
+    return {draw,resize,capture,dispose(){editor.dispose();studio.dispose();wardrobe.dispose();appearance.dispose();scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material]){m.map?.dispose();m.dispose();}}});renderer.dispose();renderer.domElement.remove();}};
 });

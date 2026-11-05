@@ -1,6 +1,956 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+  "Body appearance": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Body appearance"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Apariencia del cuerpo"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Apparence du corps"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Körperdesign"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Aparência do corpo"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Внешний вид тела"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Tampilan tubuh"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "مظهر الجسم"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "শরীরের চেহারা"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "शरीर का रूप"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Gövde görünümü"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "몸체 외형"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ボディの外観"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "身体外观"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "身體外觀"
+        }
+      }
+    }
+  },
+  "Classic": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Classic"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Clásico"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Classique"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Klassisch"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Clássico"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Классический"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Klasik"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "كلاسيكي"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ক্লাসিক"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "क्लासिक"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Klasik"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "기본"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "クラシック"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "经典"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "經典"
+        }
+      }
+    }
+  },
+  "Diamonds": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Diamonds"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Diamantes"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Diamants"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Diamanten"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Diamantes"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Бриллианты"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Berlian"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ألماس"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "হীরা"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "हीरे"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Elmaslar"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "다이아몬드"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ダイヤモンド"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "钻石"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "鑽石"
+        }
+      }
+    }
+  },
+  "Opal": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Opal"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Ópalo"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Opale"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Opal"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Opala"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Опал"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Opal"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "أوبال"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ওপাল"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ओपल"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Opal"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "오팔"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "オパール"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "欧泊"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "蛋白石"
+        }
+      }
+    }
+  },
+  "Obsidian": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Obsidian"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Obsidiana"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Obsidienne"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Obsidian"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Obsidiana"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Обсидиан"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Obsidian"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "سبج"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "অবসিডিয়ান"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ओब्सीडियन"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Obsidyen"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "흑요석"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "黒曜石"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "黑曜石"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "黑曜石"
+        }
+      }
+    }
+  },
+  "Gold": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Gold"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Oro"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Or"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Gold"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Ouro"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Золото"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Emas"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ذهب"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "সোনা"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "सोना"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Altın"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "금"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ゴールド"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "黄金"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "黃金"
+        }
+      }
+    }
+  },
+  "Galaxy": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Galaxy"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Galaxia"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Galaxie"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Galaxie"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Galáxia"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Галактика"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Galaksi"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "مجرة"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ছায়াপথ"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "आकाशगंगा"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Galaksi"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "은하"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "銀河"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "银河"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "銀河"
+        }
+      }
+    }
+  },
+  "Jelly": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Jelly"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Gelatina"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Gelée"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Gelee"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Gelatina"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Желе"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Jeli"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "هلام"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "জেলি"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "जेली"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Jöle"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "젤리"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "ゼリー"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "果冻"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "果凍"
+        }
+      }
+    }
+  },
+  "Lava": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lava"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lava"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lave"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lava"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lava"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Лава"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lava"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "حمم"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "লাভা"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "लावा"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Lav"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "용암"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "溶岩"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "熔岩"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "熔岩"
+        }
+      }
+    }
+  },
+  "Mochi Studio": {
+    "extractionState": "manual",
+    "localizations": {
+      "en": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "es": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "fr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "de": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "pt-BR": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "ru": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "id": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "ar": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "bn": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "hi": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "tr": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "ko": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "ja": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "zh-Hans": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      },
+      "zh-Hant": {
+        "stringUnit": {
+          "state": "translated",
+          "value": "Mochi Studio"
+        }
+      }
+    }
+  },
   "Zoom in": {
     "extractionState": "manual",
     "localizations": {
@@ -287,34 +1237,100 @@
     }
   },
     "perch.hint": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Option-drag to a window’s top edge to sit"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrastra con Opción al borde superior para sentarlo"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Glisser avec Option sur le bord supérieur pour l’asseoir"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按住 Option 拖到視窗上緣即可坐下"
-          }
-        }
+  "extractionState": "manual",
+  "localizations": {
+    "en": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Drag Mochi to a window’s top edge to attach automatically."
       }
     },
+    "es": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Arrastra a Mochi al borde superior de una ventana para que se agarre automáticamente."
+      }
+    },
+    "fr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Glissez Mochi vers le bord supérieur d’une fenêtre pour qu’il s’accroche automatiquement."
+      }
+    },
+    "de": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Ziehe Mochi an den oberen Fensterrand, damit er sich automatisch festhält."
+      }
+    },
+    "pt-BR": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Arraste Mochi até a borda superior de uma janela para ele se prender automaticamente."
+      }
+    },
+    "ru": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Перетащите Моти к верхнему краю окна: он зацепится автоматически."
+      }
+    },
+    "id": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Seret Mochi ke tepi atas jendela agar menempel otomatis."
+      }
+    },
+    "ar": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "اسحب موتشي إلى الحافة العلوية للنافذة ليتعلق تلقائيًا."
+      }
+    },
+    "bn": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "মোচিকে জানালার ওপরের প্রান্তে টেনে আনলে সে নিজেই ধরে থাকবে।"
+      }
+    },
+    "hi": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "मोची को विंडो के ऊपरी किनारे तक खींचें, वह अपने आप पकड़ लेगा।"
+      }
+    },
+    "tr": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Mochi’yi pencerenin üst kenarına sürükleyin; otomatik olarak tutunur."
+      }
+    },
+    "ko": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "모치를 창 위쪽 가장자리로 끌면 자동으로 매달립니다."
+      }
+    },
+    "ja": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "Mochiをウィンドウの上端にドラッグすると、自動でつかまります。"
+      }
+    },
+    "zh-Hans": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "将 Mochi 拖到窗口上沿，它就会自动抓住。"
+      }
+    },
+    "zh-Hant": {
+      "stringUnit": {
+        "state": "translated",
+        "value": "將 Mochi 拖到視窗上緣，牠就會自動抓住。"
+      }
+    }
+  }
+},
     "perch.detach": {
       "extractionState": "manual",
       "localizations": {

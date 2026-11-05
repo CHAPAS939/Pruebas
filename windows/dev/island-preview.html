@@ -4,7 +4,11 @@
   <style>html,body{background:#3a4a5a !important}</style></head>
   <body>
     <div id="root"></div>
-    <script>window.__answers = { boot: { settings: { language: new URLSearchParams(location.search).get("lang") || "fr" }, cursorPoll: true } };</script>
+    <script>window.__answers = {
+        boot: { settings: { ...JSON.parse(localStorage.getItem("coucou-studio-preview") || "{}"), language: new URLSearchParams(location.search).get("lang") || "fr" }, cursorPoll: true },
+        save_settings: args => { localStorage.setItem("coucou-studio-preview",JSON.stringify(args.settings));return null; },
+        save_mochi_photo: args => { window.__lastMochiPhoto = args.image;return true; }
+      };</script>
     <script type="module">
       import "./tauri-mock.ts";
       await import("/src/main.ts");

@@ -61,12 +61,15 @@ window.createMochiWardrobe=(T,mochi,changed=()=>{},compact=false)=>{
       }
       return group;
     }
-    function wear(selection,glasses='none',scarf=false){
+    function wear(selection,glasses='none',scarf=false,accent='original'){
       let choices=selection&&selection!=='none'?[selection]:[];
       if(glasses==='sunglasses'||glasses==='roundGlasses'){choices=choices.filter(o=>o!=='sunglasses'&&o!=='roundGlasses');choices.push(glasses);}
       if(scarf&&!choices.includes('scarf'))choices.push('scarf');
-      const key=choices.join('|');if(worn===key)return;worn=key;outfitCache.forEach(g=>g.visible=false);
-      choices.forEach(outfit=>ensure(outfit).visible=true);changed();
+      const key=choices.join('|')+'@'+accent;if(worn===key)return;worn=key;outfitCache.forEach(g=>g.visible=false);
+      choices.forEach(outfit=>ensure(outfit).visible=true);
+      const tint=/^#[0-9a-f]{6}$/i.test(accent)?new T.Color(accent):null;
+      for(const [key,m]of materials){const original=key.slice(0,7);m.color.set(original);if(tint&&['#a6b89c','#b88e76','#b17f65','#bc6570','#686079','#cd90a0','#b66e77','#9b91b4','#69637c'].includes(original))m.color.lerp(tint,.8);}
+      changed();
     }
     return {wear,dispose(){materials.forEach(m=>m.dispose());materials.clear();}};
 };

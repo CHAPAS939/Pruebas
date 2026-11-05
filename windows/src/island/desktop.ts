@@ -170,7 +170,7 @@ export class DesktopLink {
       state: State.effectiveState,
       outfit: State.wardrobePreview ?? this.seasons.get(parseOutfit(State.settings.mochiOutfit)),
       language: language(),
-      glasses: State.settings.mochiOutfitGlasses, scarf: State.settings.mochiOutfitScarf,
+      glasses: State.settings.mochiOutfitGlasses, scarf: State.settings.mochiOutfitScarf, skin: State.settings.mochiSkin, accent: State.settings.mochiAccent,
       soundEnabled: State.settings.soundEnabled,
       soundVolume: State.settings.soundVolume,
       paused: State.paused,

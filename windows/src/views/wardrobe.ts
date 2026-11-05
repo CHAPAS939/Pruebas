@@ -13,6 +13,8 @@ import {
 import type { ViewActions, ViewHost } from "./views";
 import { language, tl, t } from "../i18n/i18n";
 
+import { SKINS } from "../mochi/appearance";
+
 const ICON = 28;
 
 export function buildWardrobe(actions: ViewActions): ViewHost {
@@ -40,6 +42,11 @@ export function buildWardrobe(actions: ViewActions): ViewHost {
     State.settings.mochiOutfitScarf=!State.settings.mochiOutfitScarf;void Bridge.saveSettings(State.settings);State.notify();
   }});
   grid.before(h("div",{class:"wardrobe-combination",role:"group","aria-label":tl("Combine outfits")},h("span",{class:"room-caption",text:tl("Combine outfits")}),glasses,scarf));
+  const skin=h("select",{"aria-label":tl("Body appearance"),class:"wardrobe-skin-select"});
+  for(const [index,value] of SKINS.entries())skin.append(h("option",{value,text:[tl("Classic"),tl("Diamonds"),tl("Opal"),tl("Obsidian"),tl("Gold"),tl("Galaxy"),tl("Jelly"),tl("Lava")][index]}));
+  skin.addEventListener("change",()=>{State.settings={...State.settings,mochiSkin:skin.value};void Bridge.saveSettings(State.settings);State.notify();});
+  grid.before(h("div",{class:"wardrobe-appearance"},h("span",{text:tl("Body appearance")}),skin,h("button",{text:tl("Mochi Studio"),onclick:()=>actions.setView("room")})));
+
   let hovered: OutfitSelection | null = null;
   let drawnSeason: Outfit | null = null;
   let drawnLanguage = language();
@@ -98,6 +105,7 @@ export function buildWardrobe(actions: ViewActions): ViewHost {
     el,
     sync() {
       drawIcons();
+      skin.value=State.settings.mochiSkin;
       glasses.textContent = t("Glasses")+" · "+t(OUTFIT_KEYS[State.settings.mochiOutfitGlasses === "sunglasses" ? "sunglasses" : State.settings.mochiOutfitGlasses === "roundGlasses" ? "roundGlasses" : "none"]);
       scarf.setAttribute("aria-pressed",String(State.settings.mochiOutfitScarf));
       // The island drops the preview when the view closes: so does the hover.

@@ -5,9 +5,10 @@
   const emotes=new Set(["love","surprised","proud","wink","yawn","happy","annoyed"]);
   const outfits=new Set(["none","partyHat","beanie","crown","sunglasses","roundGlasses","bow","scarf","witchHat","pumpkin","santaHat","bunnyEars","headphones","frogHat","flower"]);
   const themes=new Set(["sand","sage","rose","midnight"]);
-  const choices={roomStyle:["cozy","gamer","minimalist","mediterranean"],plantKind:["auto","leafy","cactus","olive"],rugKind:["auto","woven","geometric","checker"],wallDecor:["auto","botanical","prints","neon","none"],deskFinish:["auto","wood","white","dark"],plantPosition:["left","right","back"],activity:["desk","rest","plant"],glasses:["none","sunglasses","roundGlasses"]};
+  const choices={roomStyle:["cozy","gamer","minimalist","mediterranean"],plantKind:["auto","leafy","cactus","olive"],rugKind:["auto","woven","geometric","checker"],wallDecor:["auto","botanical","prints","neon","none"],deskFinish:["auto","wood","white","dark"],plantPosition:["left","right","back"],activity:["desk","rest","plant","bed","console","bookshelf"],glasses:["none","sunglasses","roundGlasses"]};
   const pick=(key,value)=>choices[key].includes(value)?value:choices[key][0];
-  const defaults=Object.freeze({state:"idle",emote:null,paused:true,reduceMotion:false,night:false,rain:true,lamp:true,character:true,perched:false,lookX:0,lookY:0,outfit:"none",theme:"sand",plant:true,rug:true,roomStyle:"cozy",plantKind:"auto",rugKind:"auto",wallDecor:"auto",deskFinish:"auto",plantPosition:"left",activity:"desk",glasses:"none",scarf:false,roomZoom:1});
+  const defaults=Object.freeze({state:"idle",emote:null,paused:true,reduceMotion:false,night:false,rain:true,lamp:true,character:true,perched:false,lookX:0,lookY:0,outfit:"none",theme:"sand",plant:true,rug:true,roomStyle:"cozy",plantKind:"auto",rugKind:"auto",wallDecor:"auto",deskFinish:"auto",plantPosition:"left",activity:"desk",glasses:"none",scarf:false,roomZoom:1,skin:'classic',accent:'original',editing:false,selected:'desk',layout:{},objects:[],portrait:false,transparent:false,photoPose:'idle',cameraAngle:0,reaching:false,lean:0});
+  let lastFailure=null;
   let settings={...defaults},factory=null,instance=null,raf=0,last=0,disposed=false,failed=false,lastAnchor="",lastTargets="",sizeDirty=true;
   const finite=(v)=>typeof v==="number"&&Number.isFinite(v)?Math.max(-1,Math.min(1,v)):0;
   function normalize(value){
@@ -17,7 +18,8 @@
       rain:v.rain!==false,lamp:v.lamp!==false,character:v.character!==false,perched:v.perched===true,
       lookX:finite(v.lookX),lookY:finite(v.lookY),outfit:outfits.has(v.outfit)?v.outfit:"none",
       theme:themes.has(v.theme)?v.theme:"sand",plant:v.plant!==false,rug:v.rug!==false,
-      ...Object.fromEntries(Object.keys(choices).map(key=>[key,pick(key,v[key])])),scarf:v.scarf===true,roomZoom:typeof v.roomZoom==="number"&&Number.isFinite(v.roomZoom)?Math.max(1,Math.min(2,v.roomZoom)):1};
+      ...Object.fromEntries(Object.keys(choices).map(key=>[key,pick(key,v[key])])),skin:window.MochiStudioData?.skins.includes(v.skin)?v.skin:'classic',accent:window.MochiStudioData?.accent(v.accent)||'original',
+      editing:v.editing===true,selected:window.MochiStudioData?.furniture.includes(v.selected)?v.selected:'desk',layout:window.MochiStudioData?.layout(v.layout)||{},objects:['bed','console','bookshelf'].filter(id=>Array.isArray(v.objects)&&v.objects.includes(id)),portrait:v.portrait===true,transparent:v.transparent===true,photoPose:['idle','happy','sleeping','wink','love'].includes(v.photoPose)?v.photoPose:'idle',cameraAngle:finite(v.cameraAngle)*.55,reaching:v.reaching===true,lean:Math.max(-.12,Math.min(.12,finite(v.lean))),scarf:v.scarf===true,roomZoom:typeof v.roomZoom==="number"&&Number.isFinite(v.roomZoom)?Math.max(1,Math.min(2,v.roomZoom)):1};
   }
   function report(event,detail={}){
     const message={channel:"coucou-mochi-scene",event,...detail};
@@ -30,7 +32,7 @@
     try{
       const result=instance.draw(time,settings);
       if(result?.targets){
-        const targets={};for(const id of ["lamp","window","desk","rest","plant"]){
+        const targets={};for(const id of ["lamp","window","desk","rest","plant","bed","console","bookshelf"]){
           const p=result.targets[id];if(p&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1)targets[id]={x:Math.round(p.x*500)/500,y:Math.round(p.y*500)/500};
         }
         const key=JSON.stringify(targets);if(key!==lastTargets){lastTargets=key;report("targets",{targets});}
@@ -41,7 +43,7 @@
           const key=JSON.stringify(anchor);if(key!==lastAnchor){lastAnchor=key;report("anchor",{anchor});}
         }
       }
-    }catch{stop();instance?.dispose?.();instance=null;failed=true;report("fallback");}
+    }catch(error){lastFailure=String(error?.message||error).slice(0,240);stop();instance?.dispose?.();instance=null;failed=true;report("fallback",{reason:lastFailure||"context-loss"});}
   }
   function frame(time){
     raf=0;if(disposed||settings.paused||settings.reduceMotion||document.hidden||!instance)return;
@@ -57,12 +59,12 @@
         instance=factory(stage);
         stage.querySelector?.("canvas")?.addEventListener("webglcontextlost",event=>{
           event.preventDefault();if(disposed||failed)return;
-          stop();instance?.dispose?.();instance=null;failed=true;report("fallback");
+          stop();instance?.dispose?.();instance=null;failed=true;report("fallback",{reason:lastFailure||"context-loss"});
         },{once:true});
         const observer=new ResizeObserver(()=>{sizeDirty=true;resume();});observer.observe(document.getElementById("stage"));
         const dispose=instance.dispose?.bind(instance);instance.dispose=()=>{observer.disconnect();dispose?.();};
         report("ready");
-      }catch{failed=true;report("fallback");return;}
+      }catch(error){lastFailure=String(error?.message||error).slice(0,240);failed=true;report("fallback",{reason:lastFailure||"context-loss"});return;}
     }
     if(!instance)return;
     if(sizeDirty){sizeDirty=false;instance.resize?.();}
@@ -74,6 +76,10 @@
     dispose(){disposed=true;stop();instance?.dispose?.();instance=null;},
     // Exposed only for deterministic contract checks, never as an app capability.
     normalize,
+    emit:report,
+    redraw:resume,
+    capture(id){if(!instance||settings.paused)return;try{const data=instance.capture?.();if(typeof data==='string'&&data.startsWith('data:image/png;base64,')&&data.length<10000000)report('photo',{id,data});else report('photo-error',{id})}catch{report('photo-error',{id})}},
+    get failure(){return lastFailure;},
     get paused(){return settings.paused;}
   };
   window.MochiScene=api;
@@ -82,14 +88,14 @@
   document.documentElement.dataset.scene=sceneKind;
   // Only the embedding host may update an iframe; native WebKit calls update directly.
   window.addEventListener("message",event=>{
-    if(event.source!==window.parent||event.data?.channel!=="coucou-mochi-scene"||event.data?.event!=="update")return;
-    api.update(event.data.settings);
+    if(event.source!==window.parent||event.data?.channel!=="coucou-mochi-scene")return;
+    if(event.data.event==='capture')api.capture(event.data.id);else if(event.data.event==='update')api.update(event.data.settings);
   });
   document.addEventListener("visibilitychange",resume);
   window.addEventListener("pagehide",()=>api.dispose(),{once:true});
   const script=document.createElement("script");script.src=sceneKind+".js";
   script.onload=()=>{
-    if(!factory){failed=true;report("fallback");return;}
+    if(!factory){failed=true;report("fallback",{reason:lastFailure||"context-loss"});return;}
     report("loaded");resume();
   };
   script.onerror=()=>report("fallback");document.head.appendChild(script);

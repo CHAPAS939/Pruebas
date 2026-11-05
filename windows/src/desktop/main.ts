@@ -37,6 +37,8 @@ class DesktopMochi {
   private engine = new BotEngine();
   private scene = new MochiScene("perch", "Mochi");
   private perched = false;
+  private reaching = false;
+  private lean = 0;
   private jumping = false;
   private contextMenu: Menu | null = null;
   private contextMenuLanguage = "";
@@ -107,10 +109,11 @@ class DesktopMochi {
     await onEvent<{ perched: boolean; lean?: number }>("desktop-perch", (event) => {
       this.perched = event.perched;
       const lean = Number.isFinite(event.lean) ? Math.max(-0.12, Math.min(0.12, event.lean!)) : 0;
-      this.scene.el.style.transform = `rotate(${this.motion.matches ? 0 : lean}rad)`;
+      this.lean=lean;
       this.scene.el.style.transition = this.motion.matches ? "none" : "transform 0.15s ease-out";
       this.syncScene();
     });
+    await onEvent<boolean>("desktop-reaching", value=>{this.reaching=value;this.engine.reaching=value;this.syncScene();this.schedule();});
     await onEvent<boolean>("desktop-jumping", (value)=>{this.jumping=value;this.syncScene();});
     await onEvent<Point>(DESKTOP_EVENTS.cursor, (p) => this.notePointer(p));
     await onEvent<boolean>(DESKTOP_EVENTS.visible, (on) => this.setVisible(on));
@@ -151,7 +154,7 @@ class DesktopMochi {
       this.lastAgentActive = performance.now();
       this.asleep = false;
       this.engine.setState(this.snap.state, true);
-      this.engine.setOutfit(this.snap.outfit, false, this.snap.glasses, this.snap.scarf);
+      this.engine.setOutfit(this.snap.outfit, false, this.snap.glasses, this.snap.scarf, this.snap.skin, this.snap.accent);
       this.schedule();
       return;
     }
@@ -228,7 +231,7 @@ class DesktopMochi {
     const ctx = this.canvas.getContext("2d");
     if (!ctx) return;
     const engine = this.engine;
-    engine.setOutfit(this.snap.outfit, true, this.snap.glasses, this.snap.scarf);
+    engine.setOutfit(this.snap.outfit, true, this.snap.glasses, this.snap.scarf, this.snap.skin, this.snap.accent);
     if (!this.asleep) {
       // Windows: the global cursor. Linux: only while the pointer is over him.
       const fresh = this.mode === "poll" || now - this.lastPointer < 1500;
@@ -240,7 +243,7 @@ class DesktopMochi {
     engine.setDancing(this.snap.dancing && !this.asleep);
     engine.update(dt);
     this.syncScene();
-    if (this.scene.ready && this.perched) return;
+    if (this.scene.ready && (this.perched||this.reaching)) return;
     const dpr = this.dpr();
     // Dragged onto a monitor of another scale, the bitmap follows the ratio.
     if (this.canvas.width !== Math.round(PANEL_SIZE * dpr)) {
@@ -266,12 +269,12 @@ class DesktopMochi {
   }
 
   private syncScene() {
-    const useScene = this.perched;
+    const useScene = this.perched || this.reaching;
     const eye = this.engine.eyeOverride;
     const emote = eye === "heart" ? "love" : eye === "happy" ? "happy" : eye === "line" ? "annoyed" : this.sceneEmote;
     this.scene.update({ state: this.asleep ? "sleeping" : this.snap.state, emote,
       paused: !this.visible || this.snap.paused || !useScene, reduceMotion: this.motion.matches,
-      perched: this.perched && !this.jumping, outfit: this.snap.outfit, glasses:this.snap.glasses,scarf:this.snap.scarf, lookX: this.engine.lookX, lookY: this.engine.lookY });
+      perched: this.perched && !this.jumping, outfit: this.snap.outfit, glasses:this.snap.glasses,scarf:this.snap.scarf, reaching:this.reaching, lean:this.lean, skin:this.snap.skin, accent:this.snap.accent, lookX: this.engine.lookX, lookY: this.engine.lookY });
     const showing = useScene && this.scene.ready;
     this.scene.el.style.opacity = showing ? "1" : "0";
     this.canvas.style.visibility = showing ? "hidden" : "visible";

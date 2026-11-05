@@ -5,6 +5,7 @@ export interface SceneSettings {
   outfit?: string; theme?: string; plant?: boolean; rug?: boolean;
   roomStyle?: string; plantKind?: string; rugKind?: string; wallDecor?: string; deskFinish?: string; plantPosition?: string;
   activity?: string; glasses?: string; scarf?: boolean; roomZoom?: number;
+  skin?: string; accent?: string; lean?: number; reaching?: boolean;
   perched?: boolean; emote?: string | null; lookX?: number; lookY?: number;
 }
 

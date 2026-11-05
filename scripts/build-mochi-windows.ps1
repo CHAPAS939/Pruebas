@@ -12,10 +12,11 @@ function Invoke-Native {
 Push-Location $Root
 try {
     New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
-    Invoke-Native -File node -Arguments @('--test', 'tests/mochi-scene.test.mjs')
+    Invoke-Native -File node -Arguments @('--test', 'tests/mochi-scene.test.mjs', 'tests/mochi-studio.test.mjs')
     Push-Location (Join-Path $Root 'windows')
     try {
         if (-not $SkipInstall) { Invoke-Native -File npm.cmd -Arguments @('ci') }
+        Invoke-Native -File node -Arguments @('../scripts/build-studio-icons.mjs', '--check')
         Invoke-Native -File npx.cmd -Arguments @('tsc', '--noEmit')
         Invoke-Native -File npm.cmd -Arguments @('test')
         Invoke-Native -File cargo -Arguments @('build', '--release', '--locked', '-p', 'coucou-hook')

@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   window-selection:
-    name: Native Windows Alt-drop regression
+    name: Native Windows automatic edge attachment
     runs-on: windows-latest
     timeout-minutes: 10
     steps:
@@ -80,6 +80,7 @@ jobs:
           restore-keys: |
             mochi-installers-windows-${{ hashFiles('windows/Cargo.lock') }}-
             mochi-installers-windows-${{ hashFiles('windows/Cargo.lock') }}
+            mochi-installers-windows-
       - name: Build and verify EXE and MSI
         shell: pwsh
         run: ./scripts/build-mochi-windows.ps1

@@ -10,27 +10,10 @@ pub struct Target {
 
 pub enum Probe { Gone, Hidden, Visible(Rect) }
 
-/// The expanded island panel has a large invisible return zone. An explicit,
-/// valid Alt-drop chooses the window even when that zone overlaps its edge.
+/// The expanded island panel has an invisible return zone. A
+/// valid edge drop chooses the window even when that zone overlaps its edge.
 pub fn returns_home(over_home: bool, valid_perch: bool) -> bool {
     over_home && !valid_perch
-}
-
-/// Keep the modifier through the small gap between releasing Alt and the mouse.
-/// A deliberate release while continuing to drag still cancels the gesture.
-#[derive(Clone, Copy, Default)]
-pub struct DropModifier {
-    last_down: Option<std::time::Instant>,
-}
-
-impl DropModifier {
-    pub fn sample(&mut self, held: bool, now: std::time::Instant) {
-        if held { self.last_down = Some(now); }
-    }
-
-    pub fn requested(self, now: std::time::Instant) -> bool {
-        self.last_down.is_some_and(|last| now.saturating_duration_since(last) <= std::time::Duration::from_millis(200))
-    }
 }
 
 /// Deterministic trajectory, with fixed endpoints and no overshoot at landing.
@@ -66,7 +49,6 @@ mod win {
     use windows::core::BOOL;
     use windows::Win32::Foundation::{HWND, LPARAM, RECT};
     use windows::Win32::Graphics::Dwm::{DwmGetWindowAttribute, DWMWA_CLOAKED, DWMWA_EXTENDED_FRAME_BOUNDS};
-    use windows::Win32::UI::Input::KeyboardAndMouse::{GetAsyncKeyState, VK_MENU};
     use windows::Win32::UI::WindowsAndMessaging::{EnumWindows, GetWindowLongPtrW,
         GetWindowRect, GetWindowThreadProcessId, IsIconic, IsWindow, IsWindowVisible,
         GWL_EXSTYLE, WS_EX_TOOLWINDOW};
@@ -139,10 +121,6 @@ mod win {
         result
     }
 
-    pub fn modifier_down() -> bool {
-        unsafe { (GetAsyncKeyState(VK_MENU.0 as i32) as u16 & 0x8000) != 0 }
-    }
-
     pub fn capture(point: (f64, f64), scale: f64) -> Option<Target> {
         struct Search { point: (f64, f64), scale: f64, found: Option<Target> }
         unsafe extern "system" fn visit(window: HWND, param: LPARAM) -> BOOL {
@@ -178,9 +156,8 @@ mod win {
     }
 }
 
-#[cfg(windows)] pub use win::{capture, modifier_down, probe, candidates};
+#[cfg(windows)] pub use win::{capture, probe, candidates};
 #[cfg(not(windows))] pub fn candidates() -> Vec<Target> { Vec::new() }
-#[cfg(not(windows))] pub fn modifier_down() -> bool { false }
 #[cfg(not(windows))] pub fn capture(_: (f64, f64), _: f64) -> Option<Target> { None }
 #[cfg(not(windows))] pub fn probe(_: Target) -> Probe { Probe::Gone }
 
@@ -220,18 +197,6 @@ mod tests {
         assert!(origin(Rect { x: -2500.0, ..WINDOW }, 0.5, 1.0, WORK).is_none());
         assert!(origin(Rect { x: 3000.0, ..WINDOW }, 0.5, 1.0, WORK).is_none());
     }
-    #[test] fn alt_survives_mouse_release_but_can_be_cancelled() {
-        use std::time::{Duration, Instant};
-        let now = Instant::now();
-        let mut modifier = DropModifier::default();
-        assert!(!modifier.requested(now));
-        modifier.sample(true, now);
-        modifier.sample(false, now + Duration::from_millis(16));
-        assert!(modifier.requested(now + Duration::from_millis(32)));
-        assert!(!modifier.requested(now + Duration::from_millis(250)));
-        modifier.sample(true, now + Duration::from_millis(300));
-        assert!(modifier.requested(now + Duration::from_millis(301)));
-    }
     #[test] fn jump_has_exact_endpoints_and_an_upward_apex() {
         let from=(-300.0,120.0);let to=(500.0,320.0);
         assert_eq!(jump_point(from,to,0.0,70.0),from);
@@ -240,7 +205,7 @@ mod tests {
         assert_eq!(jump_point(from,to,1.2,70.0),to);
         assert_eq!(jump_point(from,to,0.5,0.0),(100.0,220.0));
     }
-    #[test] fn window_under_the_top_bar_can_receive_an_explicit_alt_drop() {
+    #[test] fn window_under_the_top_bar_can_receive_an_automatic_edge_drop() {
         let frame = Rect { x: 400.0, y: 200.0, w: 1100.0, h: 600.0 };
         let pointer = (960.0, 200.0);
         let home = Rect { x: 600.0, y: 30.0, w: 720.0, h: 320.0 };

@@ -532,13 +532,19 @@ final class BotEngine: ObservableObject {
         }
     }
 
+    var reaching = false
+    private var reachPhase: CGFloat = 0
     private var wardrobeGlasses: Outfit = .none
     private var wardrobeScarf = false
+    private var wardrobeSkin = MochiSkin.classic
+    private var wardrobeAccent = "original"
     private var outfitLayers: [Outfit] { Outfit.layers(primary: outfit, glasses: wardrobeGlasses, scarf: wardrobeScarf) }
     var hasVisibleOutfit: Bool { (outfit != .none && outfitPresence > 0.05) || wardrobeGlasses != .none || wardrobeScarf }
     func setOutfit(_ newOutfit: Outfit, animated: Bool = true, includeAccessories: Bool = true) {
         wardrobeGlasses = includeAccessories ? Outfit.savedGlasses : .none
         wardrobeScarf = includeAccessories && Outfit.savedScarf
+        wardrobeSkin = includeAccessories ? (MochiSkin(rawValue: UserDefaults.standard.string(forKey: "mochiSkin") ?? "classic") ?? .classic) : .classic
+        wardrobeAccent = includeAccessories ? (UserDefaults.standard.string(forKey: "mochiAccent") ?? "original") : "original"
         guard newOutfit != outfitTarget else { return }
         outfitTarget = newOutfit
         tweens.removeValue(forKey: "outfitPresence")
@@ -895,6 +901,7 @@ final class BotEngine: ObservableObject {
     func update(dt: Double) {
         let now = CACurrentMediaTime()
         let dtCG = CGFloat(dt)
+        reachPhase += ((reaching ? 1 : 0)-reachPhase)*min(1,dtCG*14)
         // The stressed hop of the last frame comes off first (MochiMood.swift).
         undoMoodOffsets()
 
@@ -1155,7 +1162,7 @@ final class BotEngine: ObservableObject {
                  pumpkinColors: outfit == .pumpkin && !isMini)
 
         // A warm Mac flushes him (MochiMood.swift).
-        drawMoodTint(ctx: &ctx, path: bodyPath, rx: rx, ry: ry)
+        if wardrobeSkin == .classic { drawMoodTint(ctx: &ctx, path: bodyPath, rx: rx, ry: ry) }
 
         // Blush — always shows a floor proportional to tint (prototype behaviour)
         let blushVal = max(blush, tint * 0.5, moodHot * 0.85) * (1 - morph)
@@ -1217,7 +1224,7 @@ final class BotEngine: ObservableObject {
     // MARK: - Draw hands behind body (called before draw() so hands appear under Mochi)
 
     func drawHandsBehind(context: GraphicsContext, size: CGSize) {
-        guard hands > 0.01, !isMini else { return }
+        guard max(hands,reachPhase) > 0.01, !isMini else { return }
         let W = size.width, H = size.height
         let R = W * 0.3
         // Only draw hands when Mochi is large enough to be meaningful (not compact/peek)
@@ -1231,8 +1238,8 @@ final class BotEngine: ObservableObject {
         let bodyH = 2 * ry   // full body height
 
         // Hand ellipse half-dims: 0.30×bodyH wide, 0.26×bodyH tall (scaled by hands 0→1)
-        let hew = 0.30 * ry * hands   // half-width
-        let heh = 0.26 * ry * hands   // half-height
+        let hew = 0.30 * ry * max(hands,reachPhase)   // half-width
+        let heh = 0.26 * ry * max(hands,reachPhase)   // half-height
 
         // Body half-dims with current squash scale
         let hwB = rx * sx
@@ -1245,7 +1252,11 @@ final class BotEngine: ObservableObject {
             var localY: CGFloat
             var handRot: CGFloat = 0
 
-            if sd > 0 && isWaving {
+            if reachPhase > 0.01 {
+                localX = CGFloat(sd)*hwB*1.14
+                localY = lerp(hhB*0.70,-hhB*0.80,reachPhase)
+                handRot = -CGFloat(sd)*0.3*reachPhase
+            } else if sd > 0 && isWaving {
                 // Right hand: rise to wave position over first 180ms, then oscillate
                 let wt = CGFloat(now - waveStart)
                 let rise = min(1.0, wt / 0.18)
@@ -1296,7 +1307,9 @@ final class BotEngine: ObservableObject {
             handPath.addEllipse(in: handRect)
 
             // Fill with body material (same gradient as body)
-            if let bc = bodyColor {
+            if wardrobeSkin == .diamond {
+                handCtx.fill(handPath, with: .linearGradient(Gradient(colors:[Color(hex:"#343342"),Color(hex:"#10131C")]), startPoint:CGPoint(x:0,y:-heh), endPoint:CGPoint(x:0,y:heh)))
+            } else if let bc = bodyColor {
                 let c0 = mix3(cgColorToTuple(bc), (1, 1, 1), 0.35)
                 let c1 = cgColorToTuple(bc)
                 handCtx.fill(handPath, with: .linearGradient(
@@ -1342,6 +1355,8 @@ final class BotEngine: ObservableObject {
 
     func drawOutfitBehind(context: GraphicsContext, size: CGSize) {
         guard !outfitLayers.isEmpty, !isMini else { return }
+        var context = context
+        if wardrobeAccent != "original" { context.addFilter(.hueRotation(.degrees(MochiSkin.accessoryHue(wardrobeAccent)))) }
         let W = size.width, H = size.height, R = W * 0.3
         let cx = W / 2 + ox * R
         let cy = H / 2 + particleOverhang / 2 + oy * R + R * 0.06
@@ -1358,6 +1373,8 @@ final class BotEngine: ObservableObject {
 
     func drawOutfitFront(context: GraphicsContext, size: CGSize) {
         guard !outfitLayers.isEmpty, !isMini else { return }
+        var context = context
+        if wardrobeAccent != "original" { context.addFilter(.hueRotation(.degrees(MochiSkin.accessoryHue(wardrobeAccent)))) }
         let W = size.width, H = size.height, R = W * 0.3
         let cx = W / 2 + ox * R
         let cy = H / 2 + particleOverhang / 2 + oy * R + R * 0.06
@@ -1461,6 +1478,10 @@ final class BotEngine: ObservableObject {
 
     private func drawBody(ctx: inout GraphicsContext, path: Path, R: CGFloat, rx: CGFloat, ry: CGFloat,
                           pumpkinColors: Bool = false) {
+        if !isMini && wardrobeSkin != .classic {
+            wardrobeSkin.draw(context: &ctx, path: path, rx: rx, ry: ry)
+            return
+        }
         if let bc = bodyColor, !pumpkinColors {
             // Mini bots: flat solid fill — no gradient, no reflection, no highlight
             ctx.fill(path, with: .color(Color(cgColor: bc)))
@@ -1564,7 +1585,7 @@ final class BotEngine: ObservableObject {
     }
 
     private func drawEyeShape(ctx: inout GraphicsContext, shape: EyeShape, w: CGFloat, h: CGFloat, open: CGFloat, sd: CGFloat, R: CGFloat) {
-        let ink = isMini ? Color(cgColor: MochiConst.miniInk) : Color(cgColor: MochiConst.ink)
+        let ink = isMini ? Color(cgColor: MochiConst.miniInk) : wardrobeSkin.dark ? Color(hex: "#FFF0DC") : Color(cgColor: MochiConst.ink)
         let now = CGFloat(CACurrentMediaTime())
 
         switch shape {

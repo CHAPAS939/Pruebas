@@ -4656,6 +4656,19 @@ struct ColumnAgentsView: View {
 
 // MARK: - Wardrobe
 
+struct MochiBodyAppearanceControls: View {
+    @AppStorage("mochiSkin") private var skin = "classic"
+    var body: some View {
+        HStack {
+            Text("Body appearance").foregroundStyle(.secondary)
+            Picker("Body appearance", selection: $skin) {
+                ForEach(MochiSkin.allCases, id: \.rawValue) { value in Text(value.title).tag(value.rawValue) }
+            }.labelsHidden().pickerStyle(.menu)
+            Button("Mochi Studio") { AppState.shared.view = .room }.buttonStyle(.plain)
+        }.font(.system(size: 10)).padding(.vertical, 4)
+    }
+}
+
 struct MochiOutfitCombinationControls: View {
     @AppStorage("mochiOutfitGlasses") private var glasses = "none"
     @AppStorage("mochiOutfitScarf") private var scarf = false
@@ -4716,6 +4729,7 @@ struct WardrobeView: View {
             .padding(.horizontal, 10)
 
             MochiOutfitCombinationControls().padding(.horizontal, 10)
+            MochiBodyAppearanceControls().padding(.horizontal, 10)
             // Grid
             let allOutfits = Outfit.allCases.filter { $0 != .auto }
             let withAuto = [Outfit.auto] + allOutfits

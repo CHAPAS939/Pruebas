@@ -10,8 +10,11 @@ cd "$ROOT"
 OUT="$ROOT/build/mochi-installers/macos"
 DERIVED="$ROOT/build/mochi-xcode"
 mkdir -p "$OUT"
-node --test tests/mochi-scene.test.mjs
+node --test tests/mochi-scene.test.mjs tests/mochi-studio.test.mjs
+npm --prefix windows ci --ignore-scripts
+node scripts/build-studio-icons.mjs --check
 bash scripts/test-mochi-room.sh
+bash scripts/test-mochi-photo.sh
 bash scripts/test-window-perch.sh
 python3 scripts/test-localization.py
 (cd NotchBuddy && xcodegen generate)
@@ -23,6 +26,9 @@ APP="$DERIVED/Build/Products/Debug/Coucou.app"
 test -x "$APP/Contents/MacOS/Coucou"
 lipo "$APP/Contents/MacOS/Coucou" -verify_arch arm64 x86_64
 node scripts/test-mochi-resources.mjs "$APP/Contents/Resources/mochi-scenes"
+swiftc NotchBuddy/Sources/App/MochiPhotoLogic.swift tests/MochiStudioWebKitSmoke.swift -o "$OUT/studio-webkit-smoke"
+"$OUT/studio-webkit-smoke" "$APP/Contents/Resources/mochi-scenes"
+rm "$OUT/studio-webkit-smoke"
 test -f "$APP/Contents/Resources/mochi-scenes/home.js"
 test -f "$APP/Contents/Resources/mochi-scenes/perch.js"
 # Apple Silicon requires a code signature. Ad-hoc signing authenticates this local
@@ -39,7 +45,9 @@ cat > "$STAGE/LEEME.txt" <<'EOF'
 Coucou · Mochi Home + Perch (preview)
 
 Arrastra Coucou a Aplicaciones. Requiere macOS 15 o posterior.
-Incluye la habitación y Mochi sentado en ventanas (Opción al arrastrar).
+Incluye Mochi Studio: habitación editable, conjuntos, materiales y fotos PNG.
+Arrastra Mochi al borde superior de una ventana y suéltalo para que se enganche.
+No necesita combinaciones de teclas.
 
 Compilación de prueba con firma ad-hoc, sin notarizar. No es una release oficial.
 EOF

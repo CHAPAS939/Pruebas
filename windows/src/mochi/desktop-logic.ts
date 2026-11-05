@@ -17,6 +17,8 @@ export interface DesktopSnapshot {
   outfit: Outfit;
   glasses?: string;
   scarf?: boolean;
+  skin?: string;
+  accent?: string;
   language?: string;
   soundEnabled: boolean;
   soundVolume: number;

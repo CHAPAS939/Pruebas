@@ -43,6 +43,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(FlowHubController.showInDock ? .regular : .accessory)
         #endif
         setupMenuBarItem()
+        MochiDesktopPropsController.shared.sync()
         setupIsland()
         MachineVitals.shared.start()
         #if !APPSTORE

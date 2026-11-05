@@ -30,6 +30,7 @@ struct BotCanvasView: View {
                 engine.particleOverhang = particleOverhang
                 // How the Mac feels (MochiMood.swift).
                 engine.moodTarget = MachineVitals.shared.mood
+                engine.reaching = state.mochiEdgePreview
                 // Widen slot when file is hovering over the mailbox (morph > 0.5)
                 // Open mouth (hover=0.20R) when file dragged over box; close when not
                 if engine.morph > 0.3 {
@@ -84,7 +85,7 @@ struct BotCanvasView: View {
                 engine.setDancing(dancing)
                 let isWardrobe = state.mode == .expanded && state.view == .wardrobe
                 let isFocusMain = state.focusId == state.mainPillId || state.focusId == nil
-                let showOutfit = isFocusMain || state.mode != .expanded || isWardrobe
+                let showOutfit = isFocusMain || state.mode != .expanded || isWardrobe || state.isDraggingBot
                 engine.setOutfit(showOutfit ? state.resolvedOutfit : .none,
                                  animated: state.view != .wardrobe, includeAccessories: showOutfit)
 
@@ -195,7 +196,7 @@ struct BotCanvasView: View {
             engine.setState(state.effectiveState, force: true)
             let isWardrobe = state.mode == .expanded && state.view == .wardrobe
             let isFocusMain = state.focusId == state.mainPillId || state.focusId == nil
-            let showOutfit = isFocusMain || state.mode != .expanded || isWardrobe
+            let showOutfit = isFocusMain || state.mode != .expanded || isWardrobe || state.isDraggingBot
             engine.setOutfit(showOutfit ? state.resolvedOutfit : .none, animated: false, includeAccessories: showOutfit)
         }
     }

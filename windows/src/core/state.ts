@@ -112,6 +112,9 @@ export interface Settings {
   mochiRoomPlantPosition: string;
   mochiOutfitGlasses: string;
   mochiOutfitScarf: boolean;
+  mochiSkin: string;
+  mochiAccent: string;
+  mochiStudio: string;
   soundEnabled: boolean;
   soundVolume: number;
   autoCloseInterval: number;
@@ -203,6 +206,9 @@ export const DEFAULT_SETTINGS: Settings = {
   mochiRoomPlantPosition: "left",
   mochiOutfitGlasses: "none",
   mochiOutfitScarf: false,
+  mochiSkin: "classic",
+  mochiAccent: "original",
+  mochiStudio: "{}",
   soundEnabled: true,
   soundVolume: 0.12,
   autoCloseInterval: 15,
