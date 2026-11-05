@@ -27,10 +27,10 @@ La app mantiene los identificadores y la configuración de Coucou. Esta compilac
 
 ## Uso
 
-Abre la pestaña con la lámpara para entrar en la habitación. Usa Opción (Mac) o Alt (Windows) al soltar a Mochi en el borde superior de una ventana para sentarlo. El arrastre habitual conserva la función original de Coucou. En Windows se puede elegir una ventana visible aunque no esté activa; la ventana necesita espacio encima para que Mochi quepa. Se mantienen los conjuntos de ropa y el Canvas de respaldo.
+Abre la pestaña con la lámpara para entrar en la habitación. Usa Opción (Mac) o Alt (Windows) al soltar a Mochi en el borde superior de una ventana para engancharlo. El arrastre habitual conserva la función original de Coucou. En Windows se puede elegir una ventana visible aunque no esté activa; la ventana necesita espacio encima para que Mochi quepa. Se mantienen los conjuntos de ropa y el Canvas de respaldo.
 
 En la habitación, **Decorar** permite elegir Arena, Salvia, Rosa o Medianoche y mostrar u ocultar planta y alfombra. **Guardarropa** permite probar y guardar los atuendos de Coucou, incluidos los nuevos auriculares, gorro de rana y flor. La decoración se guarda localmente. El atuendo también se aplica al personaje fuera de la habitación; al engancharlo al borde de una ventana, conserva la ropa y apoya las dos manos sobre el borde.
 
 ## Estado
 
-Código integrado sobre `74363634b037108393e450428e5f207515c2c29b`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Los builds nativos y los instaladores de la revisión `863104b7b46103e5b32b89211a439e6536331bdc` han terminado correctamente en ambas plataformas. El repositorio de Louis devuelve 403 para la conexión CHAPAS939; el usuario ha autorizado compilar en una rama nueva de `CHAPAS939/Pruebas`, conservando su rama principal.
+Código integrado sobre `74363634b037108393e450428e5f207515c2c29b`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Los builds nativos y los instaladores de la revisión `d77866afa21d6ad146cb1e189b75dad76166ea9b` han terminado correctamente en ambas plataformas. El repositorio de Louis devuelve 403 para la conexión CHAPAS939; el usuario ha autorizado compilar en una rama nueva de `CHAPAS939/Pruebas`, conservando su rama principal.
