@@ -31,4 +31,4 @@ Abre la pestaña con la lámpara para entrar en la habitación. Usa Opción (Mac
 
 ## Estado
 
-Código integrado sobre `74363634b037108393e450428e5f207515c2c29b`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Los builds nativos y los instaladores siguen pendientes. El repositorio de Louis devuelve 403 para la conexión CHAPAS939; se ha identificado `CHAPAS939/Pruebas` como alternativa con escritura, pero es público y no se ha publicado allí sin autorización del usuario.
+Código integrado sobre `74363634b037108393e450428e5f207515c2c29b`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Los builds nativos y los instaladores siguen pendientes. El repositorio de Louis devuelve 403 para la conexión CHAPAS939; el usuario ha autorizado compilar en una rama nueva de `CHAPAS939/Pruebas`, conservando su rama principal.
