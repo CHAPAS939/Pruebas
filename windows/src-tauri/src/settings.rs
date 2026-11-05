@@ -454,6 +454,9 @@ mod tests {
     /// A settings.json in which no value is the default one.
     // Two #: the colours in it are written "#RRGGBB".
     const CUSTOM: &str = r##"{
+  "mochiRoomLighting": "night",
+  "mochiRoomRain": false,
+  "mochiRoomLamp": false,
   "soundEnabled": false,
   "soundVolume": 0.5,
   "autoCloseInterval": 30.0,
@@ -581,6 +584,15 @@ mod tests {
         let mut expected = custom();
         expected["model"] = json!(crate::claude::DEFAULT_MODEL);
         assert_eq!(loaded, expected);
+    }
+
+    #[test]
+    fn a_file_from_before_the_room_keeps_existing_preferences() {
+        let loaded = parse(br#"{"soundEnabled":false,"mochiOutfit":"witchHat"}"#).unwrap();
+        assert_eq!(loaded.mochi_room_lighting, "automatic");
+        assert!(loaded.mochi_room_rain && loaded.mochi_room_lamp);
+        assert!(!loaded.sound_enabled);
+        assert_eq!(loaded.mochi_outfit, "witchHat");
     }
 
     #[test]
@@ -761,6 +773,9 @@ mod tests {
     #[test]
     fn a_field_of_the_wrong_type_takes_its_default_and_the_rest_are_kept() {
         for (key, wrong) in [
+            ("mochiRoomLighting", json!(true)),
+            ("mochiRoomRain", json!("yes")),
+            ("mochiRoomLamp", json!(1)),
             ("soundVolume", json!("loud")),
             ("soundEnabled", json!(1)),
             ("activeIntegrations", json!("integration_n8n")),
@@ -976,6 +991,9 @@ mod tests {
         assert_eq!(
             keys,
             [
+                "mochiRoomLighting",
+                "mochiRoomRain",
+                "mochiRoomLamp",
                 "soundEnabled",
                 "soundVolume",
                 "autoCloseInterval",

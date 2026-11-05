@@ -32,7 +32,7 @@ jobs:
           name: Coucou-Mochi-macOS-universal
           path: build/mochi-installers/macos/*
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 30
   windows:
     name: Windows x64 EXE and MSI
     runs-on: windows-latest
@@ -46,7 +46,8 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: windows/package-lock.json
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: cargo-cache
         with:
           path: |
             ~/.cargo/registry
@@ -56,6 +57,15 @@ jobs:
       - name: Build and verify EXE and MSI
         shell: pwsh
         run: ./scripts/build-mochi-windows.ps1
+      - name: Keep native build cache
+        if: ${{ always() && steps.cargo-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            windows/target
+          key: ${{ steps.cargo-cache.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@v4
         with:
           name: Coucou-Mochi-Windows-x64
@@ -66,7 +76,7 @@ jobs:
             build/mochi-installers/windows/*.json
             build/mochi-installers/windows/*.txt
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 30
   installers:
     name: Both installer builds required
     if: ${{ always() }}
