@@ -46,7 +46,11 @@ pub fn origin(frame: Rect, fraction: f64, scale: f64, work: Rect) -> Option<(f64
     let size = 120.0 * scale;
     let y = frame.y - size * 0.76;
     if y < work.y || y + size > work.y + work.h || work.w < size { return None; }
-    let x = frame.x + fraction.clamp(0.12, 0.88) * frame.w - size / 2.0;
+    let contact_x = frame.x + fraction.clamp(0.12, 0.88) * frame.w;
+    // EnumWindows also returns shown windows parked outside the monitors.
+    // A nearby display must never turn an off-screen contact into a valid seat.
+    if contact_x < work.x || contact_x > work.x + work.w { return None; }
+    let x = contact_x - size / 2.0;
     Some((x.clamp(work.x, work.x + work.w - size), y))
 }
 
@@ -213,6 +217,8 @@ mod tests {
         assert!(origin(WINDOW, 0.5, f64::NAN, WORK).is_none());
         assert!(origin(WINDOW, f64::NAN, 1.0, WORK).is_none());
         assert!(origin(Rect { w: 70.0, ..WINDOW }, 0.5, 1.0, WORK).is_none());
+        assert!(origin(Rect { x: -2500.0, ..WINDOW }, 0.5, 1.0, WORK).is_none());
+        assert!(origin(Rect { x: 3000.0, ..WINDOW }, 0.5, 1.0, WORK).is_none());
     }
     #[test] fn alt_survives_mouse_release_but_can_be_cancelled() {
         use std::time::{Duration, Instant};
