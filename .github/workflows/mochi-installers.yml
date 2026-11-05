@@ -1,0 +1,80 @@
+name: Coucou Mochi installers
+
+on:
+  push:
+    branches: [build/coucou-mochi-installers]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mochi-installers-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  macos:
+    name: macOS universal DMG
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: brew install xcodegen
+      - name: Build and verify DMG
+        run: bash scripts/build-mochi-macos.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Coucou-Mochi-macOS-universal
+          path: build/mochi-installers/macos/*
+          if-no-files-found: error
+          retention-days: 7
+  windows:
+    name: Windows x64 EXE and MSI
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: windows/package-lock.json
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            windows/target
+          key: mochi-installers-windows-${{ hashFiles('windows/Cargo.lock') }}
+      - name: Build and verify EXE and MSI
+        shell: pwsh
+        run: ./scripts/build-mochi-windows.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Coucou-Mochi-Windows-x64
+          path: |
+            build/mochi-installers/windows/*.exe
+            build/mochi-installers/windows/*.msi
+            build/mochi-installers/windows/*.zip
+            build/mochi-installers/windows/*.json
+            build/mochi-installers/windows/*.txt
+          if-no-files-found: error
+          retention-days: 7
+  installers:
+    name: Both installer builds required
+    if: ${{ always() }}
+    needs: [macos, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require both platforms
+        env:
+          MACOS_RESULT: ${{ needs.macos.result }}
+          WINDOWS_RESULT: ${{ needs.windows.result }}
+        run: test "$MACOS_RESULT" = success && test "$WINDOWS_RESULT" = success

@@ -11,6 +11,7 @@ import { Bridge, emitToWindow, onEvent, type DesktopMode } from "../core/bridge"
 import type { BotEmoteName } from "../core/layout";
 import { Sound } from "../core/sound";
 import { BotEngine } from "../mochi/engine";
+import { MochiScene } from "../mochi/scene";
 import {
   DESKTOP_EVENTS, DOUBLE_CLICK_MS, DRAG_THRESHOLD, PANEL_SIZE, agentActive, gaze, isOverBody,
   layerDragTopLeft, lookOrigin, pointerDistance, shouldSleep, windowDragTopLeft,
@@ -32,6 +33,11 @@ const ASLEEP_FRAME_MS = 250;
 
 class DesktopMochi {
   private engine = new BotEngine();
+  private scene = new MochiScene("perch", "Mochi");
+  private perched = false;
+  private sceneEmote: BotEmoteName | null = null;
+  private emoteTimer: number | null = null;
+  private motion = matchMedia("(prefers-reduced-motion: reduce)");
   private canvas: HTMLCanvasElement;
   private mode: DesktopMode = "off";
 
@@ -63,6 +69,10 @@ class DesktopMochi {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
+    document.body.append(this.scene.el);
+    this.scene.el.style.opacity = "0";
+    this.scene.onReady = () => this.syncScene();
+    this.motion.addEventListener("change", () => this.syncScene());
     const dpr = this.dpr();
     canvas.width = Math.round(PANEL_SIZE * dpr);
     canvas.height = Math.round(PANEL_SIZE * dpr);
@@ -83,7 +93,18 @@ class DesktopMochi {
       this.lastAgentActive = performance.now();
       this.wake();
       this.engine.triggerEmote(e.emote, e.duration);
+      this.sceneEmote = e.emote;
+      if (this.emoteTimer != null) clearTimeout(this.emoteTimer);
+      this.emoteTimer = window.setTimeout(() => { this.sceneEmote = null; this.syncScene(); }, e.duration * 1000);
+      this.syncScene();
       this.schedule();
+    });
+    await onEvent<{ perched: boolean; lean?: number }>("desktop-perch", (event) => {
+      this.perched = event.perched;
+      const lean = Number.isFinite(event.lean) ? Math.max(-0.12, Math.min(0.12, event.lean!)) : 0;
+      this.scene.el.style.transform = `rotate(${this.motion.matches ? 0 : lean}rad)`;
+      this.scene.el.style.transition = this.motion.matches ? "none" : "transform 0.15s ease-out";
+      this.syncScene();
     });
     await onEvent<Point>(DESKTOP_EVENTS.cursor, (p) => this.notePointer(p));
     await onEvent<boolean>(DESKTOP_EVENTS.visible, (on) => this.setVisible(on));
@@ -103,6 +124,7 @@ class DesktopMochi {
 
   private onSnapshot(s: DesktopSnapshot) {
     this.snap = s;
+    this.syncScene();
     this.informed = true;
     Sound.setEnabled(s.soundEnabled);
     Sound.setVolume(s.soundVolume);
@@ -114,6 +136,7 @@ class DesktopMochi {
 
   private setVisible(on: boolean) {
     this.visible = on;
+    this.syncScene();
     if (on) {
       // The two pages may have started in either order: ask again if needed.
       if (!this.informed) void emitToWindow(ISLAND, DESKTOP_EVENTS.ready);
@@ -209,6 +232,8 @@ class DesktopMochi {
     // Dances while Spotify plays, by the compact island's rules.
     engine.setDancing(this.snap.dancing && !this.asleep);
     engine.update(dt);
+    this.syncScene();
+    if (this.scene.ready && this.perched && this.snap.outfit === "none") return;
     const dpr = this.dpr();
     // Dragged onto a monitor of another scale, the bitmap follows the ratio.
     if (this.canvas.width !== Math.round(PANEL_SIZE * dpr)) {
@@ -221,6 +246,18 @@ class DesktopMochi {
     engine.applyDance(ctx, DRAW_W, PANEL_SIZE);
     engine.draw(ctx, DRAW_W, PANEL_SIZE);
     ctx.restore();
+  }
+
+  private syncScene() {
+    const useScene = this.perched && this.snap.outfit === "none";
+    const eye = this.engine.eyeOverride;
+    const emote = eye === "heart" ? "love" : eye === "happy" ? "happy" : eye === "line" ? "annoyed" : this.sceneEmote;
+    this.scene.update({ state: this.asleep ? "sleeping" : this.snap.state, emote,
+      paused: !this.visible || this.snap.paused || !useScene, reduceMotion: this.motion.matches,
+      perched: this.perched, lookX: this.engine.lookX, lookY: this.engine.lookY });
+    const showing = useScene && this.scene.ready;
+    this.scene.el.style.opacity = showing ? "1" : "0";
+    this.canvas.style.visibility = showing ? "hidden" : "visible";
   }
 
   private dpr(): number {
