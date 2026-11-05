@@ -76,7 +76,10 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             windows/target
-          key: mochi-installers-windows-${{ hashFiles('windows/Cargo.lock') }}
+          key: mochi-installers-windows-${{ hashFiles('windows/Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            mochi-installers-windows-${{ hashFiles('windows/Cargo.lock') }}-
+            mochi-installers-windows-${{ hashFiles('windows/Cargo.lock') }}
       - name: Build and verify EXE and MSI
         shell: pwsh
         run: ./scripts/build-mochi-windows.ps1
