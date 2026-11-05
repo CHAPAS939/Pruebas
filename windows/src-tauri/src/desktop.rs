@@ -81,9 +81,10 @@ pub mod logic {
     /// Radius of the clickable body, as a fraction of the window side.
     pub const BODY_RADIUS_FRACTION: f64 = 0.24;
 
-    /// Island panel, logical pixels: dropping Mochi on it brings him home.
+    /// Return target at the top bar, in logical pixels. The taller room editor
+    /// reserves more transparent window space without enlarging the drag-to-home target.
     pub const HOME_ZONE_W: f64 = crate::island::PANEL_W;
-    pub const HOME_ZONE_H: f64 = crate::island::PANEL_H;
+    pub const HOME_ZONE_H: f64 = 320.0;
 
     /// Hit test of the round body inside the square window (window-local).
     pub fn is_over_body(local: (f64, f64), size: f64) -> bool {
@@ -1140,13 +1141,18 @@ mod tests {
     }
 
     #[test]
-    fn the_island_panel_is_home() {
+    fn the_top_bar_return_target_does_not_grow_with_the_room_editor() {
         // Island centred on a 1920 px display at 150 %.
         let zone = home_zone(960.0, 0.0, 1.5);
         assert!(zone.contains((960.0, 10.0)), "on the island");
         assert!(zone.contains((960.0 - 359.0 * 1.5, 300.0 * 1.5)), "inside the panel");
         assert!(!zone.contains((960.0, 330.0 * 1.5)), "below the panel");
         assert!(!zone.contains((100.0, 10.0)), "top-left corner of the screen");
+        // A second display above the primary, at 200%: the visible room may be
+        // taller, but empty reserved window space must not recall a dragged Mochi.
+        let above = home_zone(2880.0, -500.0, 2.0);
+        assert!(above.contains((2880.0, -500.0 + 300.0 * 2.0)));
+        assert!(!above.contains((2880.0, -500.0 + 510.0 * 2.0)));
     }
 
     #[test]
