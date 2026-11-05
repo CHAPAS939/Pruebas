@@ -16,7 +16,7 @@ Son builds de prueba: el DMG tiene firma ad-hoc y no está notarizado; los insta
 ## Verificación
 
 - macOS: app universal compilada, arquitecturas ARM64 e Intel verificadas; recursos compartidos comparados con el código fuente; firma ad-hoc verificada; DMG verificado y montado para repetir la comprobación de recursos y firma.
-- Windows: compilación Release, 575 pruebas de la app y 30 del relay aprobadas (6 pruebas de integración ignoradas); 40 archivos de pruebas del frontend aprobados; instaladores NSIS y MSI generados y recursos comparados con el código fuente.
+- Windows: compilación Release, 575 pruebas de la app y 30 del relay aprobadas (6 pruebas ignoradas); 40 archivos de pruebas del frontend aprobados; instaladores NSIS y MSI generados y recursos comparados con el código fuente.
 - Ambos trabajos nativos y el control final de las dos plataformas terminaron correctamente en la misma ejecución.
 - Estas comprobaciones no equivalen a una prueba interactiva de todas las funciones en el equipo del usuario.
 
