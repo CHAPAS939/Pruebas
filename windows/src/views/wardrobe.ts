@@ -39,7 +39,7 @@ export function buildWardrobe(actions: ViewActions): ViewHost {
   const scarf = h("button", {class:"room-toggle",text:tl("Scarf"),"aria-pressed":"false",onclick:()=>{
     State.settings.mochiOutfitScarf=!State.settings.mochiOutfitScarf;void Bridge.saveSettings(State.settings);State.notify();
   }});
-  grid.after(h("span",{class:"room-caption",text:tl("Combine outfits")}),glasses,scarf);
+  grid.before(h("div",{class:"wardrobe-combination",role:"group","aria-label":tl("Combine outfits")},h("span",{class:"room-caption",text:tl("Combine outfits")}),glasses,scarf));
   let hovered: OutfitSelection | null = null;
   let drawnSeason: Outfit | null = null;
   let drawnLanguage = language();

@@ -53,10 +53,10 @@ export interface ViewLayout {
   agentMode: AgentLayoutMode;
 }
 
-// The window is a fixed 720×320 (largest view) like the macOS panel; the island is
+// The window reserves 720×560 for the room; smaller destinations retain their sizes. The island is
 // drawn inside it, glued to the top edge and horizontally centred.
 export const PANEL_W = 720;
-export const PANEL_H = 320;
+export const PANEL_H = 560;
 
 // No notch on a PC: these are the hidden/compact sizes from docs/SPEC.md.
 export const NOTCH_W = 184;
@@ -95,8 +95,8 @@ export const VIEW_LAYOUTS: Record<IslandViewName, ViewLayout> = {
   // day, longest session, permissions and questions, which the Mac card leaves
   // to the shared image.
   recap: { height: 184, botX: 62, botY: null, botDiameter: 58, agentMode: "column" },
-  room: { height: 300, botX: 0, botY: 0, botDiameter: 0, agentMode: "none" },
-  wardrobe: { height: 160, botX: 68, botY: null, botDiameter: 58, agentMode: "none" },
+  room: { height: 520, botX: 0, botY: 0, botDiameter: 0, agentMode: "none" },
+  wardrobe: { height: 260, botX: 68, botY: null, botDiameter: 58, agentMode: "none" },
   // New version: Mochi on the left, the version and Update now (Mac: .update).
   update: { height: 160, botX: 62, botY: null, botDiameter: 58, agentMode: "none" },
   // After an update: what the new version brings, then "Your Coucou so far".

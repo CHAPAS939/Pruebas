@@ -20,6 +20,7 @@ export function buildRoom(actions: ViewActions): ViewHost {
   let active = false, editor: "decorate" | "wardrobe" = "decorate";
   let minute: number | null = null;
   let activity: RoomActivity = "desk";
+  let zoom = 1;
   const wardrobe = buildWardrobe(actions);
   wardrobe.el.classList.add("mochi-room-wardrobe");
   const lightingButtons = ([
@@ -42,7 +43,7 @@ export function buildRoom(actions: ViewActions): ViewHost {
   const styles = ([
     ["cozy", N_("Cozy"), "⌂"], ["gamer", N_("Gamer"), "⌨"],
     ["minimalist", N_("Minimalist"), "◯"], ["mediterranean", N_("Mediterranean"), "☀"],
-  ] as const).map(([value,label,icon]) => ({value,button:h("button",{class:"room-style",text:tl(label),"aria-pressed":"false",onclick:()=>save("mochiRoomStyle",value)},h("i",{"aria-hidden":"true",text:icon}))}));
+  ] as const).map(([value,label,icon]) => ({value,button:h("button",{class:"room-style","aria-pressed":"false",onclick:()=>save("mochiRoomStyle",value)},h("span",{text:tl(label)}),h("i",{"aria-hidden":"true",text:icon}))}));
   const fields = [
     ["mochiRoomPlantKind", N_("Plant type"), [["auto",N_("Automatic")],["leafy",N_("Leafy plant")],["cactus",N_("Cactus")],["olive",N_("Olive tree")]]],
     ["mochiRoomRugKind", N_("Rug pattern"), [["auto",N_("Automatic")],["woven",N_("Woven")],["geometric",N_("Geometric")],["checker",N_("Checkerboard")]]],
@@ -77,6 +78,10 @@ export function buildRoom(actions: ViewActions): ViewHost {
     for(const {id,button} of targets){const p=points[id];button.hidden=!p;if(p){button.style.left=`${p.x*100}%`;button.style.top=`${p.y*100}%`;}}
   }
   scene.onTargets=positionTargets;
+  const zoomOut = h("button", {text:"−", "aria-label":tl("Zoom out"), title:tl("Zoom out"), onclick:()=>{zoom=Math.max(1,Math.round((zoom-.2)*10)/10);sync();}});
+  const zoomIn = h("button", {text:"+", "aria-label":tl("Zoom in"), title:tl("Zoom in"), onclick:()=>{zoom=Math.min(2,Math.round((zoom+.2)*10)/10);sync();}});
+  const zoomReset = h("button", {class:"room-zoom-reset", "aria-label":tl("Reset zoom"), title:tl("Reset zoom"), onclick:()=>{zoom=1;sync();}});
+  const zoomControls=h("div", {class:"room-zoom"},zoomOut,zoomReset,zoomIn);stage.append(zoomControls);
   const editButtons = ([ ["decorate", N_("Decorate")], ["wardrobe", N_("Wardrobe")] ] as const).map(([value, label]) => h("button", {
     "aria-pressed": "false", text: tl(label), onclick: () => { editor = value; actions.previewOutfit(null); sync(); },
   }));
@@ -101,10 +106,13 @@ export function buildRoom(actions: ViewActions): ViewHost {
       night, rain: State.settings.mochiRoomRain, lamp: State.settings.mochiRoomLamp, character: editor === "wardrobe" || !State.mochiOnDesktop,
       roomStyle:roomStyle(State.settings.mochiRoomStyle),plantKind:State.settings.mochiRoomPlantKind,rugKind:State.settings.mochiRoomRugKind,
       wallDecor:State.settings.mochiRoomWallDecor,deskFinish:State.settings.mochiRoomDeskFinish,plantPosition:State.settings.mochiRoomPlantPosition,
-      activity,glasses:State.settings.mochiOutfitGlasses,scarf:State.settings.mochiOutfitScarf,
+      activity,roomZoom:zoom,glasses:State.settings.mochiOutfitGlasses,scarf:State.settings.mochiOutfitScarf,
       outfit, theme: roomTheme(State.settings.mochiRoomTheme), plant: State.settings.mochiRoomPlant, rug: State.settings.mochiRoomRug });
     scene.el.style.opacity = scene.ready ? "1" : "0";
     canvas.hidden = scene.ready;
+    zoomControls.hidden=!scene.ready;
+    zoomOut.disabled=zoom<=1;zoomIn.disabled=zoom>=2;
+    zoomReset.textContent=`${Math.round(zoom*100)}%`;
     engine.setState(State.effectiveState); engine.setOutfit(outfit, false, State.settings.mochiOutfitGlasses, State.settings.mochiOutfitScarf);
     lightingButtons.forEach((b, i) => b.setAttribute("aria-pressed", String((["automatic", "day", "night"] as RoomLighting[])[i] === lighting)));
     rain.setAttribute("aria-pressed", String(State.settings.mochiRoomRain)); lamp.setAttribute("aria-pressed", String(State.settings.mochiRoomLamp));

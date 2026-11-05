@@ -8897,6 +8897,21 @@
    "ko": "장식 초기화",
    "ja": "装飾をリセット"
   },
+  "Reset zoom": {
+   "zh-Hans": "重置缩放",
+   "hi": "ज़ूम रीसेट करें",
+   "es": "Restablecer zoom",
+   "ar": "إعادة ضبط التكبير",
+   "fr": "Réinitialiser le zoom",
+   "bn": "জুম রিসেট করুন",
+   "pt-BR": "Redefinir zoom",
+   "ru": "Сбросить масштаб",
+   "id": "Atur ulang zoom",
+   "de": "Zoom zurücksetzen",
+   "tr": "Yakınlaştırmayı sıfırla",
+   "ko": "확대/축소 초기화",
+   "ja": "ズームをリセット"
+  },
   "Resetting…": {
    "zh-Hans": "重置中…",
    "hi": "रीसेट हो रहा है…",
@@ -12571,6 +12586,36 @@
    "tr": "Artık Coucou {0} kullanıyorsun",
    "ko": "이제 Coucou {0}을 쓰고 있어요",
    "ja": "Coucou {0} をお使いです"
+  },
+  "Zoom in": {
+   "zh-Hans": "放大",
+   "hi": "ज़ूम इन",
+   "es": "Acercar",
+   "ar": "تكبير",
+   "fr": "Agrandir",
+   "bn": "বড় করুন",
+   "pt-BR": "Ampliar",
+   "ru": "Приблизить",
+   "id": "Perbesar",
+   "de": "Vergrößern",
+   "tr": "Yakınlaştır",
+   "ko": "확대",
+   "ja": "拡大"
+  },
+  "Zoom out": {
+   "zh-Hans": "缩小",
+   "hi": "ज़ूम आउट",
+   "es": "Alejar",
+   "ar": "تصغير",
+   "fr": "Réduire",
+   "bn": "ছোট করুন",
+   "pt-BR": "Reduzir",
+   "ru": "Отдалить",
+   "id": "Perkecil",
+   "de": "Verkleinern",
+   "tr": "Uzaklaştır",
+   "ko": "축소",
+   "ja": "縮小"
   },
   "banned word “{0}”": {
    "zh-Hans": "屏蔽词“{0}”",

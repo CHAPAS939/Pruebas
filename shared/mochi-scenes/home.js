@@ -206,6 +206,12 @@ window.MochiScene.register("home",(host)=>{
       if(settings.outfit==='pumpkin')bodyMaterial.color.set('#eab17d');
       world.rotation.y+=(targetRY-world.rotation.y)*.08;world.rotation.x+=(targetRX-world.rotation.x)*.08;
       mochi.visible=settings.character!==false;
+      // At detail magnification, frame the active spot instead of cropping Mochi off screen.
+      const magnification=settings.roomZoom||1,focus=magnification-1;
+      const cx=seat[0]*focus,cy=1.8+(seat[1]-.15-1.8)*focus,cz=seat[2]*focus;
+      camera.position.set(9+cx,7.4+cy-1.8,11+cz);camera.lookAt(cx,cy,cz);
+      camera.zoom=magnification;camera.updateProjectionMatrix();
+      host.dataset.roomZoom=String(magnification);
       renderer.render(scene,camera);rendered++;
       // Keep the keyboard/touch target on the actual projected character.
       // The hit target follows the room, not the breathing/jump animation. Quantize to

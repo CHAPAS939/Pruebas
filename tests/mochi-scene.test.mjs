@@ -95,3 +95,17 @@ test('interactive room preferences reject unknown values and preserve valid comb
   const bad=h.api.normalize({roomStyle:'../../bad',activity:'execute',glasses:'crown'});
   assert.equal(bad.roomStyle,'cozy');assert.equal(bad.activity,'desk');assert.equal(bad.glasses,'none');
 });
+
+test('detail zoom is bounded and defaults safely for both native hosts', () => {
+  const h = harness();
+  for (const value of [undefined, null, '2', NaN, Infinity]) assert.equal(h.api.normalize({ roomZoom: value }).roomZoom, 1);
+  assert.equal(h.api.normalize({ roomZoom: -8 }).roomZoom, 1);
+  assert.equal(h.api.normalize({ roomZoom: 20 }).roomZoom, 2);
+  assert.equal(h.api.normalize({ roomZoom: 1.6 }).roomZoom, 1.6);
+  h.api.update({ paused: false, reduceMotion: true, roomZoom: 2 });
+  const drawn = h.counters.drawn;
+  h.api.update({ paused: false, reduceMotion: true, roomZoom: 1 });
+  assert.equal(h.counters.mounted, 1);
+  assert.equal(h.counters.drawn, drawn + 1);
+  assert.equal(h.frames.size, 0);
+});

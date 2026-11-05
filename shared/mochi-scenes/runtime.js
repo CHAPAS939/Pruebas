@@ -7,7 +7,7 @@
   const themes=new Set(["sand","sage","rose","midnight"]);
   const choices={roomStyle:["cozy","gamer","minimalist","mediterranean"],plantKind:["auto","leafy","cactus","olive"],rugKind:["auto","woven","geometric","checker"],wallDecor:["auto","botanical","prints","neon","none"],deskFinish:["auto","wood","white","dark"],plantPosition:["left","right","back"],activity:["desk","rest","plant"],glasses:["none","sunglasses","roundGlasses"]};
   const pick=(key,value)=>choices[key].includes(value)?value:choices[key][0];
-  const defaults=Object.freeze({state:"idle",emote:null,paused:true,reduceMotion:false,night:false,rain:true,lamp:true,character:true,perched:false,lookX:0,lookY:0,outfit:"none",theme:"sand",plant:true,rug:true,roomStyle:"cozy",plantKind:"auto",rugKind:"auto",wallDecor:"auto",deskFinish:"auto",plantPosition:"left",activity:"desk",glasses:"none",scarf:false});
+  const defaults=Object.freeze({state:"idle",emote:null,paused:true,reduceMotion:false,night:false,rain:true,lamp:true,character:true,perched:false,lookX:0,lookY:0,outfit:"none",theme:"sand",plant:true,rug:true,roomStyle:"cozy",plantKind:"auto",rugKind:"auto",wallDecor:"auto",deskFinish:"auto",plantPosition:"left",activity:"desk",glasses:"none",scarf:false,roomZoom:1});
   let settings={...defaults},factory=null,instance=null,raf=0,last=0,disposed=false,failed=false,lastAnchor="",lastTargets="",sizeDirty=true;
   const finite=(v)=>typeof v==="number"&&Number.isFinite(v)?Math.max(-1,Math.min(1,v)):0;
   function normalize(value){
@@ -17,7 +17,7 @@
       rain:v.rain!==false,lamp:v.lamp!==false,character:v.character!==false,perched:v.perched===true,
       lookX:finite(v.lookX),lookY:finite(v.lookY),outfit:outfits.has(v.outfit)?v.outfit:"none",
       theme:themes.has(v.theme)?v.theme:"sand",plant:v.plant!==false,rug:v.rug!==false,
-      ...Object.fromEntries(Object.keys(choices).map(key=>[key,pick(key,v[key])])),scarf:v.scarf===true};
+      ...Object.fromEntries(Object.keys(choices).map(key=>[key,pick(key,v[key])])),scarf:v.scarf===true,roomZoom:typeof v.roomZoom==="number"&&Number.isFinite(v.roomZoom)?Math.max(1,Math.min(2,v.roomZoom)):1};
   }
   function report(event,detail={}){
     const message={channel:"coucou-mochi-scene",event,...detail};

@@ -21,6 +21,7 @@ struct MochiRoomView: View {
     @AppStorage("mochiOutfitGlasses") private var glasses = "none"
     @AppStorage("mochiOutfitScarf") private var scarf = false
     @State private var activity = "desk"
+    @State private var zoom: Double = 1
     @State private var screenPaused = false
     @State private var wardrobe = false
     @State private var hovered: Outfit? = nil
@@ -53,11 +54,11 @@ struct MochiRoomView: View {
                             theme: MochiRoomTheme(rawValue: theme) ?? .sand, plant: plant, rug: rug,
                             outfit: state.resolvedOutfit, showCharacter: wardrobe || !state.mochiOnDesktop,
                             decoration: MochiRoomDecoration(style: style, plantKind: plantKind, rugKind: rugKind, wallDecor: wallDecor, deskFinish: deskFinish, plantPosition: plantPosition),
-                            activity: activity, glasses: glasses, scarf: scarf, onInteract: interact)
+                            activity: activity, glasses: glasses, scarf: scarf, zoom: $zoom, onInteract: interact)
                             .accessibilityLabel(String(localized: "room.scene"))
                     }.clipShape(RoundedRectangle(cornerRadius: 14))
                 } else { Color.clear }
-                editor.frame(width: 170)
+                editor.frame(width: 190)
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding(.horizontal, 14).padding(.bottom, 10)
@@ -163,6 +164,7 @@ private struct MochiRoomStage: View {
     let activity: String
     let glasses: String
     let scarf: Bool
+    @Binding var zoom: Double
     let onInteract: (String) -> Void
     @State private var targets: [String: CGPoint] = [:]
     @State private var hovered: String? = nil
@@ -176,10 +178,10 @@ private struct MochiRoomStage: View {
                     character: showCharacter, outfit: outfit.rawValue, theme: theme.rawValue, plant: plant, rug: rug,
                     roomStyle: decoration.style, plantKind: decoration.plantKind, rugKind: decoration.rugKind,
                     wallDecor: decoration.wallDecor, deskFinish: decoration.deskFinish, plantPosition: decoration.plantPosition,
-                    activity: activity, glasses: glasses, scarf: scarf),
+                    activity: activity, glasses: glasses, scarf: scarf, roomZoom: zoom),
                 onReady: { sceneReady = $0 }, onTargets: { targets = $0 })
                 .opacity(sceneReady ? 1 : 0)
-            VStack { Spacer(); HStack { Text("Tap the objects").font(.system(size: 9)).foregroundStyle(Color(hex: "#56614F")).padding(5).background(Color.white.opacity(0.88)).clipShape(Capsule()); Spacer() } }.padding(8).allowsHitTesting(false)
+            VStack { Spacer(); HStack { Text("Tap the objects").font(.system(size: 9)).foregroundStyle(Color(hex: "#56614F")).padding(5).background(Color.white.opacity(0.88)).clipShape(Capsule()); Spacer() } }.padding(8).padding(.bottom, 37).allowsHitTesting(false)
             GeometryReader { geometry in
                 let points = sceneReady ? targets : fallbackTargets
                 ForEach(["lamp", "window", "desk", "rest", "plant"], id: \.self) { id in
@@ -194,6 +196,18 @@ private struct MochiRoomStage: View {
                         .position(x: p.x * geometry.size.width, y: p.y * geometry.size.height)
                     }
                 }
+            }
+        }.overlay(alignment: .bottomTrailing) {
+            if sceneReady {
+                HStack(spacing: 3) {
+                    Button { zoom = max(1, (zoom * 5 - 1).rounded() / 5) } label: { Image(systemName: "minus").frame(width: 26, height: 26) }
+                        .disabled(zoom <= 1).accessibilityLabel(Text("Zoom out"))
+                    Button { zoom = 1 } label: { Text("\(Int((zoom * 100).rounded()))%").font(.system(size: 10, weight: .medium)).frame(width: 42, height: 26) }
+                        .accessibilityLabel(Text("Reset zoom"))
+                    Button { zoom = min(2, (zoom * 5 + 1).rounded() / 5) } label: { Image(systemName: "plus").frame(width: 26, height: 26) }
+                        .disabled(zoom >= 2).accessibilityLabel(Text("Zoom in"))
+                }.buttonStyle(.plain).padding(3).foregroundStyle(Color(hex: "#46513F"))
+                    .background(Color.white.opacity(0.94)).clipShape(RoundedRectangle(cornerRadius: 12)).padding(8)
             }
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
     }
