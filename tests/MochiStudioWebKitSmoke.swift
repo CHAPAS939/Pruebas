@@ -7,12 +7,11 @@ import Foundation
 final class StudioSmoke: NSObject, @preconcurrency WKScriptMessageHandler, @preconcurrency WKNavigationDelegate {
     private var web: WKWebView!
     private var window: NSWindow!
-    private var folder = ""
-    private var stage = 0
+        private var stage = 0
     private var lastDiagnostic = ""
     func start(folder url: URL) {
-        folder = url.standardizedFileURL.path + "/"
         let config = WKWebViewConfiguration();config.websiteDataStore = .nonPersistent();config.preferences.javaScriptCanOpenWindowsAutomatically = false
+        config.setURLSchemeHandler(MochiStudioResources(folder:url),forURLScheme:MochiStudioResources.scheme)
         config.userContentController.add(self,name:"mochiStudio")
         config.userContentController.add(self,name:"smokeDiagnostics")
         config.userContentController.addUserScript(WKUserScript(source:"""
@@ -22,7 +21,7 @@ final class StudioSmoke: NSObject, @preconcurrency WKScriptMessageHandler, @prec
         web = WKWebView(frame:CGRect(x:0,y:0,width:640,height:520),configuration:config);web.navigationDelegate = self
         window = NSWindow(contentRect:CGRect(x:80,y:80,width:640,height:520),styleMask:[.titled],backing:.buffered,defer:false)
         window.contentView = web;window.makeKeyAndOrderFront(nil)
-        web.loadFileURL(url.appendingPathComponent("studio.html"),allowingReadAccessTo:url)
+        web.load(URLRequest(url:MochiStudioResources.entry))
         DispatchQueue.main.asyncAfter(deadline:.now()+40) { print("FAIL: packaged Mac Studio did not finish its WebKit smoke test");exit(1) }
     }
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -67,7 +66,7 @@ final class StudioSmoke: NSObject, @preconcurrency WKScriptMessageHandler, @prec
     func webView(_ view: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { print("FAIL: WK navigation \(error)");exit(1) }
     func webView(_ view: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { print("FAIL: WK provisional navigation \(error)");exit(1) }
     func webView(_ view: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy)->Void) {
-        guard let url=action.request.url,url.isFileURL,url.standardizedFileURL.path.hasPrefix(folder) else{print("WK blocked navigation: \(action.request.url?.absoluteString ?? "nil")");decisionHandler(.cancel);return}
+        guard let url=action.request.url,MochiStudioResources.permits(url) else{print("WK blocked navigation: \(action.request.url?.absoluteString ?? "nil")");decisionHandler(.cancel);return}
         decisionHandler(.allow)
     }
 }

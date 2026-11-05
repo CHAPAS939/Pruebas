@@ -41,13 +41,12 @@ private struct MochiStudioWebView: NSViewRepresentable {
         let configuration = WKWebViewConfiguration(); configuration.websiteDataStore = .nonPersistent()
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
         configuration.userContentController.add(context.coordinator, name: "mochiStudio")
+        let folder=Bundle.main.url(forResource:"mochi-scenes",withExtension:nil)
+        if let folder { configuration.setURLSchemeHandler(MochiStudioResources(folder:folder),forURLScheme:MochiStudioResources.scheme) }
         let view = WKWebView(frame: .zero, configuration: configuration)
         view.underPageBackgroundColor = .clear; view.wantsLayer = true; view.layer?.backgroundColor = NSColor.clear.cgColor
         view.navigationDelegate = context.coordinator; context.coordinator.webView = view
-        if let folder = Bundle.main.url(forResource: "mochi-scenes", withExtension: nil) {
-            context.coordinator.folder = folder.standardizedFileURL.path + "/"
-            view.loadFileURL(folder.appendingPathComponent("studio.html"), allowingReadAccessTo: folder)
-        }
+        if folder != nil { view.load(URLRequest(url:MochiStudioResources.entry)) }
         return view
     }
     func updateNSView(_ view: WKWebView, context: Context) { context.coordinator.parent = self; context.coordinator.push() }
@@ -60,7 +59,7 @@ private struct MochiStudioWebView: NSViewRepresentable {
         var parent: MochiStudioWebView
         weak var webView: WKWebView?
         var active = true, ready = false, saving = false
-        var folder = "", last: Data?
+        var last: Data?
         init(_ parent: MochiStudioWebView) { self.parent = parent;super.init() }
         func push() {
             guard active, ready, let view = webView, let data = try? JSONSerialization.data(withJSONObject: parent.snapshot, options: .sortedKeys), data != last else { return }
@@ -109,7 +108,7 @@ private struct MochiStudioWebView: NSViewRepresentable {
             catch { photoResult(id:id, success:false) }
         }
         func webView(_ view: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            guard let url = action.request.url, url.isFileURL, !folder.isEmpty, url.standardizedFileURL.path.hasPrefix(folder) else { decisionHandler(.cancel);return }
+            guard let url = action.request.url, MochiStudioResources.permits(url) else { decisionHandler(.cancel);return }
             decisionHandler(.allow)
         }
         func webViewWebContentProcessDidTerminate(_ view: WKWebView) { ready = false;last = nil;if active { view.reload() } }

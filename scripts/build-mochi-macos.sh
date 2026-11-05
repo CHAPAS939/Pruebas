@@ -26,7 +26,7 @@ APP="$DERIVED/Build/Products/Debug/Coucou.app"
 test -x "$APP/Contents/MacOS/Coucou"
 lipo "$APP/Contents/MacOS/Coucou" -verify_arch arm64 x86_64
 node scripts/test-mochi-resources.mjs "$APP/Contents/Resources/mochi-scenes"
-swiftc NotchBuddy/Sources/App/MochiPhotoLogic.swift tests/MochiStudioWebKitSmoke.swift -o "$OUT/studio-webkit-smoke"
+swiftc NotchBuddy/Sources/App/MochiPhotoLogic.swift NotchBuddy/Sources/App/MochiStudioResources.swift tests/MochiStudioWebKitSmoke.swift -o "$OUT/studio-webkit-smoke"
 "$OUT/studio-webkit-smoke" "$APP/Contents/Resources/mochi-scenes"
 rm "$OUT/studio-webkit-smoke"
 test -f "$APP/Contents/Resources/mochi-scenes/home.js"
