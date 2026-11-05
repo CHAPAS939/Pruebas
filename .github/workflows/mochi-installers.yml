@@ -13,6 +13,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  window-selection:
+    name: Native Windows Alt-drop regression
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Test real inactive, covered, minimized and closed windows
+        run: cargo test --manifest-path tests/window-perch-native/Cargo.toml --locked -- --test-threads=1
   macos:
     name: macOS universal DMG
     runs-on: macos-latest
@@ -47,6 +57,7 @@ jobs:
           retention-days: 30
   windows:
     name: Windows x64 EXE and MSI
+    needs: window-selection
     runs-on: windows-latest
     timeout-minutes: 90
     steps:

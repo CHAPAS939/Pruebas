@@ -27,7 +27,7 @@ La app mantiene los identificadores y la configuración de Coucou. Esta compilac
 
 ## Uso
 
-Abre la pestaña con la lámpara para entrar en la habitación. Usa Opción (Mac) o Alt (Windows) al soltar a Mochi en el borde superior de una ventana para sentarlo. El arrastre habitual conserva la función original de Coucou. Se mantienen los conjuntos de ropa y el Canvas de respaldo.
+Abre la pestaña con la lámpara para entrar en la habitación. Usa Opción (Mac) o Alt (Windows) al soltar a Mochi en el borde superior de una ventana para sentarlo. El arrastre habitual conserva la función original de Coucou. En Windows se puede elegir una ventana visible aunque no esté activa; la ventana necesita espacio encima para que Mochi quepa. Se mantienen los conjuntos de ropa y el Canvas de respaldo.
 
 ## Estado
 

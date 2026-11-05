@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Windows Alt-drop** — accept exposed windows without requiring keyboard focus; preserve Alt across near-simultaneous key/mouse release; test capture, occlusion, minimize/restore and close against real native fixture windows.
+
 - **Combined Mochi preview** — room and native window perching in one macOS/Windows app; installer packaging and dual-platform build verification.
 
 - **Mochi Home on macOS and Windows** — integrate the shared offline 3D scene with real app state, preserve the Canvas/outfit fallback, suspend hidden rendering, and add dual-platform native build CI. Verified in the combined Mochi preview installer builds.
