@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **Windows Alt-drop** — accept exposed windows without requiring keyboard focus; preserve Alt across near-simultaneous key/mouse release; test capture, occlusion, minimize/restore and close against real native fixture windows.
+- **Windows Alt-drop** — accept exposed windows without requiring keyboard focus; preserve Alt across near-simultaneous key/mouse release; use the release cursor and prioritize valid window drops over the island's invisible return zone; test capture, occlusion, minimize/restore and close against real native fixture windows.
 
 - **Combined Mochi preview** — room and native window perching in one macOS/Windows app; installer packaging and dual-platform build verification.
 

@@ -10,6 +10,12 @@ pub struct Target {
 
 pub enum Probe { Gone, Hidden, Visible(Rect) }
 
+/// The expanded island panel has a large invisible return zone. An explicit,
+/// valid Alt-drop chooses the window even when that zone overlaps its edge.
+pub fn returns_home(over_home: bool, valid_perch: bool) -> bool {
+    over_home && !valid_perch
+}
+
 /// Keep the modifier through the small gap between releasing Alt and the mouse.
 /// A deliberate release while continuing to drag still cancels the gesture.
 #[derive(Clone, Copy, Default)]
@@ -195,5 +201,16 @@ mod tests {
         assert!(!modifier.requested(now + Duration::from_millis(250)));
         modifier.sample(true, now + Duration::from_millis(300));
         assert!(modifier.requested(now + Duration::from_millis(301)));
+    }
+    #[test] fn window_under_the_top_bar_can_receive_an_explicit_alt_drop() {
+        let frame = Rect { x: 400.0, y: 200.0, w: 1100.0, h: 600.0 };
+        let pointer = (960.0, 200.0);
+        let home = Rect { x: 600.0, y: 30.0, w: 720.0, h: 320.0 };
+        assert!(home.contains(pointer));
+        assert!(accepts(pointer, frame, 1.0));
+        let seat = origin(frame, (pointer.0-frame.x)/frame.w, 1.0, WORK);
+        assert!(seat.is_some());
+        assert!(!returns_home(home.contains(pointer), seat.is_some()));
+        assert!(returns_home(home.contains(pointer), false), "ordinary drop still goes home");
     }
 }

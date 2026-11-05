@@ -601,12 +601,25 @@ fn target_spot(app: &AppHandle, d: &Desktop, anywhere: bool) -> Option<(f64, f64
 
 /// The drop, wherever it came from: home if it is over the island's panel,
 /// otherwise his new spot.
-async fn finish_drop(app: &AppHandle, d: &Desktop, pos: (f64, f64), from: Source, prefer_perch: bool) {
+async fn finish_drop(app: &AppHandle, d: &Desktop, pos: (f64, f64), from: Source, perch_at: Option<(f64, f64)>) {
     let s = side(app, d);
     let center = (pos.0 + s / 2.0, pos.1 + s / 2.0);
-    let home = island_anchor(app, d)
+    let all = displays(app, d);
+    // Use the release cursor, not the sprite center: its grab offset can
+    // differ after crossing monitors with different DPI or grabbing off-center.
+    let candidate = if let Some(point) = perch_at.filter(|_| d.mode == DesktopMode::Poll) {
+        let scale = logic::display_near(point, &all).map(|v| v.scale).unwrap_or(1.0);
+        crate::window_perch::capture(point, scale).and_then(|target| {
+            if let crate::window_perch::Probe::Visible(frame) = crate::window_perch::probe(target) {
+                let display = logic::display_near((frame.x + frame.w * target.fraction, frame.y + 1.0), &all)?;
+                crate::window_perch::origin(frame, target.fraction, display.scale, display.work).map(|spot| (target, spot))
+            } else { None }
+        })
+    } else { None };
+    let over_home = island_anchor(app, d)
         .map(|(cx, top, scale)| logic::home_zone(cx, top, scale).contains(center))
         .unwrap_or(false);
+    let home = crate::window_perch::returns_home(over_home, candidate.is_some());
     {
         let mut i = d.inner.lock().unwrap();
         i.carry = None;
@@ -621,16 +634,6 @@ async fn finish_drop(app: &AppHandle, d: &Desktop, pos: (f64, f64), from: Source
             refresh(app, d);
         }
     } else {
-        let all = displays(app, d);
-        let candidate = if prefer_perch && d.mode == DesktopMode::Poll {
-            let scale = logic::display_near(center, &all).map(|v| v.scale).unwrap_or(1.0);
-            crate::window_perch::capture(center, scale).and_then(|target| {
-                if let crate::window_perch::Probe::Visible(frame) = crate::window_perch::probe(target) {
-                    let display = logic::display_near((frame.x + frame.w * target.fraction, frame.y + 1.0), &all)?;
-                    crate::window_perch::origin(frame, target.fraction, display.scale, display.work).map(|spot| (target, spot))
-                } else { None }
-            })
-        } else { None };
         let spot = if let Some((target, spot)) = candidate {
             d.inner.lock().unwrap().perch = Some(target);
             let _ = app.emit_to(LABEL, "desktop-perch", PerchState { perched: true, lean: 0.0 });
@@ -753,10 +756,10 @@ fn spawn_poll(app: AppHandle, d: Arc<Desktop>) {
                     // Released: hand the drop to the async pool, where the
                     // snap animation may wait.
                     d.inner.lock().unwrap().carry = None;
-                    let prefer_perch = c.perch_modifier.requested(now);
+                    let perch_at = c.perch_modifier.requested(now).then_some((cx, cy));
                     let app2 = app.clone();
                     let d2 = d.clone();
-                    tauri::async_runtime::spawn(async move { finish_drop(&app2, &d2, pos, c.from, prefer_perch).await });
+                    tauri::async_runtime::spawn(async move { finish_drop(&app2, &d2, pos, c.from, perch_at).await });
                 }
                 continue;
             }
@@ -843,7 +846,7 @@ pub async fn desktop_mochi_carry_end(app: AppHandle, x: f64, y: f64) {
     let pos = from_island_client(&app, &d, x, y)
         .map(|c| (c.0 - s / 2.0, c.1 - s / 2.0))
         .unwrap_or_else(|| d.inner.lock().unwrap().pos);
-    finish_drop(&app, &d, pos, Source::Island, false).await;
+    finish_drop(&app, &d, pos, Source::Island, None).await;
 }
 
 /// The page saw a drag start on Mochi. Returns his top-left corner in the
@@ -915,7 +918,7 @@ pub async fn desktop_mochi_drag_end(app: AppHandle, x: f64, y: f64) {
         }
     }
     place(&app, &d, (x, y));
-    finish_drop(&app, &d, (x, y), Source::Desktop, false).await;
+    finish_drop(&app, &d, (x, y), Source::Desktop, None).await;
 }
 
 /// Launch or the end of an alert: from the island to his spot. False when the
