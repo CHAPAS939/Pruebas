@@ -27,9 +27,9 @@ La app mantiene los identificadores y la configuración de Coucou. Esta compilac
 
 ## Uso
 
-La habitación incluye estilos **Acogedor, Gamer, Minimalista y Mediterráneo** con muebles y decoración diferentes. Puedes cambiar la especie y posición de la planta, el patrón de alfombra, los cuadros y el acabado del escritorio. Las opciones automáticas siguen el estilo elegido; las elecciones personales se conservan. Toca la lámpara, la ventana, el escritorio, el asiento o la planta para interactuar.
+La habitación tiene una vista de 520 puntos de alto y zoom del 100 % al 200 % con los botones **+ / −**; pulsar el porcentaje restaura el encuadre completo. Incluye estilos **Acogedor, Gamer, Minimalista y Mediterráneo** con muebles y decoración diferentes. Puedes cambiar la especie y posición de la planta, el patrón de alfombra, los cuadros y el acabado del escritorio. Las opciones automáticas siguen el estilo elegido; las elecciones personales se conservan. Toca la lámpara, la ventana, el escritorio, el asiento o la planta para interactuar.
 
-En **Guardarropa → Combinar atuendos** puedes añadir gafas y bufanda al atuendo principal. En el menú contextual del Mochi del escritorio, **Saltar a otra ventana** busca otra ventana visible con espacio encima y mueve solo a Mochi, conservando la ropa. Si no hay un destino adecuado, mantiene su posición. El movimiento reducido elimina la animación del salto.
+En **Guardarropa → Combinar atuendos** puedes añadir gafas y bufanda al atuendo principal. Los controles quedan visibles encima de la cuadrícula, en la habitación y en el guardarropa independiente. En el menú contextual del Mochi del escritorio, **Saltar a otra ventana** busca otra ventana visible con espacio encima y mueve solo a Mochi, conservando la ropa. Si no hay un destino adecuado, mantiene su posición. El movimiento reducido elimina la animación del salto.
 
 Abre la pestaña con la lámpara para entrar en la habitación. Usa Opción (Mac) o Alt (Windows) al soltar a Mochi en el borde superior de una ventana para engancharlo. El arrastre habitual conserva la función original de Coucou. En Windows se puede elegir una ventana visible aunque no esté activa; la ventana necesita espacio encima para que Mochi quepa. Se mantienen los conjuntos de ropa y el Canvas de respaldo.
 
@@ -37,4 +37,4 @@ En la habitación, **Decorar** permite elegir Arena, Salvia, Rosa o Medianoche y
 
 ## Estado
 
-Código integrado sobre `74363634b037108393e450428e5f207515c2c29b`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Los builds nativos y los instaladores de la revisión `c9eeb21bd40a499baeacb8d57ae8fa796a7240ff` han terminado correctamente en ambas plataformas. El repositorio de Louis devuelve 403 para la conexión CHAPAS939; el usuario ha autorizado compilar en una rama nueva de `CHAPAS939/Pruebas`, conservando su rama principal.
+Código integrado sobre `74363634b037108393e450428e5f207515c2c29b`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Los builds nativos y los instaladores de la revisión `7c831314b97f1ab68e38748e6fd04a9c742dae69` han terminado correctamente en ambas plataformas. El repositorio de Louis devuelve 403 para la conexión CHAPAS939; el usuario ha autorizado compilar en una rama nueva de `CHAPAS939/Pruebas`, conservando su rama principal.
