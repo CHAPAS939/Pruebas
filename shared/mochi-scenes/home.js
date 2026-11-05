@@ -196,7 +196,7 @@ window.MochiScene.register("home",(host)=>{
       if(Math.abs(seat[0]-mochi.position.x)+Math.abs(seat[2]-mochi.position.z)+Math.abs(targetY-mochi.position.y)>.04)renderer.shadowMap.needsUpdate=true;
       mochi.position.y+=(targetY-mochi.position.y)*blend;
       mochi.rotation.y+=( (activity==='rest'?.20:.52)-mochi.rotation.y)*blend;
-      watering.visible=activity==='plant';waterDrops.forEach((drop,i)=>drop.position.y=-.09-((now*.6+i*.11)%.48));
+      watering.visible=activity==='plant';watering.scale.x=room.plantPoint[0]>0?-1:1;waterDrops.forEach((drop,i)=>drop.position.y=-.09-((now*.6+i*.11)%.48));
       host.dataset.activity=activity;host.dataset.roomStyle=settings.roomStyle||'cozy';
       mochi.rotation.z=happy&&!quiet?Math.sin(now*3.7)*.055:0;
       const blink=quiet?1:(Math.sin(now*.87)>0.995?.1:1);
