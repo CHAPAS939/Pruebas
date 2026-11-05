@@ -958,8 +958,8 @@ pub async fn desktop_mochi_fly_out(app: AppHandle, anywhere: Option<bool>) -> bo
 
 /// Chooses another exposed normal window; only Mochi's own overlay is moved.
 #[tauri::command]
-pub async fn desktop_mochi_jump(app: AppHandle, desktop: State<'_, Arc<Desktop>>, reduce_motion: bool) -> bool {
-    let d=desktop.inner().clone();
+pub async fn desktop_mochi_jump(app: AppHandle, reduce_motion: bool) -> bool {
+    let d=app.state::<Arc<Desktop>>().inner().clone();
     let (from,exclude)={let i=d.inner.lock().unwrap();
         if d.mode!=DesktopMode::Poll || !i.shown || !i.landed || i.carry.is_some(){return false;}
         (i.pos,i.perch.map(|p|p.id))};
