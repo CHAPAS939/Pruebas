@@ -30,3 +30,13 @@ test('native adapter lazily loads a sandboxed scene, ignores other frames and se
   scene.update({ ...paused, state: 'error' }); assert.equal(sent.length, 2);
   scene.dispose(); assert.equal(listeners.size, 0);
 });
+
+test('object targets are accepted only from the embedded scene and stay bounded', () => {
+  const scene = new MochiScene('home','Mochi');
+  const host = {postMessage(){}};scene.el.contentWindow = host;
+  let shown = null;scene.onTargets = points => {shown=points};
+  const data={channel:'coucou-mochi-scene',event:'targets',targets:{lamp:{x:.3,y:.4},window:{x:Infinity,y:.2},plant:{x:-1,y:.2},execute:{x:.1,y:.1}}};
+  for(const listener of listeners)listener({source:{},data});assert.equal(shown,null);
+  for(const listener of listeners)listener({source:host,data});assert.deepEqual(shown,{lamp:{x:.3,y:.4}});
+  scene.dispose();assert.equal(listeners.size,0);
+});

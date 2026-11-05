@@ -3,6 +3,8 @@ export interface SceneSettings {
   state: string; paused: boolean; reduceMotion: boolean;
   night?: boolean; rain?: boolean; lamp?: boolean; character?: boolean;
   outfit?: string; theme?: string; plant?: boolean; rug?: boolean;
+  roomStyle?: string; plantKind?: string; rugKind?: string; wallDecor?: string; deskFinish?: string; plantPosition?: string;
+  activity?: string; glasses?: string; scarf?: boolean;
   perched?: boolean; emote?: string | null; lookX?: number; lookY?: number;
 }
 
@@ -15,6 +17,7 @@ export class MochiScene {
   private active = false;
   private readonly listener: (event: MessageEvent) => void;
   onReady?: (ready: boolean) => void;
+  onTargets?: (targets: Record<string, {x:number; y:number}>) => void;
   onAnchor?: (anchor: { x: number; y: number }) => void;
 
   constructor(kind: "home" | "perch", label: string) {
@@ -30,6 +33,14 @@ export class MochiScene {
       if (event.data.event === "loaded") { this.loaded = true; this.key = ""; this.send(); }
       else if (event.data.event === "ready") { this.ready = true; this.onReady?.(true); }
       else if (event.data.event === "fallback") { this.ready = false; this.loaded = false; this.onReady?.(false); }
+      else if (event.data.event === "targets") {
+        const targets: Record<string, {x:number; y:number}> = {};
+        for (const id of ["lamp", "window", "desk", "rest", "plant"]) {
+          const a = event.data.targets?.[id];
+          if (a && Number.isFinite(a.x) && Number.isFinite(a.y) && a.x >= 0 && a.x <= 1 && a.y >= 0 && a.y <= 1) targets[id] = {x:a.x, y:a.y};
+        }
+        this.onTargets?.(targets);
+      }
       else if (event.data.event === "anchor") {
         const a = event.data.anchor;
         if (a && Number.isFinite(a.x) && Number.isFinite(a.y)) this.onAnchor?.({ x: Math.max(0, Math.min(1, a.x)), y: Math.max(0, Math.min(1, a.y)) });

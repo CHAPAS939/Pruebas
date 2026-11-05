@@ -8,7 +8,7 @@ import { Ease, lerp, type EaseFn } from "../core/anim";
 import { Sound } from "../core/sound";
 import type { BotEmoteName, BotStateName } from "../core/layout";
 import { PUMPKIN_BODY, drawOutfitBehind, drawOutfitFront, makeHead } from "./outfits";
-import type { Outfit } from "./wardrobe";
+import { outfitLayers, type Outfit } from "./wardrobe";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -214,6 +214,8 @@ export class BotEngine {
   outfit: Outfit = "none";
   /** 0 = gone, 1 = fully on. */
   outfitPresence = 0;
+  private glasses = "none";
+  private scarf = false;
   private outfitTarget: Outfit = "none";
 
   // Spring lag of the soft parts (pompoms, hat tips, scarf end), −1…1.
@@ -534,7 +536,8 @@ export class BotEngine {
    * Dresses Mochi. Animated: the old outfit leaves (180 ms), the new one drops
    * in (350 ms) and Mochi does a little squash — BotEngine.setOutfit on macOS.
    */
-  setOutfit(next: Outfit, animated = true) {
+  setOutfit(next: Outfit, animated = true, glasses = "none", scarf = false) {
+    this.glasses=glasses;this.scarf=scarf;
     if (next === this.outfitTarget) return;
     this.outfitTarget = next;
     this.tweens.delete("outfitPresence");
@@ -558,7 +561,7 @@ export class BotEngine {
 
   /** Wearing something visible: the body then turns as one piece when it rolls. */
   private get rigidRoll(): boolean {
-    return !this.isMini && this.outfit !== "none" && this.outfitPresence > 0.05;
+    return !this.isMini && ((this.outfit !== "none" && this.outfitPresence > 0.05) || this.glasses !== "none" || this.scarf);
   }
 
   /** True while anything is still moving — lets the island stop its RAF loop. */
@@ -817,10 +820,11 @@ export class BotEngine {
     if (this.tilt !== 0) x.rotate(this.tilt);
     x.scale(this.sx, this.sy);
 
-    const dressed = !this.isMini && this.outfit !== "none";
+    const layers = outfitLayers(this.outfit, this.glasses, this.scarf);
+    const dressed = !this.isMini && layers.length > 0;
     const head = dressed ? makeHead(R, this.yaw, this.pitch, this.physDx, this.physDy) : null;
     const outfitState = { presence: this.outfitPresence, morph: this.morph };
-    if (head) drawOutfitBehind(x, this.outfit, head, outfitState);
+    if (head) for(const outfit of layers) drawOutfitBehind(x, outfit, head, {...outfitState,presence:outfit===this.outfit?outfitState.presence:1});
 
     const body = this.bodyPath(rx, ry, R);
     this.drawBody(x, body, R, rx, ry);
@@ -842,7 +846,7 @@ export class BotEngine {
     this.drawEyes(x, body, R, rx, ry);
     if (this.morph > 0.05) this.drawMouth(x, body, R);
 
-    if (head) drawOutfitFront(x, this.outfit, head, outfitState);
+    if (head) for(const outfit of layers) drawOutfitFront(x, outfit, head, {...outfitState,presence:outfit===this.outfit?outfitState.presence:1});
 
     x.restore();
     x.restore();

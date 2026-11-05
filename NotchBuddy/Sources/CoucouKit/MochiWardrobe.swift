@@ -60,6 +60,18 @@ enum Outfit: String, CaseIterable {
         selection == .auto ? seasonal(for: date, calendar: calendar) : selection
     }
 
+    static var savedGlasses: Outfit {
+        let raw = UserDefaults.standard.string(forKey: "mochiOutfitGlasses") ?? "none"
+        return raw == "sunglasses" ? .sunglasses : raw == "roundGlasses" ? .roundGlasses : .none
+    }
+    static var savedScarf: Bool { UserDefaults.standard.bool(forKey: "mochiOutfitScarf") }
+    static func layers(primary: Outfit, glasses: Outfit, scarf: Bool) -> [Outfit] {
+        var layers: [Outfit] = primary == .none || (glasses != .none && (primary == .sunglasses || primary == .roundGlasses)) ? [] : [primary]
+        if glasses == .sunglasses || glasses == .roundGlasses { layers.append(glasses) }
+        if scarf && !layers.contains(.scarf) { layers.append(.scarf) }
+        return layers
+    }
+
     // UserDefaults key "mochiOutfit", default "auto", unknown value → .auto
     static var stored: Outfit {
         get {

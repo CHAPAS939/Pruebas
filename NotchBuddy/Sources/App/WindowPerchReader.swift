@@ -40,6 +40,11 @@ enum WindowPerchReader {
         return snapshot(info)
     }
 
+    static func contactVisible(_ window: Snapshot, fraction: CGFloat, windows: [Snapshot]) -> Bool {
+        let point = CGPoint(x: window.frame.minX + window.frame.width*fraction, y: window.frame.maxY-4)
+        return windows.first(where: { $0.frame.contains(point) })?.id == window.id
+    }
+
     static func atTopEdge(_ point: CGPoint) -> Snapshot? {
         // The first visible normal window under the pointer wins; never choose a window
         // behind it just because its edge is close. The 34pt band allows a drop just above.

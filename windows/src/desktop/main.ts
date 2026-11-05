@@ -1,3 +1,5 @@
+import { t, language, resolveLanguage, setLanguage } from "../i18n/i18n";
+import { Menu } from "@tauri-apps/api/menu";
 // The desktop Mochi's own window (mochi.html): draws him, and turns clicks and
 // drags on him into pokes, flights home, the wardrobe and a new spot. Port of
 // DesktopBotView + the mouse half of DesktopMochiController (DesktopMochi.swift).
@@ -35,6 +37,9 @@ class DesktopMochi {
   private engine = new BotEngine();
   private scene = new MochiScene("perch", "Mochi");
   private perched = false;
+  private jumping = false;
+  private contextMenu: Menu | null = null;
+  private contextMenuLanguage = "";
   private sceneEmote: BotEmoteName | null = null;
   private emoteTimer: number | null = null;
   private motion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -106,6 +111,7 @@ class DesktopMochi {
       this.scene.el.style.transition = this.motion.matches ? "none" : "transform 0.15s ease-out";
       this.syncScene();
     });
+    await onEvent<boolean>("desktop-jumping", (value)=>{this.jumping=value;this.syncScene();});
     await onEvent<Point>(DESKTOP_EVENTS.cursor, (p) => this.notePointer(p));
     await onEvent<boolean>(DESKTOP_EVENTS.visible, (on) => this.setVisible(on));
     await onEvent<string>(DESKTOP_EVENTS.flight, (kind) => {
@@ -123,6 +129,7 @@ class DesktopMochi {
   // ── State ───────────────────────────────────────────────────────────────────
 
   private onSnapshot(s: DesktopSnapshot) {
+    if(s.language)setLanguage(resolveLanguage(s.language));
     this.snap = s;
     this.syncScene();
     this.informed = true;
@@ -144,7 +151,7 @@ class DesktopMochi {
       this.lastAgentActive = performance.now();
       this.asleep = false;
       this.engine.setState(this.snap.state, true);
-      this.engine.setOutfit(this.snap.outfit, false);
+      this.engine.setOutfit(this.snap.outfit, false, this.snap.glasses, this.snap.scarf);
       this.schedule();
       return;
     }
@@ -221,7 +228,7 @@ class DesktopMochi {
     const ctx = this.canvas.getContext("2d");
     if (!ctx) return;
     const engine = this.engine;
-    engine.setOutfit(this.snap.outfit, true);
+    engine.setOutfit(this.snap.outfit, true, this.snap.glasses, this.snap.scarf);
     if (!this.asleep) {
       // Windows: the global cursor. Linux: only while the pointer is over him.
       const fresh = this.mode === "poll" || now - this.lastPointer < 1500;
@@ -264,10 +271,28 @@ class DesktopMochi {
     const emote = eye === "heart" ? "love" : eye === "happy" ? "happy" : eye === "line" ? "annoyed" : this.sceneEmote;
     this.scene.update({ state: this.asleep ? "sleeping" : this.snap.state, emote,
       paused: !this.visible || this.snap.paused || !useScene, reduceMotion: this.motion.matches,
-      perched: this.perched, outfit: this.snap.outfit, lookX: this.engine.lookX, lookY: this.engine.lookY });
+      perched: this.perched && !this.jumping, outfit: this.snap.outfit, glasses:this.snap.glasses,scarf:this.snap.scarf, lookX: this.engine.lookX, lookY: this.engine.lookY });
     const showing = useScene && this.scene.ready;
     this.scene.el.style.opacity = showing ? "1" : "0";
     this.canvas.style.visibility = showing ? "hidden" : "visible";
+  }
+
+  private async showMenu() {
+    if(this.contextMenu && this.contextMenuLanguage!==language()){await this.contextMenu.close();this.contextMenu=null;}
+    if(!this.contextMenu){
+    this.contextMenu=await Menu.new({items:[
+      {id:"jump",text:t("Jump to another window"),action:()=>{void Bridge.desktopJump(this.motion.matches).then(ok=>{if(!ok)this.jumpNotice();});}},
+      {id:"wardrobe",text:t("Wardrobe"),action:()=>{void emitToWindow(ISLAND,DESKTOP_EVENTS.wardrobe);}},
+      {id:"home",text:t("Return to the top bar"),action:()=>{void emitToWindow(ISLAND,DESKTOP_EVENTS.home);}},
+    ]});
+    this.contextMenuLanguage=language();
+    }
+    await this.contextMenu.popup();
+  }
+  private jumpNotice() {
+    const note=document.createElement("div");note.textContent=t("No other available window");
+    note.style.cssText="position:fixed;bottom:1px;left:2px;right:2px;border-radius:6px;padding:3px;background:#25292deb;color:#fff;font:9px system-ui;text-align:center;pointer-events:none";
+    document.body.append(note);window.setTimeout(()=>note.remove(),2200);
   }
 
   private dpr(): number {
@@ -332,7 +357,7 @@ class DesktopMochi {
 
     document.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      if (isOverBody(this.local(e))) void emitToWindow(ISLAND, DESKTOP_EVENTS.wardrobe);
+      if (isOverBody(this.local(e))) void this.showMenu();
     });
 
     document.addEventListener("pointerleave", () => {

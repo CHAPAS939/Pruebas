@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Interactive room, outfit layers and window jumps** — Cozy, Gamer, Minimalist and Mediterranean rooms with editable plants, rugs, wall art, desk finishes and plant placement; tap objects to change the light/weather or let Mochi work, rest and water the plant. Combine an outfit with glasses and a scarf. The desktop menu can jump to another exposed window with a safe landing, cancellation and reduced-motion support on macOS and Windows.
+
 - **Personal room and wardrobe** — decorate with Sand, Sage, Rose or Midnight, toggle the plant and rug, and choose real Coucou outfits from the room. Add headphones, a frog hat and a flower on macOS and Windows. Keep the same 3D scene when dressing Mochi; retain outfits while gripping window edges with two anchored hands. Fix room try-on resets and fall back safely after GPU context loss.
 
 - **Windows Alt-drop** — accept exposed windows without requiring keyboard focus; preserve Alt across near-simultaneous key/mouse release; use the release cursor and prioritize valid window drops over the island's invisible return zone; test capture, occlusion, minimize/restore and close against real native fixture windows.

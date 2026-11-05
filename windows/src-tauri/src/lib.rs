@@ -998,6 +998,7 @@ pub fn run() {
             desktop::desktop_mochi_drag_end,
             desktop::desktop_mochi_fly_out,
             desktop::desktop_mochi_fly_home,
+            desktop::desktop_mochi_jump,
             desktop::desktop_mochi_set_asleep,
             sounds::custom_sounds,
             sounds::custom_sound,

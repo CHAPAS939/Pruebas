@@ -3632,3 +3632,22 @@ html[data-dir="rtl"] #views :is(.bubble, .reply .md-p, .reply .md-h, .reply .md-
 .mochi-room-wardrobe .wardrobe-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0;overflow:visible}
 .mochi-room-wardrobe .wardrobe-item{width:32px;height:31px;min-width:0}
 .mochi-room-editor [hidden]{display:none!important}
+
+.mochi-room-editor{width:176px}
+.room-decoration{min-height:0;overflow:auto;scrollbar-width:thin;padding:1px 3px 4px 1px}
+.room-caption:not(:first-child){margin-top:12px}
+.room-styles{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.room-style{display:flex;flex-direction:column-reverse;align-items:flex-start;gap:4px;min-height:44px;text-align:start;background:#ffffff05;border:1px solid #ffffff13;border-radius:10px;color:var(--dim);font-size:10px;line-height:1.25;padding:7px;cursor:pointer;overflow-wrap:anywhere}
+.room-style i{font-style:normal;font-size:17px;color:#c4cbb7}
+.room-style[aria-pressed=true]{border-color:#c4cbb780;background:#a5b39718;color:var(--ink)}
+.room-choice{display:flex;align-items:center;justify-content:space-between;gap:5px;width:100%;border:1px solid #ffffff12;border-radius:8px;padding:7px 6px;margin-top:5px;color:var(--dim);background:#ffffff04;font-size:10px;text-align:start;cursor:pointer}
+.room-choice-value{color:var(--ink);text-align:end;max-width:54%;overflow-wrap:anywhere}
+.room-reset{border:0;background:transparent;color:var(--dim);font-size:10px;padding:9px 2px;cursor:pointer}
+.room-object{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border:1px solid transparent;border-radius:50%;background:transparent;cursor:pointer;color:#4f5f4e}
+.room-object::after{content:'+';display:block;opacity:0;font-size:16px;line-height:24px}
+.room-object:hover,.room-object:focus-visible{background:#fffc;border-color:#77896f80;box-shadow:0 2px 12px #30382b25;outline:none}
+.room-object:hover::after,.room-object:focus-visible::after{opacity:1}
+.room-object[hidden]{display:none}
+.mochi-room-wardrobe .wardrobe-stack{overflow:auto;max-height:100%;scrollbar-width:thin}
+
+.room-hint{position:absolute;bottom:8px;left:10px;padding:4px 7px;border-radius:12px;background:#ffffffe0;color:#56614f;font-size:9px;pointer-events:none}

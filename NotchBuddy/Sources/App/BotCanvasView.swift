@@ -86,7 +86,7 @@ struct BotCanvasView: View {
                 let isFocusMain = state.focusId == state.mainPillId || state.focusId == nil
                 let showOutfit = isFocusMain || state.mode != .expanded || isWardrobe
                 engine.setOutfit(showOutfit ? state.resolvedOutfit : .none,
-                                 animated: state.view != .wardrobe)
+                                 animated: state.view != .wardrobe, includeAccessories: showOutfit)
 
                 #if !APPSTORE
                 if state.view == .listening {
@@ -112,7 +112,7 @@ struct BotCanvasView: View {
                 // rotate the entire body+accessories context around the body center so the
                 // whole character genuinely turns. Particles/badge (drawHandsAndExtras) are
                 // drawn outside the rotated context and do not spin.
-                if engine.outfit != .none && engine.outfitPresence > 0.05 && abs(engine.roll) > 0.001 {
+                if engine.hasVisibleOutfit && abs(engine.roll) > 0.001 {
                     let center = engine.bodyCenter(size: size)
                     var rigidCtx = ctx
                     rigidCtx.translateBy(x: center.x, y: center.y)
@@ -196,7 +196,7 @@ struct BotCanvasView: View {
             let isWardrobe = state.mode == .expanded && state.view == .wardrobe
             let isFocusMain = state.focusId == state.mainPillId || state.focusId == nil
             let showOutfit = isFocusMain || state.mode != .expanded || isWardrobe
-            engine.setOutfit(showOutfit ? state.resolvedOutfit : .none, animated: false)
+            engine.setOutfit(showOutfit ? state.resolvedOutfit : .none, animated: false, includeAccessories: showOutfit)
         }
     }
 

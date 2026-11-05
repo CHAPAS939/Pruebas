@@ -19,6 +19,15 @@ struct MochiSceneSettings: Encodable, Equatable {
     var theme = "sand"
     var plant = true
     var rug = true
+    var roomStyle = "cozy"
+    var plantKind = "auto"
+    var rugKind = "auto"
+    var wallDecor = "auto"
+    var deskFinish = "auto"
+    var plantPosition = "left"
+    var activity = "desk"
+    var glasses = "none"
+    var scarf = false
 }
 
 /// The exact same offline geometry is bundled by XcodeGen and by the Windows Vite build.
@@ -28,6 +37,7 @@ struct MochiSceneWebView: NSViewRepresentable {
     let kind: Kind
     var settings: MochiSceneSettings
     var onReady: (Bool) -> Void
+    var onTargets: ([String: CGPoint]) -> Void = { _ in }
     var onAnchor: (CGPoint) -> Void = { _ in }
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -98,6 +108,14 @@ struct MochiSceneWebView: NSViewRepresentable {
                 parent.onReady(true)
             case "fallback":
                 ready = false; parent.onReady(false)
+            case "targets":
+                if let values = body["targets"] as? [String: [String: Double]] {
+                    var targets: [String: CGPoint] = [:]
+                    for id in ["lamp", "window", "desk", "rest", "plant"] {
+                        if let p = values[id], let x = p["x"], let y = p["y"], x.isFinite, y.isFinite, (0...1).contains(x), (0...1).contains(y) { targets[id] = CGPoint(x: x, y: y) }
+                    }
+                    parent.onTargets(targets)
+                }
             case "anchor":
                 if let a = body["anchor"] as? [String: Double], let x = a["x"], let y = a["y"], x.isFinite, y.isFinite {
                     parent.onAnchor(CGPoint(x: min(1, max(0, x)), y: min(1, max(0, y))))

@@ -12,6 +12,15 @@ struct MochiRoomView: View {
     @AppStorage("mochiRoomTheme") private var theme = "sand"
     @AppStorage("mochiRoomPlant") private var plant = true
     @AppStorage("mochiRoomRug") private var rug = true
+    @AppStorage("mochiRoomStyle") private var style = "cozy"
+    @AppStorage("mochiRoomPlantKind") private var plantKind = "auto"
+    @AppStorage("mochiRoomRugKind") private var rugKind = "auto"
+    @AppStorage("mochiRoomWallDecor") private var wallDecor = "auto"
+    @AppStorage("mochiRoomDeskFinish") private var deskFinish = "auto"
+    @AppStorage("mochiRoomPlantPosition") private var plantPosition = "left"
+    @AppStorage("mochiOutfitGlasses") private var glasses = "none"
+    @AppStorage("mochiOutfitScarf") private var scarf = false
+    @State private var activity = "desk"
     @State private var screenPaused = false
     @State private var wardrobe = false
     @State private var hovered: Outfit? = nil
@@ -42,18 +51,20 @@ struct MochiRoomView: View {
                             night: (MochiRoomLighting(rawValue: lighting) ?? .automatic).isNight(hour: hour),
                             rain: rain, lamp: lamp, reduceMotion: reduceMotion,
                             theme: MochiRoomTheme(rawValue: theme) ?? .sand, plant: plant, rug: rug,
-                            outfit: state.resolvedOutfit, showCharacter: wardrobe || !state.mochiOnDesktop)
+                            outfit: state.resolvedOutfit, showCharacter: wardrobe || !state.mochiOnDesktop,
+                            decoration: MochiRoomDecoration(style: style, plantKind: plantKind, rugKind: rugKind, wallDecor: wallDecor, deskFinish: deskFinish, plantPosition: plantPosition),
+                            activity: activity, glasses: glasses, scarf: scarf, onInteract: interact)
                             .accessibilityLabel(String(localized: "room.scene"))
                     }.clipShape(RoundedRectangle(cornerRadius: 14))
                 } else { Color.clear }
-                editor.frame(width: 148)
+                editor.frame(width: 170)
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding(.horizontal, 14).padding(.bottom, 10)
         .onAppear { if active { engine.setState(state.effectiveState, force: true) } }
         .onChange(of: active) { _, visible in
             if visible { engine.setState(state.effectiveState, force: true) }
-            else { clearPreview() }
+            else { clearPreview(); activity = "desk" }
         }
         .onChange(of: wardrobe) { _, _ in clearPreview() }
         .onDisappear { clearPreview() }
@@ -75,6 +86,7 @@ struct MochiRoomView: View {
                     VStack(alignment: .leading, spacing: 5) {
                         Text((hovered ?? state.mochiOutfitSelection).displayName)
                             .font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
+                        MochiOutfitCombinationControls()
                         LazyVGrid(columns: Array(repeating: GridItem(.fixed(30), spacing: 5), count: 4), spacing: 5) {
                             ForEach(Outfit.allCases, id: \.rawValue) { outfit in
                                 Button {
@@ -99,6 +111,7 @@ struct MochiRoomView: View {
                     }
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
+                        MochiRoomStyleControls()
                         Text("Color palette").font(.system(size: 10)).foregroundStyle(.secondary)
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 5) {
                             ForEach(MochiRoomTheme.allCases, id: \.rawValue) { value in
@@ -122,6 +135,9 @@ struct MochiRoomView: View {
             }
         }.frame(maxHeight: .infinity, alignment: .top)
     }
+    private func interact(_ id: String) {
+        switch id { case "lamp": lamp.toggle(); case "window": rain.toggle(); case "rest": activity = "rest"; case "plant": if plant { activity = "plant" }; default: activity = "desk" }
+    }
     private func clearPreview() { hovered = nil; state.wardrobePreviewOutfit = nil }
     private func icon(_ value: MochiRoomLighting) -> String {
         switch value { case .automatic: "clock"; case .day: "sun.max"; case .night: "moon.stars" }
@@ -143,6 +159,13 @@ private struct MochiRoomStage: View {
     let rug: Bool
     let outfit: Outfit
     let showCharacter: Bool
+    let decoration: MochiRoomDecoration
+    let activity: String
+    let glasses: String
+    let scarf: Bool
+    let onInteract: (String) -> Void
+    @State private var targets: [String: CGPoint] = [:]
+    @State private var hovered: String? = nil
     @State private var sceneReady = false
     var body: some View {
         ZStack {
@@ -150,10 +173,42 @@ private struct MochiRoomStage: View {
             MochiSceneWebView(kind: .home,
                 settings: MochiSceneSettings(state: state.effectiveState.rawValue,
                     paused: false, reduceMotion: reduceMotion, night: night, rain: rain, lamp: lamp,
-                    character: showCharacter, outfit: outfit.rawValue, theme: theme.rawValue, plant: plant, rug: rug),
-                onReady: { sceneReady = $0 })
+                    character: showCharacter, outfit: outfit.rawValue, theme: theme.rawValue, plant: plant, rug: rug,
+                    roomStyle: decoration.style, plantKind: decoration.plantKind, rugKind: decoration.rugKind,
+                    wallDecor: decoration.wallDecor, deskFinish: decoration.deskFinish, plantPosition: decoration.plantPosition,
+                    activity: activity, glasses: glasses, scarf: scarf),
+                onReady: { sceneReady = $0 }, onTargets: { targets = $0 })
                 .opacity(sceneReady ? 1 : 0)
+            VStack { Spacer(); HStack { Text("Tap the objects").font(.system(size: 9)).foregroundStyle(Color(hex: "#56614F")).padding(5).background(Color.white.opacity(0.88)).clipShape(Capsule()); Spacer() } }.padding(8).allowsHitTesting(false)
+            GeometryReader { geometry in
+                let points = sceneReady ? targets : fallbackTargets
+                ForEach(["lamp", "window", "desk", "rest", "plant"], id: \.self) { id in
+                    if let p = points[id], id != "plant" || plant {
+                        Button { onInteract(id) } label: {
+                            Image(systemName: "plus").font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(Color(hex: "#54634B"))
+                                .frame(width: 28, height: 28).background(Color.white.opacity(0.9)).clipShape(Circle())
+                                .opacity(hovered == id ? 1 : 0.01)
+                        }.buttonStyle(.plain).help(interactionTitle(id)).accessibilityLabel(interactionTitle(id))
+                        .onHover { hovered = $0 ? id : nil }
+                        .position(x: p.x * geometry.size.width, y: p.y * geometry.size.height)
+                    }
+                }
+            }
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    private var fallbackTargets: [String: CGPoint] {
+        ["lamp": CGPoint(x: 230.0/600, y: 100.0/176), "window": CGPoint(x: 480.0/600, y: 65.0/176),
+         "desk": CGPoint(x: 300.0/600, y: 125.0/176), "rest": CGPoint(x: 530.0/600, y: 155.0/176), "plant": CGPoint(x: 107.0/600, y: 125.0/176)]
+    }
+    private func interactionTitle(_ id: String) -> String {
+        switch id {
+        case "lamp": String(localized: "room.lamp")
+        case "window": String(localized: "room.rain")
+        case "rest": String(localized: "Rest on the cushion")
+        case "plant": String(localized: "Water the plant")
+        default: String(localized: "Work at the desk")
+        }
     }
     private var fallback: some View {
         TimelineView(.periodic(from: .now, by: reduceMotion ? 60 : 1.0 / 24.0)) { timeline in
@@ -165,7 +220,7 @@ private struct MochiRoomStage: View {
                 engine.setOutfit(outfit, animated: !reduceMotion)
                 if !reduceMotion { MochiFrameClock.advance(engine) }
                 if showCharacter {
-                    var bot = c; bot.translateBy(x: 235, y: 54)
+                    var bot = c; bot.translateBy(x: activity == "rest" ? 460 : activity == "plant" ? 115 : 235, y: activity == "desk" ? 54 : 82)
                     let botSize = CGSize(width: 104, height: 104)
                     engine.drawHandsBehind(context: bot, size: botSize)
                     engine.drawOutfitBehind(context: bot, size: botSize)
@@ -282,5 +337,55 @@ private extension MochiRoomTheme {
         case .rose: String(localized: "Rose")
         case .midnight: String(localized: "Midnight")
         }
+    }
+}
+
+private struct MochiRoomStyleControls: View {
+    @AppStorage("mochiRoomStyle") private var style = "cozy"
+    @AppStorage("mochiRoomPlantKind") private var plantKind = "auto"
+    @AppStorage("mochiRoomRugKind") private var rugKind = "auto"
+    @AppStorage("mochiRoomWallDecor") private var wallDecor = "auto"
+    @AppStorage("mochiRoomDeskFinish") private var deskFinish = "auto"
+    @AppStorage("mochiRoomPlantPosition") private var plantPosition = "left"
+    @AppStorage("mochiRoomPlant") private var plant = true
+    @AppStorage("mochiRoomRug") private var rug = true
+    private var styles: [(String, String)] {
+        [("cozy", String(localized: "Cozy")), ("gamer", String(localized: "Gamer")),
+         ("minimalist", String(localized: "Minimalist")), ("mediterranean", String(localized: "Mediterranean"))]
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text("Room style").foregroundStyle(.secondary)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 5) {
+                ForEach(styles, id: \.0) { item in
+                    Button { style = item.0 } label: {
+                        Text(item.1).lineLimit(2).frame(maxWidth: .infinity, minHeight: 28, alignment: .leading).padding(5)
+                            .background(Color.white.opacity(style == item.0 ? 0.16 : 0.05)).clipShape(RoundedRectangle(cornerRadius: 8))
+                    }.buttonStyle(.plain).accessibilityValue(style == item.0 ? String(localized: "room.selected") : "")
+                }
+            }
+            choice(String(localized: "Plant type"), selection: $plantKind, options: [
+                ("auto", String(localized: "Automatic")), ("leafy", String(localized: "Leafy plant")), ("cactus", String(localized: "Cactus")), ("olive", String(localized: "Olive tree"))])
+            choice(String(localized: "Rug pattern"), selection: $rugKind, options: [
+                ("auto", String(localized: "Automatic")), ("woven", String(localized: "Woven")), ("geometric", String(localized: "Geometric")), ("checker", String(localized: "Checkerboard"))])
+            choice(String(localized: "Wall decoration"), selection: $wallDecor, options: [
+                ("auto", String(localized: "Automatic")), ("botanical", String(localized: "Botanical")), ("prints", String(localized: "Art prints")), ("neon", String(localized: "Neon")), ("none", String(localized: "None"))])
+            choice(String(localized: "Desk finish"), selection: $deskFinish, options: [
+                ("auto", String(localized: "Automatic")), ("wood", String(localized: "Wood")), ("white", String(localized: "White")), ("dark", String(localized: "Dark"))])
+            choice(String(localized: "Plant position"), selection: $plantPosition, options: [
+                ("left", String(localized: "Left")), ("right", String(localized: "Right")), ("back", String(localized: "Back"))])
+            Button("Reset decoration") {
+                plantKind = "auto"; rugKind = "auto"; wallDecor = "auto"; deskFinish = "auto"; plantPosition = "left"; plant = true; rug = true
+            }.buttonStyle(.plain).foregroundStyle(.secondary).padding(.vertical, 5)
+        }.font(.system(size: 10))
+    }
+    private func choice(_ title: String, selection: Binding<String>, options: [(String, String)]) -> some View {
+        Button {
+            let index = options.firstIndex { $0.0 == selection.wrappedValue } ?? 0
+            selection.wrappedValue = options[(index + 1) % options.count].0
+        } label: {
+            HStack { Text(title); Spacer(minLength: 4); Text(options.first { $0.0 == selection.wrappedValue }?.1 ?? options[0].1).foregroundStyle(.secondary) }
+                .padding(6).background(Color.white.opacity(0.04)).clipShape(RoundedRectangle(cornerRadius: 7))
+        }.buttonStyle(.plain).accessibilityLabel(title)
     }
 }

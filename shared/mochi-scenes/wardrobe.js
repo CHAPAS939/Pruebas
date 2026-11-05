@@ -8,10 +8,7 @@ window.createMochiWardrobe=(T,mochi,changed=()=>{},compact=false)=>{
     function cylinder(rt,rb,h,m,x,y,z,parent){const mesh=new T.Mesh(new T.CylinderGeometry(rt,rb,h,32),m);mesh.position.set(x,y,z);mesh.castShadow=true;parent.add(mesh);return mesh;}
     function rod(points,r,m,parent){const mesh=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p))),16,r,8,false),m);mesh.castShadow=true;parent.add(mesh);return mesh;}
     const outfitCache=new Map();let worn=null;
-    function wear(selection){
-      const next=selection||'none';if(worn===next)return;
-      worn=next;outfitCache.forEach(group=>group.visible=false);
-      if(next==='none'){changed();return;}
+    function ensure(next){
       let group=outfitCache.get(next);
       if(!group){
         group=new T.Group();mochi.add(group);
@@ -62,7 +59,14 @@ window.createMochiWardrobe=(T,mochi,changed=()=>{},compact=false)=>{
           for(const x of [-.33,-.16,.16,.33])tube([[x,-.28,.34],[x*1.07,0,.465],[x,.28,.35]],.012,mat('#c87f48'));
         }
       }
-      group.visible=true;changed();
+      return group;
+    }
+    function wear(selection,glasses='none',scarf=false){
+      let choices=selection&&selection!=='none'?[selection]:[];
+      if(glasses==='sunglasses'||glasses==='roundGlasses'){choices=choices.filter(o=>o!=='sunglasses'&&o!=='roundGlasses');choices.push(glasses);}
+      if(scarf&&!choices.includes('scarf'))choices.push('scarf');
+      const key=choices.join('|');if(worn===key)return;worn=key;outfitCache.forEach(g=>g.visible=false);
+      choices.forEach(outfit=>ensure(outfit).visible=true);changed();
     }
     return {wear,dispose(){materials.forEach(m=>m.dispose());materials.clear();}};
 };

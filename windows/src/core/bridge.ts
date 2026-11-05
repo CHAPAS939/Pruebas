@@ -444,6 +444,7 @@ export const Bridge = {
   /** To the island, then hidden. `forget`: he lives in the island again. */
   desktopFlyHome: (forget: boolean) => call<boolean>("desktop_mochi_fly_home", { forget }),
   /** Asleep, the cursor poll stops. */
+  desktopJump: (reduceMotion: boolean) => call<boolean>("desktop_mochi_jump", { reduceMotion }),
   desktopSetAsleep: (asleep: boolean) => call<void>("desktop_mochi_set_asleep", { asleep }),
 
   // ── Spotify (src-tauri/src/spotify.rs) ────────────────────────────────────

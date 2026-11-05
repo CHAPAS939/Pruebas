@@ -35,7 +35,7 @@ window.MochiScene.register("perch",(host)=>{
     }
     let gaze=0,frames=0;
     function draw(time=0,settings){gaze=settings.lookX*.15;const quiet=settings.reduceMotion,t=quiet?0:time/1000,state=settings.state,love=settings.emote==='love',happy=state==='finished'||settings.emote==='happy'||settings.emote==='proud',sleeping=state==='sleeping'||settings.emote==='yawn';
-      group.position.y=quiet?0:Math.sin(t*(sleeping?1.4:1.9))*.006;wardrobe.wear(settings.outfit);arms.visible=settings.perched&&settings.character!==false;group.rotation.y+=(.21+gaze-group.rotation.y)*.08;
+      group.position.y=quiet?0:Math.sin(t*(sleeping?1.4:1.9))*.006;wardrobe.wear(settings.outfit,settings.glasses,settings.scarf);arms.visible=settings.perched&&settings.character!==false;group.rotation.y+=(.21+gaze-group.rotation.y)*.08;
       const blink=quiet?1:(Math.sin(t*.83)>.996?.12:1);eyes.forEach((e,i)=>{e.visible=!happy&&!sleeping&&!love;e.scale.y=blink*(settings.emote==='wink'&&i===0?.12:settings.emote==='annoyed'?.18:settings.emote==='surprised'||state==='approval'?1.3:state==='error'?.25:1)});happyEyes.forEach(e=>e.visible=happy&&!love);sleepingEyes.forEach(e=>e.visible=sleeping&&!love);hearts.forEach(e=>e.visible=love);sparkles.visible=happy&&!quiet;sparkles.rotation.y=t*.2;
       bodyMaterial.color.set(({working:'#d3e0e5',thinking:'#d9cee8',searching:'#ced6e9',approval:'#efd5a5',question:'#c4e1df',error:'#e6c4c1',finished:'#dde6cd',ratelimit:'#e4c8ae',sleeping:'#dbdcd4',dizzy:'#e6ccd8'})[state]||'#eeeae0');group.visible=settings.character!==false;if(settings.outfit==='pumpkin')bodyMaterial.color.set('#eab17d');host.dataset.outfit=settings.outfit;host.dataset.grip=String(arms.visible);renderer.render(scene,camera);frames++;
     }

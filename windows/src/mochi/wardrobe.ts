@@ -144,3 +144,12 @@ export class SeasonCache {
     return this.value;
   }
 }
+
+/** One item per visual layer: an explicit glasses choice replaces primary glasses. */
+export function outfitLayers(primary: Outfit, glasses: unknown = "none", scarf = false): Outfit[] {
+  const face: Outfit = glasses === "sunglasses" || glasses === "roundGlasses" ? glasses : "none";
+  const items: Outfit[] = primary === "none" || (face !== "none" && (primary === "sunglasses" || primary === "roundGlasses")) ? [] : [primary];
+  if (face !== "none") items.push(face);
+  if (scarf && !items.includes("scarf")) items.push("scarf");
+  return items;
+}

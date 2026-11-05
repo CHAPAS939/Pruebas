@@ -104,6 +104,14 @@ export interface Settings {
   mochiRoomTheme: string;
   mochiRoomPlant: boolean;
   mochiRoomRug: boolean;
+  mochiRoomStyle: string;
+  mochiRoomPlantKind: string;
+  mochiRoomRugKind: string;
+  mochiRoomWallDecor: string;
+  mochiRoomDeskFinish: string;
+  mochiRoomPlantPosition: string;
+  mochiOutfitGlasses: string;
+  mochiOutfitScarf: boolean;
   soundEnabled: boolean;
   soundVolume: number;
   autoCloseInterval: number;
@@ -187,6 +195,14 @@ export const DEFAULT_SETTINGS: Settings = {
   mochiRoomTheme: "sand",
   mochiRoomPlant: true,
   mochiRoomRug: true,
+  mochiRoomStyle: "cozy",
+  mochiRoomPlantKind: "auto",
+  mochiRoomRugKind: "auto",
+  mochiRoomWallDecor: "auto",
+  mochiRoomDeskFinish: "auto",
+  mochiRoomPlantPosition: "left",
+  mochiOutfitGlasses: "none",
+  mochiOutfitScarf: false,
   soundEnabled: true,
   soundVolume: 0.12,
   autoCloseInterval: 15,

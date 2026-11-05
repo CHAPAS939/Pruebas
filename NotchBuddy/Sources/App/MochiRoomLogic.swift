@@ -30,3 +30,12 @@ enum MochiRoomTheme: String, CaseIterable {
         switch self { case .sand: "#d7bf9f"; case .sage: "#a9bb99"; case .rose: "#d2aaa9"; case .midnight: "#65748b" }
     }
 }
+
+struct MochiRoomDecoration: Equatable {
+    var style = "cozy"
+    var plantKind = "auto"
+    var rugKind = "auto"
+    var wallDecor = "auto"
+    var deskFinish = "auto"
+    var plantPosition = "left"
+}

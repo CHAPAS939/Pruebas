@@ -532,7 +532,13 @@ final class BotEngine: ObservableObject {
         }
     }
 
-    func setOutfit(_ newOutfit: Outfit, animated: Bool = true) {
+    private var wardrobeGlasses: Outfit = .none
+    private var wardrobeScarf = false
+    private var outfitLayers: [Outfit] { Outfit.layers(primary: outfit, glasses: wardrobeGlasses, scarf: wardrobeScarf) }
+    var hasVisibleOutfit: Bool { (outfit != .none && outfitPresence > 0.05) || wardrobeGlasses != .none || wardrobeScarf }
+    func setOutfit(_ newOutfit: Outfit, animated: Bool = true, includeAccessories: Bool = true) {
+        wardrobeGlasses = includeAccessories ? Outfit.savedGlasses : .none
+        wardrobeScarf = includeAccessories && Outfit.savedScarf
         guard newOutfit != outfitTarget else { return }
         outfitTarget = newOutfit
         tweens.removeValue(forKey: "outfitPresence")
@@ -1335,31 +1341,35 @@ final class BotEngine: ObservableObject {
     }
 
     func drawOutfitBehind(context: GraphicsContext, size: CGSize) {
-        guard outfit != .none, !isMini else { return }
+        guard !outfitLayers.isEmpty, !isMini else { return }
         let W = size.width, H = size.height, R = W * 0.3
         let cx = W / 2 + ox * R
         let cy = H / 2 + particleOverhang / 2 + oy * R + R * 0.06
         // Rigid roll: accessories see roll=0 (they rotate with the body via context transform)
-        let outfitRoll: CGFloat = outfitPresence > 0.05 ? 0 : roll
+        let outfitRoll: CGFloat = hasVisibleOutfit ? 0 : roll
         let mH = MochiH(R: R, yaw: yaw, pitch: pitch, physDx: physDx, physDy: physDy, roll: outfitRoll)
-        drawOutfitBehindStatic(context: context, outfit: outfit, H: mH,
+        for layer in outfitLayers {
+        drawOutfitBehindStatic(context: context, outfit: layer, H: mH,
                                cx: cx, cy: cy, tilt: tilt, sx: sx, sy: sy,
                                roll: outfitRoll, morph: morph, isMini: isMini,
-                               presence: outfitPresence, rollTurns: rollTurns)
+                               presence: layer == outfit ? outfitPresence : 1, rollTurns: rollTurns)
+        }
     }
 
     func drawOutfitFront(context: GraphicsContext, size: CGSize) {
-        guard outfit != .none, !isMini else { return }
+        guard !outfitLayers.isEmpty, !isMini else { return }
         let W = size.width, H = size.height, R = W * 0.3
         let cx = W / 2 + ox * R
         let cy = H / 2 + particleOverhang / 2 + oy * R + R * 0.06
         // Rigid roll: accessories see roll=0 (they rotate with the body via context transform)
-        let outfitRoll: CGFloat = outfitPresence > 0.05 ? 0 : roll
+        let outfitRoll: CGFloat = hasVisibleOutfit ? 0 : roll
         let mH = MochiH(R: R, yaw: yaw, pitch: pitch, physDx: physDx, physDy: physDy, roll: outfitRoll)
-        drawOutfitFrontStatic(context: context, outfit: outfit, H: mH,
+        for layer in outfitLayers {
+        drawOutfitFrontStatic(context: context, outfit: layer, H: mH,
                               cx: cx, cy: cy, tilt: tilt, sx: sx, sy: sy,
                               roll: outfitRoll, morph: morph, isMini: isMini,
-                              presence: outfitPresence, rollTurns: rollTurns)
+                              presence: layer == outfit ? outfitPresence : 1, rollTurns: rollTurns)
+        }
     }
 
     /// World-space center of Mochi's body (used by BotCanvasView for rigid-roll transform)
@@ -1525,7 +1535,7 @@ final class BotEngine: ObservableObject {
 
         // Build eye frames: use mEyeFrames for position/foreshortening, but keep roll in eyePitch
         // When an outfit is rigidly rotating, the whole body turns — eyes do NOT add roll
-        let rigidRoll = outfit != .none && outfitPresence > 0.05
+        let rigidRoll = hasVisibleOutfit
         let mH = MochiH(R: R, yaw: yaw, pitch: pitch)
         for f in mEyeFrames(mH) {
             // Re-derive pitch with roll for the roll-through effect (illusion, outfit=none only)

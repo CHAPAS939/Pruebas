@@ -23,6 +23,9 @@ import CoreGraphics
         precondition(WindowPerchLogic.fraction(at: CGPoint(x: 200, y: 600), frame: window) == 0.12)
         precondition(WindowPerchLogic.lean(horizontalDelta: 300, reduceMotion: false) == -0.12)
         precondition(WindowPerchLogic.lean(horizontalDelta: 300, reduceMotion: true) == 0)
+        precondition(WindowPerchLogic.jumpPoint(from: .zero, to: CGPoint(x: 200, y: 100), progress: 0, arc: 50) == .zero)
+        precondition(WindowPerchLogic.jumpPoint(from: .zero, to: CGPoint(x: 200, y: 100), progress: 1, arc: 50) == CGPoint(x: 200, y: 100))
+        precondition(WindowPerchLogic.jumpPoint(from: .zero, to: CGPoint(x: 200, y: 100), progress: 0.5, arc: 50) == CGPoint(x: 100, y: 100))
         print("WindowPerch: edge drops, movement, displays, coordinate conversion and reduced motion passed")
     }
 }

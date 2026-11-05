@@ -26,6 +26,7 @@ window.MochiScene.register("home",(host)=>{
     function sphere(r,m,x,y,z,scale=[1,1,1],parent=world){const o=new T.Mesh(new T.SphereGeometry(r,24,16),m);o.scale.set(...scale);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
     function cylinder(rt,rb,h,m,x,y,z,parent=world){const o=new T.Mesh(new T.CylinderGeometry(rt,rb,h,40),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
     function rod(points,r,m,parent=world){const g=new T.TubeGeometry(new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p))),20,r,8,false);const o=new T.Mesh(g,m);o.castShadow=true;parent.add(o);return o;}
+    function collect(start){const group=new T.Group();world.children.slice(start).forEach(part=>group.add(part));world.add(group);return group;}
     function shadow(x,z,w,d,opacity=.15){const c=document.createElement('canvas');c.width=c.height=128;const ctx=c.getContext('2d'),gr=ctx.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,`rgba(70,39,18,${opacity})`);gr.addColorStop(1,'rgba(70,39,18,0)');ctx.fillStyle=gr;ctx.fillRect(0,0,128,128);const p=new T.Mesh(new T.PlaneGeometry(w,d),new T.MeshBasicMaterial({map:new T.CanvasTexture(c),transparent:true,depthWrite:false}));p.rotation.x=-Math.PI/2;p.position.set(x,.055,z);world.add(p);}
     // A bevelled little architectural model, open on two sides.
     box(7.5,.22,5.4,palette.edge,0,-.11,0,.1);
@@ -62,11 +63,14 @@ window.MochiScene.register("home",(host)=>{
     const rug=cylinder(1.56,1.56,.025,mat('#d0bca0'),-.05,.095,.85);rug.scale.z=.58;
     const rugLine=new T.Mesh(new T.TorusGeometry(1.4,.013,5,80),mat('#e2d1b4'));rugLine.rotation.x=-Math.PI/2;rugLine.scale.y=.58;rugLine.position.set(-.05,.112,.85);world.add(rugLine);
     shadow(0,.6,4.5,2.7,.14);
+    const deskStart=world.children.length;
     cylinder(.36,.4,.08,palette.woodDark,.15,.72,-.16);cylinder(.055,.055,.65,palette.woodDark,.15,.37,-.16);
     // Soft wood desk with tapered legs and a slightly rounded edge.
     box(3.6,.17,1.56,palette.wood,0,1.58,.65,.08);
     box(3.45,.035,1.43,mat('#d2aa7a'),0,1.686,.65,.04);
     for(const x of [-1.49,1.49])for(const z of [.08,1.22]){const leg=cylinder(.055,.085,1.5,palette.woodDark,x,.76,z);leg.rotation.z=x>0?-.025:.025;}
+    const deskGroup=collect(deskStart);
+    const laptopStart=world.children.length;
     // Small laptop, real bevels and a quiet screen glow.
     box(.99,.045,.65,palette.metal,.22,1.735,.78,.03);
     const laptop=new T.Group();laptop.position.set(.22,1.76,.48);laptop.rotation.x=-.13;world.add(laptop);
@@ -76,6 +80,7 @@ window.MochiScene.register("home",(host)=>{
     for(let i=0;i<4;i++)box(.18+(i%3)*.09,.012,.006,screenGlow,-.23+(i%2)*.03,.43-i*.07,.039,.002,laptop);
     for(let row=0;row<3;row++)for(let col=0;col<9;col++)box(.065,.008,.038,mat('#95958b'),-.15+col*.076,1.763,.74+row*.055,.004);
     box(.27,.006,.12,mat('#a6a59b'),.22,1.764,1.0,.015);
+    const laptopGroup=collect(laptopStart);
     // Lamp: a warm, shaded pool of light on the desk.
     cylinder(.22,.25,.045,palette.mint,-1.16,1.74,.4);
     rod([[-1.16,1.76,.4],[-1.16,2.27,.4],[-.91,2.5,.4]],.025,palette.mint);
@@ -88,6 +93,7 @@ window.MochiScene.register("home",(host)=>{
     const handle=new T.Mesh(new T.TorusGeometry(.08,.023,10,24),palette.cream);handle.position.set(1.36,1.84,.89);world.add(handle);
     const steamMaterial=new T.MeshBasicMaterial({color:'#fff5e5',transparent:true,opacity:.28});
     const steams=[];for(let i=0;i<2;i++)steams.push(rod([[1.2+i*.06,2.01,.89],[1.17+i*.06,2.13,.89],[1.21+i*.06,2.25,.89]],.007,steamMaterial));
+    const wallStart=world.children.length;
     // Shelf, books and a little framed botanical print.
     box(2.4,.11,.5,palette.wood,-1.5,2.97,-2.31,.04);
     const bookColors=['#8b9d7b','#d2b08b','#bd8d78','#c7bca7','#899a9d'];
@@ -100,6 +106,7 @@ window.MochiScene.register("home",(host)=>{
     const clock=cylinder(.27,.27,.06,palette.wood,.16,3.7,-2.35);clock.rotation.x=Math.PI/2;
     const clockFace=new T.Mesh(new T.CircleGeometry(.235,40),palette.clock);clockFace.position.set(.16,3.7,-2.31);world.add(clockFace);
     rod([[.16,3.7,-2.3],[.16,3.84,-2.3]],.009,palette.woodDark);rod([[.16,3.7,-2.3],[.27,3.66,-2.3]],.009,palette.woodDark);
+    const wallGroup=collect(wallStart);
     const plantStart=world.children.length;
     // Leafy friend in a terracotta pot.
     cylinder(.36,.25,.64,palette.terracotta,-2.8,.39,.76);cylinder(.38,.38,.1,mat('#cd9370'),-2.8,.72,.76);
@@ -110,10 +117,12 @@ window.MochiScene.register("home",(host)=>{
       const leaf=sphere(.31,i%2?palette.mint:palette.moss,x,stemH+.8,z,[.48,1,.17]);leaf.rotation.z=-Math.sin(a)*.65;leaf.rotation.y=a;
     }
     const plantGroup=new T.Group();world.children.slice(plantStart).forEach(part=>plantGroup.add(part));world.add(plantGroup);
+    const cushionStart=world.children.length;
     // A soft cushion in the corner, with a book waiting on it.
     const cushion=box(1.1,.25,.9,mat('#a7ad8b'),2.7,.25,.78,.16);
     const pillow=box(.7,.14,.6,mat('#cbd0b0'),2.72,.46,.76,.14);pillow.rotation.y=.13;
     box(.42,.06,.5,mat('#c19a7c'),2.72,.58,.72,.03);
+    const cushionGroup=collect(cushionStart);
     // Mochi: the squircle, eyes and rosy cheeks rendered as real geometry.
     const mochi=new T.Group();mochi.position.set(.05,2.43,-.12);mochi.rotation.y=.52;world.add(mochi);
     const bodyMaterial=new T.MeshPhysicalMaterial({color:'#eeeae1',roughness:.38,metalness:0,clearcoat:.2,clearcoatRoughness:.7});
@@ -140,14 +149,19 @@ window.MochiScene.register("home",(host)=>{
     };let lastTheme='';
     function decorate(settings){
       const name=themes[settings.theme]?settings.theme:'sand',theme=themes[name];
-      if(lastTheme!==name){lastTheme=name;palette.wall.color.set(theme.wall);palette.wallSide.color.set(theme.side);palette.floor.color.set(theme.floor);palette.mint.color.set(theme.accent);rug.material.color.set(theme.rug);cushion.material.color.set(theme.cushion);pillow.material.color.set(theme.rug);renderer.shadowMap.needsUpdate=true;}
-      const showPlant=settings.plant!==false,showRug=settings.rug!==false;
-      if(plantGroup.visible!==showPlant||rug.visible!==showRug)renderer.shadowMap.needsUpdate=true;
-      plantGroup.visible=showPlant;rug.visible=showRug;rugLine.visible=showRug;
-      host.style.background=`radial-gradient(ellipse at 48% 20%,${settings.night?'#a1a6b1':'#fffaf0'},${theme.bg})`;
-      wardrobe.wear(settings.outfit);host.dataset.outfit=settings.outfit;host.dataset.theme=name;
+      if(lastTheme!==name+'|'+settings.roomStyle){lastTheme=name+'|'+settings.roomStyle;palette.wall.color.set(theme.wall);palette.wallSide.color.set(theme.side);palette.floor.color.set(theme.floor);palette.mint.color.set(theme.accent);rug.material.color.set(theme.rug);cushion.material.color.set(theme.cushion);pillow.material.color.set(theme.rug);renderer.shadowMap.needsUpdate=true;}
+
+
+      wardrobe.wear(settings.outfit,settings.glasses,settings.scarf);host.dataset.outfit=settings.outfit;host.dataset.theme=name;host.dataset.glasses=settings.glasses;host.dataset.scarf=String(settings.scarf);
     }
 
+    const studio=window.createRoomStudio(T,world,{wall:wallGroup,cushion:cushionGroup,laptop:laptopGroup,plant:plantGroup,rug,rugLine,desk:deskGroup,host,renderer},{box,sphere,cylinder,rod,mat,palette});
+    const watering=new T.Group();mochi.add(watering);
+    cylinder(.13,.13,.24,palette.mint,-.71,-.09,.10,watering);
+    rod([[-.80,.03,.10],[-.71,.14,.10],[-.60,.03,.10]],.018,palette.mint,watering);
+    rod([[-.81,-.05,.10],[-1.02,.01,.10]],.035,palette.mint,watering);
+    const waterDrops=[];for(let i=0;i<5;i++)waterDrops.push(sphere(.018,new T.MeshBasicMaterial({color:'#93bed1'}),-1.04,-.12-i*.09,.10,[1,1.5,1],watering));
+    let lastTime=0;
     // Soft key light and a visible pool of warm light at night.
     const hemi=new T.HemisphereLight('#fff6e5','#b0937c',2.9);scene.add(hemi);
     const key=new T.DirectionalLight('#fff0d7',3.4);key.position.set(3,8,6);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-6;key.shadow.camera.right=6;key.shadow.camera.top=6;key.shadow.camera.bottom=-6;key.shadow.normalBias=.025;key.shadow.bias=-.001;key.shadow.radius=3;key.shadow.blurSamples=8;scene.add(key);
@@ -157,7 +171,8 @@ window.MochiScene.register("home",(host)=>{
     const anchor=new T.Vector3();
     function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);const aspect=w/h;const zoom=Math.max(3.8,5.8/aspect)*1.04;camera.left=-zoom*aspect;camera.right=zoom*aspect;camera.top=zoom;camera.bottom=-zoom;camera.updateProjectionMatrix();}
     function draw(time=0,settings=current){
-      current=settings;decorate(settings);
+      current=settings;decorate(settings);const room=studio.update(settings);
+      const delta=Math.max(0,Math.min(.08,(time-lastTime)/1000));lastTime=time;
       const quiet=settings.reduceMotion;
       const now=quiet?0:time/1000;
       const wantsNight=settings.night,wantsLamp=settings.lamp;
@@ -172,8 +187,17 @@ window.MochiScene.register("home",(host)=>{
       drops.forEach((d,i)=>{d.position.y=wy-wh/2+.1+((i*.317+now*.72)%2.22)});
       steams.forEach((s,i)=>{s.rotation.z=Math.sin(now*1.1+i)*.035;steamMaterial.opacity=.22+Math.sin(now*.9)*.07});
       const state=settings.state,love=settings.emote==='love';
-      const happy=state==='finished',asleep=state==='sleeping';
-      mochi.position.y=2.43+(quiet?0:Math.sin(now*(asleep?1.3:1.8))*(asleep?.012:.018))+(happy&&!quiet?Math.abs(Math.sin(now*3.7))*.12:0);
+      const happy=state==='finished',asleep=state==='sleeping'||(state==='idle'&&settings.activity==='rest');
+      const activity=settings.activity==='plant'&&settings.plant===false?'desk':settings.activity||'desk';
+      const seat=room.seats[activity]||room.seats.desk;
+      const blend=quiet?1:1-Math.exp(-delta*8);
+      mochi.position.x+=(seat[0]-mochi.position.x)*blend;mochi.position.z+=(seat[2]-mochi.position.z)*blend;
+      const targetY=seat[1]+(quiet?0:Math.sin(now*(asleep?1.3:1.8))*(asleep?.012:.018))+(happy&&!quiet?Math.abs(Math.sin(now*3.7))*.12:0);
+      if(Math.abs(seat[0]-mochi.position.x)+Math.abs(seat[2]-mochi.position.z)+Math.abs(targetY-mochi.position.y)>.04)renderer.shadowMap.needsUpdate=true;
+      mochi.position.y+=(targetY-mochi.position.y)*blend;
+      mochi.rotation.y+=( (activity==='rest'?.20:.52)-mochi.rotation.y)*blend;
+      watering.visible=activity==='plant';waterDrops.forEach((drop,i)=>drop.position.y=-.09-((now*.6+i*.11)%.48));
+      host.dataset.activity=activity;host.dataset.roomStyle=settings.roomStyle||'cozy';
       mochi.rotation.z=happy&&!quiet?Math.sin(now*3.7)*.055:0;
       const blink=quiet?1:(Math.sin(now*.87)>0.995?.1:1);
       eyes.forEach(e=>{e.visible=!happy&&!asleep&&!love;e.scale.y=blink*(state==='approval'?1.3:state==='error'?.25:1)});happyEyes.forEach(e=>e.visible=happy&&!love);sleepyEyes.forEach(e=>e.visible=asleep&&!love);hearts.forEach(e=>e.visible=love);
@@ -187,7 +211,10 @@ window.MochiScene.register("home",(host)=>{
       // The hit target follows the room, not the breathing/jump animation. Quantize to
       // CSS pixels so keyboard focus and pointer hit testing stay steady between frames.
       anchor.set(.05,2.43,-.12).applyMatrix4(world.matrixWorld).project(camera);
-      return {anchor:{x:anchor.x*.5+.5,y:-anchor.y*.5+.5}};
+      const targets={};const places={lamp:[-.9,2.45,.4],window:[1.8,2.7,-2.38],desk:[.25,1.85,1.0],rest:[2.7,room.seats.rest[1]-.4,.78]};
+      if(settings.plant!==false)places.plant=[room.plantPoint[0],1.15,room.plantPoint[1]];
+      for(const [id,point] of Object.entries(places)){const v=new T.Vector3(...point).applyMatrix4(world.matrixWorld).project(camera);targets[id]={x:v.x*.5+.5,y:-v.y*.5+.5};}
+      return {anchor:{x:anchor.x*.5+.5,y:-anchor.y*.5+.5},targets};
     }
 
     host.addEventListener("pointermove",event=>{
@@ -196,5 +223,5 @@ window.MochiScene.register("home",(host)=>{
       targetRX=-((event.clientY-r.top)/r.height-.5)*.035;
     });
     host.addEventListener("pointerleave",()=>{targetRX=targetRY=0;});
-    return {draw,resize,dispose(){wardrobe.dispose();scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material]){m.map?.dispose();m.dispose();}}});renderer.dispose();renderer.domElement.remove();}};
+    return {draw,resize,dispose(){studio.dispose();wardrobe.dispose();scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material]){m.map?.dispose();m.dispose();}}});renderer.dispose();renderer.domElement.remove();}};
 });

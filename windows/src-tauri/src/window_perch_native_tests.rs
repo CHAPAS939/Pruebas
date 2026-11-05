@@ -52,6 +52,7 @@ fn exposed_background_window_accepts_drop_and_tracks_visibility() {
     let found = capture((frame.x + frame.w * 0.5, frame.y + 4.0), 1.0)
         .expect("Alt-drop could not select the exposed inactive window");
     assert_eq!(found.id, target.id);
+    assert!(super::candidates().iter().any(|candidate| candidate.id == target.id), "exposed native window is offered as a jump candidate");
 
     // Use GetWindowRect coordinates for SetWindowPos: these two APIs share the
     // caller's DPI space, while the production DWM bounds stay physical.

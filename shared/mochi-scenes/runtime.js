@@ -5,8 +5,10 @@
   const emotes=new Set(["love","surprised","proud","wink","yawn","happy","annoyed"]);
   const outfits=new Set(["none","partyHat","beanie","crown","sunglasses","roundGlasses","bow","scarf","witchHat","pumpkin","santaHat","bunnyEars","headphones","frogHat","flower"]);
   const themes=new Set(["sand","sage","rose","midnight"]);
-  const defaults=Object.freeze({state:"idle",emote:null,paused:true,reduceMotion:false,night:false,rain:true,lamp:true,character:true,perched:false,lookX:0,lookY:0,outfit:"none",theme:"sand",plant:true,rug:true});
-  let settings={...defaults},factory=null,instance=null,raf=0,last=0,disposed=false,failed=false,lastAnchor="",sizeDirty=true;
+  const choices={roomStyle:["cozy","gamer","minimalist","mediterranean"],plantKind:["auto","leafy","cactus","olive"],rugKind:["auto","woven","geometric","checker"],wallDecor:["auto","botanical","prints","neon","none"],deskFinish:["auto","wood","white","dark"],plantPosition:["left","right","back"],activity:["desk","rest","plant"],glasses:["none","sunglasses","roundGlasses"]};
+  const pick=(key,value)=>choices[key].includes(value)?value:choices[key][0];
+  const defaults=Object.freeze({state:"idle",emote:null,paused:true,reduceMotion:false,night:false,rain:true,lamp:true,character:true,perched:false,lookX:0,lookY:0,outfit:"none",theme:"sand",plant:true,rug:true,roomStyle:"cozy",plantKind:"auto",rugKind:"auto",wallDecor:"auto",deskFinish:"auto",plantPosition:"left",activity:"desk",glasses:"none",scarf:false});
+  let settings={...defaults},factory=null,instance=null,raf=0,last=0,disposed=false,failed=false,lastAnchor="",lastTargets="",sizeDirty=true;
   const finite=(v)=>typeof v==="number"&&Number.isFinite(v)?Math.max(-1,Math.min(1,v)):0;
   function normalize(value){
     const v=value&&typeof value==="object"?value:{};
@@ -14,7 +16,8 @@
       paused:v.paused!==false,reduceMotion:v.reduceMotion===true,night:v.night===true,
       rain:v.rain!==false,lamp:v.lamp!==false,character:v.character!==false,perched:v.perched===true,
       lookX:finite(v.lookX),lookY:finite(v.lookY),outfit:outfits.has(v.outfit)?v.outfit:"none",
-      theme:themes.has(v.theme)?v.theme:"sand",plant:v.plant!==false,rug:v.rug!==false};
+      theme:themes.has(v.theme)?v.theme:"sand",plant:v.plant!==false,rug:v.rug!==false,
+      ...Object.fromEntries(Object.keys(choices).map(key=>[key,pick(key,v[key])])),scarf:v.scarf===true};
   }
   function report(event,detail={}){
     const message={channel:"coucou-mochi-scene",event,...detail};
@@ -26,6 +29,12 @@
     if(!instance||disposed||settings.paused||document.hidden)return;
     try{
       const result=instance.draw(time,settings);
+      if(result?.targets){
+        const targets={};for(const id of ["lamp","window","desk","rest","plant"]){
+          const p=result.targets[id];if(p&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.x>=0&&p.x<=1&&p.y>=0&&p.y<=1)targets[id]={x:Math.round(p.x*500)/500,y:Math.round(p.y*500)/500};
+        }
+        const key=JSON.stringify(targets);if(key!==lastTargets){lastTargets=key;report("targets",{targets});}
+      }
       if(result?.anchor){const a=result.anchor;
         if(Number.isFinite(a.x)&&Number.isFinite(a.y)){
           const anchor={x:Math.round(Math.max(0,Math.min(1,a.x))*500)/500,y:Math.round(Math.max(0,Math.min(1,a.y))*500)/500};

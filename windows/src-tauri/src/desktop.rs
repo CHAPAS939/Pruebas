@@ -956,6 +956,45 @@ pub async fn desktop_mochi_fly_out(app: AppHandle, anywhere: Option<bool>) -> bo
     true
 }
 
+/// Chooses another exposed normal window; only Mochi's own overlay is moved.
+#[tauri::command]
+pub async fn desktop_mochi_jump(app: AppHandle, desktop: State<'_, Arc<Desktop>>, reduce_motion: bool) -> bool {
+    let d=desktop.inner().clone();
+    let (from,exclude)={let i=d.inner.lock().unwrap();
+        if d.mode!=DesktopMode::Poll || !i.shown || !i.landed || i.carry.is_some(){return false;}
+        (i.pos,i.perch.map(|p|p.id))};
+    let all=displays(&app,&d);
+    let mut choices=Vec::new();
+    for target in crate::window_perch::candidates() {
+        if Some(target.id)==exclude {continue;}
+        if let crate::window_perch::Probe::Visible(frame)=crate::window_perch::probe(target) {
+            if let Some(display)=logic::display_near((frame.x+frame.w*target.fraction,frame.y+1.0),&all) {
+                if let Some(spot)=crate::window_perch::origin(frame,target.fraction,display.scale,display.work) {
+                    choices.push((target,spot,display));
+                }
+            }
+        }
+    }
+    choices.sort_by(|a,b|((a.1.0-from.0).powi(2)+(a.1.1-from.1).powi(2)).total_cmp(&((b.1.0-from.0).powi(2)+(b.1.1-from.1).powi(2))));
+    let Some((target,to,display))=choices.first().copied() else {return false;};
+    let token=d.flight.fetch_add(1,Ordering::SeqCst)+1;
+    {let mut i=d.inner.lock().unwrap();i.landed=false;i.asleep=false;i.perch_hidden=false;}
+    let _=app.emit_to(LABEL,"desktop-perch",PerchState{perched:true,lean:0.0});
+    let _=app.emit_to(LABEL,"desktop-visible",true);
+    let _=app.emit_to(LABEL,"desktop-jumping",true);refresh(&app,&d);
+    let top=all.iter().map(|v|v.work.y).fold(display.work.y,f64::min);
+    let arc=(70.0*display.scale).min(from.1.min(to.1)-top).max(0.0);
+    let steps=if reduce_motion {1}else{(420/TICK_MS).max(1)};
+    for step in 1..=steps {
+        if d.flight.load(Ordering::SeqCst)!=token {let _=app.emit_to(LABEL,"desktop-jumping",false);return false;}
+        place(&app,&d,crate::window_perch::jump_point(from,to,step as f64/steps as f64,if reduce_motion{0.0}else{arc}));
+        if !reduce_motion {tokio::time::sleep(Duration::from_millis(TICK_MS)).await;}
+    }
+    {let mut i=d.inner.lock().unwrap();i.perch=Some(target);i.landed=true;}
+    let _=app.emit_to(LABEL,"desktop-jumping",false);refresh(&app,&d);update_perch(&app,&d);
+    remember_spot(&app,&d,to,true);true
+}
+
 /// To the island, then hidden. `forget` is the user bringing him home (double
 /// click, drop on the island); without it he is only away for an alert and
 /// flies back out once it is answered.

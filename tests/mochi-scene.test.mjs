@@ -88,3 +88,10 @@ test('saved room appearance and every wardrobe addition cross the bounded displa
   const bad = h.api.normalize({outfit:'../../secret',theme:'unknown'});
   assert.equal(bad.outfit,'none'); assert.equal(bad.theme,'sand'); assert.equal(bad.plant,true); assert.equal(bad.rug,true);
 });
+
+test('interactive room preferences reject unknown values and preserve valid combinations', () => {
+  const h=harness(); const value=h.api.normalize({roomStyle:'mediterranean',plantKind:'olive',rugKind:'geometric',wallDecor:'prints',deskFinish:'white',plantPosition:'right',activity:'rest',glasses:'roundGlasses',scarf:true});
+  assert.equal(value.roomStyle,'mediterranean');assert.equal(value.plantKind,'olive');assert.equal(value.activity,'rest');assert.equal(value.glasses,'roundGlasses');assert.equal(value.scarf,true);
+  const bad=h.api.normalize({roomStyle:'../../bad',activity:'execute',glasses:'crown'});
+  assert.equal(bad.roomStyle,'cozy');assert.equal(bad.activity,'desk');assert.equal(bad.glasses,'none');
+});

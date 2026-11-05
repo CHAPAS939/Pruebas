@@ -102,6 +102,9 @@ enum MochiWardrobeTests {
             Outfit.stored = outfit
             check("new outfit survives stored preference", Outfit.stored == outfit)
         }
+        check("hat glasses and scarf combine", Outfit.layers(primary: .frogHat, glasses: .roundGlasses, scarf: true) == [.frogHat, .roundGlasses, .scarf])
+        check("explicit glasses replace primary glasses", Outfit.layers(primary: .sunglasses, glasses: .roundGlasses, scarf: false) == [.roundGlasses])
+        check("scarf is not duplicated", Outfit.layers(primary: .scarf, glasses: .none, scarf: true) == [.scarf])
         print("Outfit.stored unknown → auto")
         UserDefaults.standard.set("totallyUnknown", forKey: "mochiOutfit")
         check("unknown → .auto", Outfit.stored == .auto)

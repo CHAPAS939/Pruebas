@@ -1317,7 +1317,7 @@ export class Island {
     const mainFocused = State.focusId == null || State.focusId === State.mainPillId;
     const showOutfit = mainFocused || State.mode !== "expanded" || inWardrobe;
     const outfit = State.wardrobePreview ?? this.seasons.get(parseOutfit(State.settings.mochiOutfit));
-    this.engine.setOutfit(showOutfit ? outfit : "none", !inWardrobe);
+    this.engine.setOutfit(showOutfit ? outfit : "none", !inWardrobe, showOutfit ? State.settings.mochiOutfitGlasses : "none", showOutfit && State.settings.mochiOutfitScarf);
     // Dances while music plays: always in the compact island, expanded only on
     // the music pill's card (BotCanvasView, macOS). Asked every frame.
     this.engine.setDancing(islandDances({

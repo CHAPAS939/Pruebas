@@ -6,6 +6,7 @@
 import { Bridge, emitToWindow, onEvent, type DesktopMode } from "../core/bridge";
 import type { BotEmoteName } from "../core/layout";
 import { Sound } from "../core/sound";
+import { language } from "../i18n/i18n";
 import { State } from "../core/state";
 import { desktopDances } from "../core/spotify";
 import {
@@ -168,6 +169,8 @@ export class DesktopLink {
     const snapshot: DesktopSnapshot = {
       state: State.effectiveState,
       outfit: State.wardrobePreview ?? this.seasons.get(parseOutfit(State.settings.mochiOutfit)),
+      language: language(),
+      glasses: State.settings.mochiOutfitGlasses, scarf: State.settings.mochiOutfitScarf,
       soundEnabled: State.settings.soundEnabled,
       soundVolume: State.settings.soundVolume,
       paused: State.paused,

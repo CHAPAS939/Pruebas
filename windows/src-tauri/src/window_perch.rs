@@ -33,6 +33,12 @@ impl DropModifier {
     }
 }
 
+/// Deterministic trajectory, with fixed endpoints and no overshoot at landing.
+pub fn jump_point(from: (f64,f64), to: (f64,f64), progress: f64, arc: f64) -> (f64,f64) {
+    let t = progress.clamp(0.0,1.0); let u=t*t*(3.0-2.0*t);
+    (from.0+(to.0-from.0)*u,from.1+(to.1-from.1)*u-4.0*arc.max(0.0)*t*(1.0-t))
+}
+
 /// Both hosts use a 120pt panel: the top edge meets it 76% below the top.
 pub fn origin(frame: Rect, fraction: f64, scale: f64, work: Rect) -> Option<(f64, f64)> {
     if !scale.is_finite() || scale <= 0.0 || !fraction.is_finite() ||
@@ -112,6 +118,23 @@ mod win {
         search.visible
     }
 
+    pub fn candidates() -> Vec<Target> {
+        unsafe extern "system" fn visit(window: HWND, param: LPARAM) -> BOOL {
+            let out = &mut *(param.0 as *mut Vec<Target>);
+            let pid=owner(window);
+            if pid!=std::process::id() && IsWindowVisible(window).as_bool() && !IsIconic(window).as_bool()
+                && !cloaked(window) && (GetWindowLongPtrW(window,GWL_EXSTYLE)&WS_EX_TOOLWINDOW.0 as isize)==0 {
+                if bounds(window).is_some_and(|r|r.w>=100.0&&r.h>=60.0) {
+                    for fraction in [0.5,0.25,0.75] { out.push(Target{id:window.0 as isize,pid,fraction}); }
+                }
+            }
+            BOOL(1)
+        }
+        let mut result=Vec::new();
+        unsafe {let _=EnumWindows(Some(visit),LPARAM(&mut result as *mut _ as isize));}
+        result
+    }
+
     pub fn modifier_down() -> bool {
         unsafe { (GetAsyncKeyState(VK_MENU.0 as i32) as u16 & 0x8000) != 0 }
     }
@@ -151,7 +174,8 @@ mod win {
     }
 }
 
-#[cfg(windows)] pub use win::{capture, modifier_down, probe};
+#[cfg(windows)] pub use win::{capture, modifier_down, probe, candidates};
+#[cfg(not(windows))] pub fn candidates() -> Vec<Target> { Vec::new() }
 #[cfg(not(windows))] pub fn modifier_down() -> bool { false }
 #[cfg(not(windows))] pub fn capture(_: (f64, f64), _: f64) -> Option<Target> { None }
 #[cfg(not(windows))] pub fn probe(_: Target) -> Probe { Probe::Gone }
@@ -201,6 +225,14 @@ mod tests {
         assert!(!modifier.requested(now + Duration::from_millis(250)));
         modifier.sample(true, now + Duration::from_millis(300));
         assert!(modifier.requested(now + Duration::from_millis(301)));
+    }
+    #[test] fn jump_has_exact_endpoints_and_an_upward_apex() {
+        let from=(-300.0,120.0);let to=(500.0,320.0);
+        assert_eq!(jump_point(from,to,0.0,70.0),from);
+        assert_eq!(jump_point(from,to,1.0,70.0),to);
+        assert_eq!(jump_point(from,to,0.5,70.0),(100.0,150.0));
+        assert_eq!(jump_point(from,to,1.2,70.0),to);
+        assert_eq!(jump_point(from,to,0.5,0.0),(100.0,220.0));
     }
     #[test] fn window_under_the_top_bar_can_receive_an_explicit_alt_drop() {
         let frame = Rect { x: 400.0, y: 200.0, w: 1100.0, h: 600.0 };

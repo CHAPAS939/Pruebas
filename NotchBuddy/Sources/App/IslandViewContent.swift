@@ -4656,6 +4656,23 @@ struct ColumnAgentsView: View {
 
 // MARK: - Wardrobe
 
+struct MochiOutfitCombinationControls: View {
+    @AppStorage("mochiOutfitGlasses") private var glasses = "none"
+    @AppStorage("mochiOutfitScarf") private var scarf = false
+    var body: some View {
+        VStack(spacing: 5) {
+            Text("Combine outfits").font(.system(size: 10)).foregroundStyle(.secondary)
+            Button {
+                let options = ["none", "sunglasses", "roundGlasses"]
+                glasses = options[((options.firstIndex(of: glasses) ?? 0) + 1) % options.count]
+            } label: {
+                HStack { Text("Glasses"); Spacer(); Text((Outfit(rawValue: glasses) ?? .none).displayName) }
+            }.buttonStyle(.plain)
+            Toggle("Scarf", isOn: $scarf).toggleStyle(.button)
+        }.font(.system(size: 10)).padding(5)
+    }
+}
+
 struct WardrobeView: View {
     @ObservedObject var state: AppState
     @State private var hoveredOutfit: Outfit? = nil
@@ -4698,6 +4715,7 @@ struct WardrobeView: View {
             .padding(.top, 6)
             .padding(.horizontal, 10)
 
+            MochiOutfitCombinationControls().padding(.horizontal, 10)
             // Grid
             let allOutfits = Outfit.allCases.filter { $0 != .auto }
             let withAuto = [Outfit.auto] + allOutfits

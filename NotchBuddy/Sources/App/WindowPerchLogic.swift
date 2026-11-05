@@ -43,6 +43,11 @@ enum WindowPerchLogic {
         return CGPoint(x: min(max(x - panelSize / 2, display.minX), display.maxX - panelSize), y: y)
     }
 
+    static func jumpPoint(from: CGPoint, to: CGPoint, progress: Double, arc: CGFloat) -> CGPoint {
+        let t = CGFloat(min(1, max(0, progress))), u = t*t*(3-2*t)
+        return CGPoint(x: from.x+(to.x-from.x)*u, y: from.y+(to.y-from.y)*u+4*max(0,arc)*t*(1-t))
+    }
+
     static func lean(horizontalDelta: CGFloat, reduceMotion: Bool) -> Double {
         reduceMotion ? 0 : Double(min(0.12, max(-0.12, -horizontalDelta * 0.008)))
     }

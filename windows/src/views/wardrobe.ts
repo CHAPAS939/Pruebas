@@ -3,6 +3,7 @@
 // tries the outfit on Mochi; a click keeps it.
 
 import { h } from "./dom";
+import { Bridge } from "../core/bridge";
 import { State } from "../core/state";
 import { drawWardrobeIcon } from "../mochi/outfits";
 import {
@@ -10,7 +11,7 @@ import {
   wardrobeHeader, type Outfit, type OutfitSelection,
 } from "../mochi/wardrobe";
 import type { ViewActions, ViewHost } from "./views";
-import { language, tl } from "../i18n/i18n";
+import { language, tl, t } from "../i18n/i18n";
 
 const ICON = 28;
 
@@ -32,6 +33,13 @@ export function buildWardrobe(actions: ViewActions): ViewHost {
     ),
   );
 
+  const glasses = h("button", {class:"room-choice", "aria-label":tl("Glasses"),onclick:()=>{
+    const choices=["none","sunglasses","roundGlasses"];State.settings.mochiOutfitGlasses=choices[(choices.indexOf(State.settings.mochiOutfitGlasses)+1)%choices.length];void Bridge.saveSettings(State.settings);State.notify();
+  }});
+  const scarf = h("button", {class:"room-toggle",text:tl("Scarf"),"aria-pressed":"false",onclick:()=>{
+    State.settings.mochiOutfitScarf=!State.settings.mochiOutfitScarf;void Bridge.saveSettings(State.settings);State.notify();
+  }});
+  grid.after(h("span",{class:"room-caption",text:tl("Combine outfits")}),glasses,scarf);
   let hovered: OutfitSelection | null = null;
   let drawnSeason: Outfit | null = null;
   let drawnLanguage = language();
@@ -90,6 +98,8 @@ export function buildWardrobe(actions: ViewActions): ViewHost {
     el,
     sync() {
       drawIcons();
+      glasses.textContent = t("Glasses")+" · "+t(OUTFIT_KEYS[State.settings.mochiOutfitGlasses === "sunglasses" ? "sunglasses" : State.settings.mochiOutfitGlasses === "roundGlasses" ? "roundGlasses" : "none"]);
+      scarf.setAttribute("aria-pressed",String(State.settings.mochiOutfitScarf));
       // The island drops the preview when the view closes: so does the hover.
       if (State.wardrobePreview == null) hovered = null;
       const current = parseOutfit(State.settings.mochiOutfit);

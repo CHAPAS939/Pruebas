@@ -15,6 +15,7 @@ final class DesktopBotViewState: ObservableObject {
     /// Mouse is over Mochi's body — drives hover scale animation.
     @Published var isHovered: Bool = false
     @Published var isPerched = false
+    @Published var isJumping = false
     @Published var perchLean: Double = 0
     @Published var sceneEmote: String? = nil
     var sceneReady = false
@@ -28,6 +29,8 @@ final class DesktopBotViewState: ObservableObject {
 /// Full Mochi character rendered inside the desktop floating panel.
 struct DesktopBotView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage("mochiOutfitGlasses") private var glasses = "none"
+    @AppStorage("mochiOutfitScarf") private var scarf = false
     @State private var sceneReady = false
     @ObservedObject var appState: AppState
     /// Engine owned by DesktopMochiController; controller calls methods on it directly.
@@ -70,7 +73,7 @@ struct DesktopBotView: View {
                 engine.applyDance(&c, size: size)
 
                 // Rigid roll when outfit is present (matches BotCanvasView)
-                if engine.outfit != .none && engine.outfitPresence > 0.05 && abs(engine.roll) > 0.001 {
+                if engine.hasVisibleOutfit && abs(engine.roll) > 0.001 {
                     let center = engine.bodyCenter(size: size)
                     var rigidCtx = c
                     rigidCtx.translateBy(x: center.x, y: center.y)
@@ -105,10 +108,10 @@ struct DesktopBotView: View {
             MochiSceneWebView(kind: .perch,
                 settings: MochiSceneSettings(state: viewState.isSleeping ? "sleeping" : appState.effectiveState.rawValue,
                     emote: viewState.sceneEmote,
-                    paused: viewState.paused, reduceMotion: reduceMotion, perched: true,
+                    paused: viewState.paused, reduceMotion: reduceMotion, perched: !viewState.isJumping,
                     lookX: Double(tanh((appState.mousePosition.x - viewState.lookOrigin.x) / 260)),
                     lookY: Double(-tanh((appState.mousePosition.y - viewState.lookOrigin.y) / 200)),
-                    outfit: appState.resolvedOutfit.rawValue),
+                    outfit: appState.resolvedOutfit.rawValue, glasses: glasses, scarf: scarf),
                 onReady: { sceneReady = $0; viewState.sceneReady = $0 })
                 .opacity(sceneReady ? 1 : 0)
         }
@@ -152,6 +155,8 @@ final class DesktopMochiController: NSObject {
     private var engine: BotEngine?
     private var viewState: DesktopBotViewState?
     private var frameTimer: Timer?
+    private var jumpTimer: Timer?
+    private var jumping = false
 
     private var perch: WindowPerchTarget?
     private var nextPerchPoll = Date.distantPast
@@ -173,20 +178,17 @@ final class DesktopMochiController: NSObject {
     }
 
     private func updatePerch() {
-        guard let target = perch, let p = panel else { return }
+        guard !jumping, let target = perch, let p = panel else { return }
         nextPerchPoll = Date.now.addingTimeInterval(0.1)
         guard let window = WindowPerchReader.window(target.windowID), window.pid == target.ownerPID else {
             // A closed window never strands Mochi invisibly or attaches him to a reused ID.
             detachFromPerch()
             return
         }
-        let front = NSWorkspace.shared.frontmostApplication?.processIdentifier
-        let ownerIsFront = front == target.ownerPID || front == ProcessInfo.processInfo.processIdentifier
-        let ownerTop = ownerIsFront ? WindowPerchReader.onScreenWindows().first(where: { $0.pid == target.ownerPID })?.id : nil
         let origin = WindowPerchLogic.origin(frame: window.frame,
             fraction: target.horizontalFraction, panelSize: Self.panelSize,
             visibleFrames: NSScreen.screens.map(\.visibleFrame))
-        let visible = window.onScreen && ownerIsFront && ownerTop == target.windowID && origin != nil
+        let visible = window.onScreen && WindowPerchReader.contactVisible(window, fraction: target.horizontalFraction, windows: WindowPerchReader.onScreenWindows()) && origin != nil
         p.alphaValue = visible ? 1 : 0
         viewState?.paused = screenSleeping || !visible
         if visible, let origin {
@@ -199,6 +201,7 @@ final class DesktopMochiController: NSObject {
     }
 
     @objc private func detachFromPerch() {
+        cancelJump()
         perch = nil
         previousPerchFrame = nil
         viewState?.isPerched = false
@@ -209,6 +212,48 @@ final class DesktopMochiController: NSObject {
             p.setFrameOrigin(clampToVisibleFrame(p.frame.origin))
         }
         persistPosition()
+    }
+
+    private func cancelJump() {
+        jumpTimer?.invalidate(); jumpTimer = nil; jumping = false; viewState?.isJumping = false
+    }
+
+    @objc private func jumpToNextWindow() {
+        guard phase == .onDesktop, !isDragging, !jumping, !screenSleeping, let panel else { return }
+        let windows = WindowPerchReader.onScreenWindows()
+        var choices: [(WindowPerchReader.Snapshot, CGFloat, CGPoint)] = []
+        for window in windows where window.id != perch?.windowID {
+            for fraction: CGFloat in [0.5, 0.25, 0.75] {
+                guard WindowPerchReader.contactVisible(window, fraction: fraction, windows: windows),
+                      let spot = WindowPerchLogic.origin(frame: window.frame, fraction: fraction, panelSize: Self.panelSize, visibleFrames: NSScreen.screens.map(\.visibleFrame)) else { continue }
+                choices.append((window, fraction, spot))
+            }
+        }
+        let from = panel.frame.origin
+        let distance: (CGPoint) -> CGFloat = { pow($0.x-from.x,2)+pow($0.y-from.y,2) }
+        guard let choice = choices.min(by: { distance($0.2)<distance($1.2) }) else { NSSound.beep(); return }
+        let land = { [weak self] in
+            guard let self else { return }
+            self.cancelJump()
+            self.perch = WindowPerchTarget(windowID: choice.0.id, ownerPID: choice.0.pid, horizontalFraction: choice.1)
+            self.previousPerchFrame = choice.0.frame; self.viewState?.isPerched = true
+            self.panel?.setFrameOrigin(choice.2); self.updatePerch(); self.persistPosition()
+        }
+        viewState?.isPerched = true
+        if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion { land(); return }
+        jumping = true; viewState?.isJumping = true
+        let started = Date()
+        let ceiling = NSScreen.screens.map { $0.visibleFrame.maxY }.max() ?? max(from.y,choice.2.y)+Self.panelSize
+        let arc = max(0,min(70,ceiling-Self.panelSize-max(from.y,choice.2.y)))
+        let timer = Timer(timeInterval: 1.0/60, repeats: true) { [weak self] timer in
+            MainActor.assumeIsolated {
+                guard let self, self.phase == .onDesktop, !self.screenSleeping, !self.isDragging, self.panel != nil else { timer.invalidate(); self?.cancelJump(); return }
+                let t = Date().timeIntervalSince(started)/0.42
+                if t >= 1 { land() }
+                else { self.panel?.setFrameOrigin(WindowPerchLogic.jumpPoint(from: from, to: choice.2, progress: t, arc: arc)) }
+            }
+        }
+        jumpTimer = timer; RunLoop.main.add(timer, forMode: .common)
     }
 
     @objc private func openDesktopWardrobe() {
@@ -612,12 +657,14 @@ final class DesktopMochiController: NSObject {
     }
 
     private func stopPolling() {
+        cancelJump()
         pollingWanted = false
         frameTimer?.invalidate()
         frameTimer = nil
     }
 
     private func pausePollingForScreen() {
+        cancelJump()
         frameTimer?.invalidate()
         frameTimer = nil
     }
@@ -752,6 +799,10 @@ final class DesktopMochiController: NSObject {
             MainActor.assumeIsolated {
                 guard event.window === self.panel else { return }
                 let menu = NSMenu()
+                let jump = NSMenuItem(title: String(localized: "Jump to another window"), action: #selector(self.jumpToNextWindow), keyEquivalent: "")
+                jump.target = self; jump.isEnabled = !self.jumping
+                menu.addItem(jump)
+                menu.addItem(.separator())
                 if self.perch != nil {
                     let detach = NSMenuItem(title: String(localized: "perch.detach"), action: #selector(self.detachFromPerch), keyEquivalent: "")
                     detach.target = self
