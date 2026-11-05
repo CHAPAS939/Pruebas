@@ -22,7 +22,7 @@ La corrección permite elegir una ventana visible aunque no tenga el foco, conse
 ## Verificación
 
 - macOS: app universal compilada, arquitecturas ARM64 e Intel verificadas; recursos compartidos comparados con el código fuente; firma ad-hoc verificada; DMG verificado y montado para repetir la comprobación de recursos y firma.
-- Windows: compilación Release, 578 pruebas de la app y 30 del relay aprobadas (7 pruebas ignoradas, incluido el proceso auxiliar de la prueba nativa); 40 archivos de pruebas del frontend aprobados; instaladores NSIS y MSI generados y recursos comparados con el código fuente.
+- Windows: compilación Release, 578 pruebas de la app y 30 del relay aprobadas (7 pruebas ignoradas, incluido el proceso auxiliar de la prueba nativa); 533 pruebas del frontend y 5 de la escena compartida aprobadas; instaladores NSIS y MSI generados y recursos comparados con el código fuente.
 - Ambos trabajos nativos y el control final de las dos plataformas terminaron correctamente en la misma ejecución.
 - Windows Alt: 7 comprobaciones aprobadas en un trabajo nativo independiente; captura de una ventana real sin foco, oclusión, minimizar/restaurar y cierre, además de la conservación de Alt y la prioridad frente a la zona de retorno de la barra. El proceso auxiliar se ejecuta por separado.
 - Estas comprobaciones no equivalen a una prueba interactiva de todas las funciones en el equipo del usuario.
