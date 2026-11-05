@@ -80,7 +80,7 @@ struct MochiSceneWebView: NSViewRepresentable {
                   let value = try? JSONSerialization.jsonObject(with: data) else { return }
             lastSettings = parent.settings
             webView.callAsyncJavaScript("window.MochiScene.update(settings)", arguments: ["settings": value],
-                                        in: nil, contentWorld: .page, completionHandler: nil)
+                                        in: nil, in: .page, completionHandler: nil)
         }
 
         func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
