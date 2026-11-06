@@ -14,7 +14,7 @@ Me gusta construir interfaces visuales, cuidar el movimiento y convertir ideas e
   </picture>
 </a>
 
-**Reveille Creative** — Portfolio conceptual con escenas WebGL, animación y una biblioteca de interacciones. [Explorar el proyecto ↗](https://github.com/CHAPAS939/Pruebas)
+**Reveille Creative** — Portfolio conceptual con escenas WebGL, animación y una biblioteca de interacciones. [Explorar el proyecto](https://github.com/CHAPAS939/Pruebas)
 
 <a href="https://github.com/CHAPAS939/Pruebas/tree/build/coucou-mochi-installers">
   <picture>
@@ -23,7 +23,7 @@ Me gusta construir interfaces visuales, cuidar el movimiento y convertir ideas e
   </picture>
 </a>
 
-**Mochi Studio** — Una contribución a [Coucou, de Louis Raillé](https://github.com/louis-cfm/coucou): habitación editable, apariencias y enganche automático a ventanas. [Código y comprobaciones ↗](https://github.com/CHAPAS939/Pruebas/tree/build/coucou-mochi-installers)
+**Mochi Studio** — Una contribución a [Coucou, de Louis Raillé](https://github.com/louis-cfm/coucou): habitación editable, apariencias y enganche automático a ventanas. [Código y comprobaciones](https://github.com/CHAPAS939/Pruebas/tree/build/coucou-mochi-installers)
 
 ### En lo que estoy trabajando
 

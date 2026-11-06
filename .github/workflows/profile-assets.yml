@@ -1,0 +1,26 @@
+name: Check profile activation and assets
+on:
+  push:
+    branches: [profile/chapas939]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Parse activation script without running account changes
+        shell: pwsh
+        run: |
+          $Tokens = $null
+          $Errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD 'activate-profile.ps1'), [ref]$Tokens, [ref]$Errors) | Out-Null
+          if ($Errors.Count) { $Errors | Format-List; throw 'Profile script contains syntax errors' }
+          foreach ($File in Get-ChildItem assets/*.svg) {
+            $Document = [System.Xml.XmlDocument]::new()
+            $Document.XmlResolver = $null
+            $Document.Load($File.FullName)
+          }
+          Write-Host 'PowerShell syntax and SVG assets are valid. No account API writes were executed.'
