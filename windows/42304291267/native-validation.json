@@ -1,0 +1,19 @@
+{
+  "nativeApp": true,
+  "bridge": "native Windows UI Automation and physical input; no development bridge",
+  "tests": {
+    "installedAppStarts": true
+  },
+  "errors": [
+    "AssertionError [ERR_ASSERTION]: Native island window exists\n    at openStudio (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:19:94)\n    at D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:35:20"
+  ],
+  "source_commit": "6b4e5ea2f80ab59375973c73034d1f16d020b49e",
+  "version": "0.6.0-beta.1",
+  "harness_commit": "9378dab50a8ba7eb5024d2687be2ca5921173414",
+  "executable_sha256": "47a4e427a2820f58b2575e6c9610b6f1a65b396c529a7687a9d10d0c012fc392",
+  "desktop_preparation": [
+    "C:\\ProgramData\\GitHub\\HostedComputeAgent\\hosted-compute-agent",
+    "System Properties"
+  ],
+  "passed": false
+}
