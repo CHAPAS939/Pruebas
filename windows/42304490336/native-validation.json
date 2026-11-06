@@ -1,0 +1,21 @@
+{
+  "nativeApp": true,
+  "bridge": "native Windows UI Automation and physical input; no development bridge",
+  "tests": {
+    "installedAppStarts": true,
+    "nativeRoomAndWardrobePersist": true,
+    "nativeMinimize": true,
+    "nativeRestore": true,
+    "closeHidesReusableWindow": true,
+    "reopenSameNativeWindow": true,
+    "preferencesSurviveActualRestart": true
+  },
+  "errors": [
+    "AssertionError [ERR_ASSERTION]: Actual Mochi must attach and follow the native target window\n    at D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:55:10"
+  ],
+  "source_commit": "38f05b0e7a81cf2061bff1228b196ca7bfd9e9dc",
+  "version": "0.6.0-beta.1",
+  "harness_commit": "7b2c02438b8a561f9dc982114cbce44bb61fcbdf",
+  "executable_sha256": "54003228151f3c393a11849c5aed77c9ba1e1e258b585dca34a1b9e864529dda",
+  "passed": false
+}
