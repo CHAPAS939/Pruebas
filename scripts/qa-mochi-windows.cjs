@@ -13,7 +13,7 @@ const performanceResults={},proof={nativeApp:true,bridge:'real Tauri IPC',tests:
   const executable=path.resolve(process.env.COUCOU_QA_EXE||'windows/target/release/coucou.exe');
   const stdout=fs.openSync(path.join(out,'app-stdout.log'),'w'),stderr=fs.openSync(path.join(out,'app-stderr.log'),'w');
   // Keep Windows' real LOCALAPPDATA so WebView2 can find a per-user runtime.
-  app=spawn(executable,[],{cwd:path.dirname(executable),env:{...process.env,APPDATA:data,WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS:'--remote-debugging-port=9222 --remote-allow-origins=*'},stdio:['ignore',stdout,stderr],windowsHide:true});
+  app=spawn(executable,[],{cwd:path.dirname(executable),env:{...process.env,APPDATA:data,WEBVIEW2_USER_DATA_FOLDER:path.join(data,'webview'),WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS:'--remote-debugging-port=9222 --remote-allow-origins=*'},stdio:['ignore',stdout,stderr],windowsHide:true});
   app.on('exit',code=>{proof.appExitCode=code;console.log('Native app exit:',code)});
   let lastConnectionError='';
   for(let i=0;i<60;i++){try{browser=await chromium.connectOverCDP('http://127.0.0.1:9222');break}catch(error){lastConnectionError=error.message;if(app.exitCode!==null)break;await wait(1000)}}
