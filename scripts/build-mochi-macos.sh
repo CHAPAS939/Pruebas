@@ -16,6 +16,12 @@ node scripts/build-studio-icons.mjs --check
 bash scripts/test-mochi-room.sh
 bash scripts/test-mochi-photo.sh
 bash scripts/test-window-perch.sh
+for regression in work-streak session-launch agy-permissions flow-keys cli-relay-run review-policy codex-auto-review; do
+  bash "scripts/test-$regression.sh"
+done
+swiftc -parse-as-library NotchBuddy/Sources/App/CoucoudoroEngine.swift NotchBuddy/Tests/CoucoudoroEngineTests.swift -o "$OUT/coucoudoro-tests"
+"$OUT/coucoudoro-tests"
+rm "$OUT/coucoudoro-tests"
 python3 scripts/test-localization.py
 (cd NotchBuddy && xcodegen generate)
 xcodebuild -project NotchBuddy/NotchBuddy.xcodeproj -scheme NotchBuddy \

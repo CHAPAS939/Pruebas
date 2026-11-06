@@ -2,6 +2,8 @@
 
 Habitación 3D editable, guardarropa combinable y Mochi sujeto a ventanas reales, integrados en Coucou para macOS y Windows. Los dos proyectos originales se conservan por separado en `docs/mochi-home` y `docs/mochi-perch`.
 
+La base se ha actualizado a la rama oficial de Coucou 0.6 (`b1bc09de7f7c24a80bd8eca5729b8bee60f66402`, 6 de noviembre de 2026). Conserva todas las novedades originales en sus plataformas: lanzamiento de sesiones desde la isla, archivos sobre sesiones, Coucoudoro y cansancio de Mochi en Mac, mejoras de Flow y voz, permisos de agentes y las correcciones de memoria y superposición de ventanas en Windows. El lanzador y la habitación tienen sus propias pestañas. Studio y los objetos nativos de Windows siguen ahora el ciclo de vida de WebView2 de la nueva base.
+
 ## Qué incluye
 
 - Ventana independiente redimensionable para decorar en grande, con giro de cámara, altura y zoom suave. Cámara y luz se guardan en cada habitación.
@@ -46,4 +48,4 @@ La prueba reproducible de la interfaz es `scripts/verify-mochi-studio.cjs` y req
 
 ## Origen
 
-Integración sobre Coucou `74363634b037108393e450428e5f207515c2c29b`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Se ha compilado en la rama autorizada `build/coucou-mochi-installers` de `CHAPAS939/Pruebas`. El repositorio de Louis y la rama principal de Pruebas no se han modificado. Código base, personaje y recursos: Louis Raillé y colaboradores; no es una release oficial del proyecto.
+Integración sobre Coucou `b1bc09de7f7c24a80bd8eca5729b8bee60f66402`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Se ha compilado en la rama autorizada `build/coucou-mochi-installers` de `CHAPAS939/Pruebas`. El repositorio de Louis y la rama principal de Pruebas no se han modificado. Código base, personaje y recursos: Louis Raillé y colaboradores; no es una release oficial del proyecto.

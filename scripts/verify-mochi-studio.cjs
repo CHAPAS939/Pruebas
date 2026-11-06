@@ -5,6 +5,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
  const directory=process.env.STUDIO_SCREENSHOTS||'/tmp/coucou-studio-proof';fs.mkdirSync(directory,{recursive:true});
  const page=await browser.newPage({viewport:{width:720,height:560},deviceScaleFactor:2}),errors=[];
+ page.setDefaultTimeout(45000);
  page.on('pageerror',e=>errors.push(e.message));
  async function open(){
   await page.goto((process.env.PREVIEW_URL||'http://127.0.0.1:1420')+'/dev/island-preview.html?lang=es');
@@ -90,5 +91,5 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
   assert.deepEqual(restored.desktopProps,['cup']);assert.deepEqual(errors,[]);
   const proof={passed:true,bodyMaterials:7,savedLook:true,savedRoom:true,activities:3,moveRotateUndo:true,physicalFurnitureDrag:true,photoPNG:true,preferencesReload:true,errors,nativeBridge:'simulated in browser; native code compiled and checked separately'};
   fs.writeFileSync(directory+'/mochi-studio-validation.json',JSON.stringify(proof,null,2));console.log(JSON.stringify(proof));
- }finally{await browser.close()}
+ }catch(error){await page.screenshot({path:directory+'/failure.png'}).catch(()=>{});throw error;}finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});

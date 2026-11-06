@@ -35,7 +35,9 @@ pub fn setup(app: &AppHandle) {
     let state = Arc::new(Objects::default());
     if let Ok(text) = std::fs::read_to_string(spots_path()) { if text.len() < 2048 { if let Ok(mut spots) = serde_json::from_str::<BTreeMap<String,[i32;2]>>(&text) { spots.retain(|id,_| IDS.contains(&id.as_str()));*state.spots.lock().unwrap() = spots; } } }
     app.manage(state);
-    if let Some(window)=build(app,"mochi-snap","kind=snap",(96.0,8.0)) { let _=window.set_ignore_cursor_events(true); }
+    if let Some(window)=build(app,"mochi-snap","kind=snap",(96.0,8.0)) { crate::platform::set_click_through(&window,true);crate::webview_memory::set_low(&window,true); }
+    // Pre-create overlays before the island, like the official desktop window.
+    for id in IDS { if let Some(window)=build(app,&label(id),&format!("kind=prop&id={id}"),(SIDE,SIDE)) { crate::webview_memory::set_low(&window,true); } }
     sync(app);
 }
 pub fn sync(app: &AppHandle) {
@@ -52,9 +54,10 @@ fn sync_now(app: &AppHandle) {
     let list=wanted(app);
     for (index,id) in IDS.into_iter().enumerate() {
         let name=label(id);
-        if !list.iter().any(|s| s.as_str()==id) { if let Some(window)=app.get_webview_window(&name) { let _=window.set_position(PhysicalPosition::new(PARK.0,PARK.1)); } continue; }
+        if !list.iter().any(|s| s.as_str()==id) { if let Some(window)=app.get_webview_window(&name) { let _=window.set_position(PhysicalPosition::new(PARK.0,PARK.1));crate::webview_memory::set_low(&window,true); } continue; }
         if let Some(window)=app.get_webview_window(&name) { if window.outer_position().is_ok_and(|p|p.x!=PARK.0) { continue; } }
         let Some(window)=build(app,&name,&format!("kind=prop&id={id}"),(SIDE,SIDE)) else { continue };
+        crate::webview_memory::set_low(&window,false);
         let Some(monitor)=crate::island::window(app).and_then(|w|w.current_monitor().ok().flatten()).or_else(||app.primary_monitor().ok().flatten()) else { continue };
         let work=monitor.work_area();let scale=monitor.scale_factor();let side=(SIDE*scale).round() as i32;
         let fallback=[work.position.x+work.size.width as i32-side*(index as i32+2)-24,work.position.y+work.size.height as i32-side-30];

@@ -16,7 +16,7 @@ const artifacts = files.sort().map(name => {
 });
 const manifest = { product: 'Coucou', channel: 'Mochi preview', features: ['home', 'perch'],
   source_commit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
-  source_base: '74363634b037108393e450428e5f207515c2c29b', platform, architecture,
+  source_base: 'b1bc09de7f7c24a80bd8eca5729b8bee60f66402', platform, architecture,
   signature: platform === 'macOS' ? 'ad-hoc; not notarized' : 'unsigned', artifacts };
 writeFileSync(resolve(output, 'build-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 writeFileSync(resolve(output, 'SHA256SUMS.txt'), artifacts.map(a => `${a.sha256}  ${a.name}`).join('\n') + '\n');

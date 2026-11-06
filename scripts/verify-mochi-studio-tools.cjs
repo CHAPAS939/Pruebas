@@ -4,11 +4,19 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
  const directory=process.env.STUDIO_SCREENSHOTS||'/tmp/coucou-studio-tools';fs.mkdirSync(directory,{recursive:true});
  const context=await browser.newContext({viewport:{width:720,height:560},reducedMotion:'reduce'}),errors=[];
+ context.setDefaultTimeout(45000);
  context.on('page',p=>{p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error'&&!m.text().includes('404'))errors.push(m.text())})});
  try{
   const island=await context.newPage();await island.goto((process.env.PREVIEW_URL||'http://127.0.0.1:1420')+'/dev/island-preview.html?lang=es');
   await island.waitForFunction(()=>window.__island&&window.__state?.settings.language==='es');
   await island.evaluate(()=>{__island.setPinned(true);__island.alert('overview');__island.setPointerInside(true)});
+  // The upstream 0.6 launcher must remain reachable beside our room tab.
+  const launcher=island.getByRole('button',{name:'Nueva sesión de Claude Code',exact:true});
+  await launcher.click();await island.locator('.launch-card').waitFor({state:'visible'});
+  await island.locator('.launch-card input').fill('Comprobar la integración');
+  assert.equal(await island.locator('.launch-card input').inputValue(),'Comprobar la integración');
+  // Do not send: this regression never starts a real agent session.
+  console.log('PASS: original 0.6 session launcher coexists with the room tab');
   await island.getByRole('button',{name:'La habitación de Mochi',exact:true}).click();
   const old=island.locator('.mochi-studio-host');await old.locator('#tabs').waitFor();
   const opening=context.waitForEvent('page');await old.getByRole('button',{name:'Abrir estudio',exact:true}).click();const page=await opening;
@@ -57,7 +65,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   await page.emulateMedia({reducedMotion:'reduce'});await scene.waitForFunction(()=>document.getElementById('stage').dataset.reaction==='none');
   console.log('PASS: Mochi celebrates, explores and respects reduced motion');
   await page.reload();await page.locator('.mochi-studio-host').locator('#studio.standalone').waitFor();assert.deepEqual((await doc()).lighting,{intensity:1.6,temperature:1});assert.deepEqual((await doc()).camera,savedCamera);assert.deepEqual(errors,[]);
-  const proof={passed:true,separateStudio:true,resizableLayout:true,lightingRenderAndPersistence:true,crossWindowPreferences:true,physicalOrbitAndWheel:true,cameraAndLightPresets:true,furnitureCollision:true,reactions:true,reducedMotion:true,reload:true,errors,nativeBridge:'simulated; native window code checked separately'};
+  const proof={passed:true,upstream06Launcher:true,separateStudio:true,resizableLayout:true,lightingRenderAndPersistence:true,crossWindowPreferences:true,physicalOrbitAndWheel:true,cameraAndLightPresets:true,furnitureCollision:true,reactions:true,reducedMotion:true,reload:true,errors,nativeBridge:'simulated; native window code checked separately'};
   fs.writeFileSync(directory+'/studio-tools-validation.json',JSON.stringify(proof,null,2));console.log(JSON.stringify(proof));
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});
