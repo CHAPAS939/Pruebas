@@ -1,0 +1,9 @@
+{
+  "nativeApp": true,
+  "bridge": "real Tauri IPC",
+  "tests": {},
+  "errors": [
+    "AssertionError [ERR_ASSERTION]: The actual WebView2 debug endpoint must become ready\n    at D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-windows.cjs:21:10"
+  ],
+  "passed": false
+}
