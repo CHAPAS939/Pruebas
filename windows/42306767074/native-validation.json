@@ -1,0 +1,111 @@
+{
+  "nativeApp": true,
+  "bridge": "native Windows UI Automation and physical input; no development bridge",
+  "tests": {
+    "installedAppStarts": true,
+    "nativeRoomAndWardrobePersist": true,
+    "nativeMinimize": true,
+    "nativeRestore": true,
+    "closeHidesReusableWindow": true,
+    "reopenSameNativeWindow": true,
+    "preferencesSurviveActualRestart": true,
+    "automaticNativeGripAndFollow": true
+  },
+  "errors": [
+    "Error: Native control not found: ^Jump to another window$. Available: Mochi, Mochi, Mochi - Web content, Mochi, Coucou, \r\nCoucou, Coucou - Web content, Coucou, Overview, Ask, Drop, New Claude Code session, Mochi’s room, Settings, Mute, \r\nClose, Claude Code, Integration, Hooks not installed, Open Visual Studio Code, Settings…, Open, Nothing running right \r\nnow., Drop a file or window, or ask me anything., Ask Claude, Later — keep it waiting, Later — keep it waiting, Retry, \r\nOpen in n8n, Open terminal, OK, Too many hits at once., Give me a sec — back to work in three seconds., Sound, 10s, \r\n15s, 30s, Settings…, ✉ Mail, claude-opus-5 · Claude Code, Ask me anything…, Send, Drop your files here, PDF, Images, \r\nCode, Docs, What do you want to do with it?, Ask a question, Cancel, Wardrobe, Combine outfits, Combine outfits, \r\nGlasses, Scarf, Body appearance, Body appearance, Mochi Studio, Auto (seasons), None, Party hat, Beanie, Crown, \r\nSunglasses, Round glasses, Bow, Scarf, Witch hat, Pumpkin, Santa hat, Bunny ears, Headphones, Frog hat, Flower, New \r\nClaude Code session, What should Claude do?, Sending by email isn't in this version., Claude is searching…, Result, \r\nClaude plan usage, Coucou, Coucou, Coucou - Web content, Coucou, Mochi, Mochi, Mochi - Web content, Mochi, Mochi, \r\nMochi, Mochi - Web content, Mochi, Mochi, Mochi, Mochi - Web content, Mochi, Mochi, Mochi, Mochi - Web content, Mochi, \r\nRunning applications, Start, Search, Search, Task View, File Explorer pinned, Microsoft Edge pinned, Terminal - 1 \r\nrunning window, Change Computer Performance Settings - 1 running window, PowerShell 7 (x64) - 2 running windows, Show \r\nHidden Icons, Azure Arc, Network Network\r\nInternet access\r\nEthernet 4\r\nNo internet access, Volume No audio device is installed, Clock 10:45 PM\r\n‎11/‎6/‎2026, Notifications No new notifications (Do not disturb on), Show Desktop, Preview, Coucou contributor demo\r\nNative Windows test window\r\nMochi follows the exposed top edge., Design notes, Coucou contributor demo\r\nNative Windows test window\r\nMochi follows the exposed top edge., fr.louisraille.coucou-siw, Performance Options, Advanced, Processor scheduling, \r\nChoose how to allocate processor resources., Adjust for best performance of:, Programs, Background services, Virtual \r\nmemory, A paging file is an area on the hard disk that Windows uses as if it were RAM., Total paging file size for all \r\ndrives:, 2944 MB, Change..., OK, Cancel, Apply, C:\\ProgramData\\GitHub\\HostedComputeAgent\\hosted-compute-agent, \r\nC:\\ProgramData\\GitHub\\HostedComputeAgent\\hosted-compute-agent, \r\nC:\\ProgramData\\GitHub\\HostedComputeAgent\\hosted-compute-agent, Close Tab, New Tab, Default, Vertical, Vertical Small \r\nDecrease, Vertical Large Decrease, Vertical Large Increase, Vertical Small Increase, Program Manager, FolderView\r\nAt D:\\a\\Pruebas\\Pruebas\\scripts\\qa-windows-uia.ps1:21 char:26\r\n+ ... q 'invoke'){throw \"Native control not found: $Pattern. Available: $(( ...\r\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : OperationStopped: (Native control ...ger, FolderView:String) [], RuntimeException\r\n    + FullyQualifiedErrorId : Native control not found: ^Jump to another window$. Available: Mochi, Mochi, Mochi - Web \r\n    content, Mochi, Coucou, Coucou, Coucou - Web content, Coucou, Overview, Ask, Drop, New Claude Code session, Mochi  \r\n  ’s room, Settings, Mute, Close, Claude Code, Integration, Hooks not installed, Open Visual Studio Code, Settings…,   \r\n  Open, Nothing running right now., Drop a file or window, or ask me anything., Ask Claude, Later — keep it waiting    \r\n, Later — keep it waiting, Retry, Open in n8n, Open terminal, OK, Too many hits at once., Give me a sec — back to     \r\nwork in three seconds., Sound, 10s, 15s, 30s, Settings…, ✉ Mail, claude-opus-5 · Claude Code, Ask me anything…, Se    \r\nnd, Drop your files here, PDF, Images, Code, Docs, What do you want to do with it?, Ask a question, Cancel, Wardro    \r\nbe, Combine outfits, Combine outfits, Glasses, Scarf, Body appearance, Body appearance, Mochi Studio, Auto (season    \r\ns), None, Party hat, Beanie, Crown, Sunglasses, Round glasses, Bow, Scarf, Witch hat, Pumpkin, Santa hat, Bunny ea    \r\nrs, Headphones, Frog hat, Flower, New Claude Code session, What should Claude do?, Sending by email isn't in this     \r\nversion., Claude is searching…, Result, Claude plan usage, Coucou, Coucou, Coucou - Web content, Coucou, Mochi, Mo    \r\nchi, Mochi - Web content, Mochi, Mochi, Mochi, Mochi - Web content, Mochi, Mochi, Mochi, Mochi - Web content, Moch    \r\ni, Mochi, Mochi, Mochi - Web content, Mochi, Running applications, Start, Search, Search, Task View, File Explorer     \r\npinned, Microsoft Edge pinned, Terminal - 1 running window, Change Computer Performance Settings - 1 running wind    \r\now, PowerShell 7 (x64) - 2 running windows, Show Hidden Icons, Azure Arc, Network Network\r\nInternet access\r\nEthernet 4\r\nNo internet access, Volume No audio device is installed, Clock 10:45 PM\r\n    ‎11/‎6/‎2026, Notifications No new notifications (Do not disturb on), Show Desktop, Preview, Coucou contributor de \r\n   mo\r\nNative Windows test window\r\nMochi follows the exposed top edge., Design notes, Coucou contributor demo\r\nNative Windows test window\r\n    Mochi follows the exposed top edge., fr.louisraille.coucou-siw, Performance Options, Advanced, Processor schedulin \r\n   g, Choose how to allocate processor resources., Adjust for best performance of:, Programs, Background services, Vi  \r\n  rtual memory, A paging file is an area on the hard disk that Windows uses as if it were RAM., Total paging file si   \r\n ze for all drives:, 2944 MB, Change..., OK, Cancel, Apply, C:\\ProgramData\\GitHub\\HostedComputeAgent\\hosted-compute    \r\n-agent, C:\\ProgramData\\GitHub\\HostedComputeAgent\\hosted-compute-agent, C:\\ProgramData\\GitHub\\HostedComputeAgent\\ho    \r\nsted-compute-agent, Close Tab, New Tab, Default, Vertical, Vertical Small Decrease, Vertical Large Decrease, Verti    \r\ncal Large Increase, Vertical Small Increase, Program Manager, FolderView\r\n \r\n\n    at command (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:7:282)\n    at uia (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:9:29)\n    at invoke (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:10:80)\n    at async D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:71:92"
+  ],
+  "source_commit": "38f05b0e7a81cf2061bff1228b196ca7bfd9e9dc",
+  "version": "0.6.0-beta.1",
+  "harness_commit": "2414a5b5591f99053705b88b320881051dcbed1f",
+  "executable_sha256": "54003228151f3c393a11849c5aed77c9ba1e1e258b585dca34a1b9e864529dda",
+  "desktop_preparation": [
+    "C:\\ProgramData\\GitHub\\HostedComputeAgent\\hosted-compute-agent",
+    "System Properties"
+  ],
+  "desktop_before_drag": {
+    "handle": 131690,
+    "title": "Mochi",
+    "x": 26,
+    "y": 26,
+    "width": 136,
+    "height": 120,
+    "visible": true,
+    "minimized": false,
+    "source": "island",
+    "grab": {
+      "x": 260,
+      "y": 101
+    }
+  },
+  "fixture_windows": [
+    {
+      "handle": 197298,
+      "title": "Preview",
+      "x": 520,
+      "y": 170,
+      "width": 460,
+      "height": 300,
+      "visible": true,
+      "minimized": false
+    },
+    {
+      "handle": 131738,
+      "title": "Design notes",
+      "x": 120,
+      "y": 290,
+      "width": 460,
+      "height": 300,
+      "visible": true,
+      "minimized": false
+    }
+  ],
+  "attachment_trace": {
+    "initial": {
+      "handle": 131690,
+      "title": "Mochi",
+      "x": 26,
+      "y": 26,
+      "width": 136,
+      "height": 120,
+      "visible": true,
+      "minimized": false
+    },
+    "before": {
+      "handle": 131690,
+      "title": "Mochi",
+      "x": 313,
+      "y": 199,
+      "width": 136,
+      "height": 120,
+      "visible": true,
+      "minimized": false
+    },
+    "after": {
+      "handle": 131690,
+      "title": "Mochi",
+      "x": 348,
+      "y": 224,
+      "width": 136,
+      "height": 120,
+      "visible": true,
+      "minimized": false
+    },
+    "target": {
+      "width": 460,
+      "handle": 131738,
+      "x": 120,
+      "title": "Design notes",
+      "y": 290,
+      "height": 300
+    },
+    "settings": {
+      "onDesktop": true,
+      "spot": {
+        "x": 313,
+        "y": 198.8,
+        "space": "screen"
+      }
+    }
+  },
+  "passed": false
+}
