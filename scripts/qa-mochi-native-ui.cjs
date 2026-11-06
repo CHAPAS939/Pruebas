@@ -30,7 +30,7 @@ async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return u
   proof.source_commit=manifest.source_commit;proof.version=manifest.version;proof.harness_commit=spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8',cwd:fs.existsSync('native-controller/.git')?'native-controller':process.cwd()}).stdout.trim();
   proof.executable_sha256=crypto.createHash('sha256').update(fs.readFileSync(process.env.COUCOU_QA_EXE)).digest('hex');
   fs.mkdirSync(path.dirname(settingsFile),{recursive:true});fs.writeFileSync(settingsFile,JSON.stringify({language:'en',soundEnabled:false,autostart:false,hooksInstalled:true,openOnHover:true,activeIntegrations:[],mochiSkin:'diamond',mochiOutfit:'frogHat',mochiOutfitGlasses:'roundGlasses',mochiOutfitScarf:true,desktopMochi:{onDesktop:false,spot:null}}));
-  launch();await wait(6000);assert.equal(app.exitCode,null,'Installed app remains running');proof.tests.installedAppStarts=true;closeHub();
+  proof.desktop_preparation=JSON.parse(ps('prepare-desktop'));launch();await wait(6000);assert.equal(app.exitCode,null,'Installed app remains running');proof.tests.installedAppStarts=true;closeHub();
   performanceResults.closedAtStartup=JSON.parse(ps('sample',{AppPid:app.pid}));
   let studio=await openStudio();
   await invoke(studio.handle,'^Gamer$');await wait(700);
@@ -57,6 +57,7 @@ async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return u
   proof.desktop_before_drag={...mochi,source:'island',grab};ps('capture',{Out:path.join(out,'00-native-desktop.png')});
   fixture=spawn('pwsh',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,'-Action','fixture','-Out',fixtureFile],{stdio:'ignore',windowsHide:true});
   await until(()=>fs.existsSync(fixtureFile),'Native target windows not created');const targets=JSON.parse(fs.readFileSync(fixtureFile,'utf8').replace(/^\uFEFF/,''));
+  const visibleFixtures=JSON.parse(ps('state',{AppPid:fixture.pid})).filter(w=>w.visible&&w.width>100&&w.height>100);assert.equal(visibleFixtures.length,2,'Both real fixture windows must be visible');proof.fixture_windows=visibleFixtures;
   const frames=path.join(out,'native-frames');recorder=spawn('pwsh',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,'-Action','record','-Out',frames],{stdio:'ignore',windowsHide:true});await wait(1800);
   const target=targets[0];ps('drag',{X:grab.x,Y:grab.y,EndX:target.x+Math.round(target.width*.55),EndY:target.y+3});await wait(900);
   const before=windows().find(w=>w.handle===mochi.handle);ps('capture',{Out:path.join(out,'02-native-grip.png')});

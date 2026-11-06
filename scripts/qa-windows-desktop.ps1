@@ -1,4 +1,4 @@
-param([ValidateSet('fixture','state','drag','move','close','minimize','show','hover','click','desktop-shortcut','context','capture','record','sample')][string]$Action, [string]$Out, [int]$AppPid, [long]$Handle, [int]$X, [int]$Y, [int]$EndX, [int]$EndY)
+param([ValidateSet('fixture','prepare-desktop','state','drag','move','close','minimize','show','hover','click','desktop-shortcut','context','capture','record','sample')][string]$Action, [string]$Out, [int]$AppPid, [long]$Handle, [int]$X, [int]$Y, [int]$EndX, [int]$EndY)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms,System.Drawing
 Add-Type @'
@@ -26,7 +26,7 @@ public class MochiQA {
   [DllImport("user32.dll")] public static extern IntPtr SetThreadDpiAwarenessContext(IntPtr c);
   public static Win[] Windows(int owner) {
     var list=new List<Win>();
-    EnumWindows((h,l)=>{uint p;GetWindowThreadProcessId(h,out p);if(p!=(uint)owner)return true;
+    EnumWindows((h,l)=>{uint p;GetWindowThreadProcessId(h,out p);if(owner!=0 && p!=(uint)owner)return true;
       Rect r;GetWindowRect(h,out r);var s=new StringBuilder(512);GetWindowText(h,s,512);
       list.Add(new Win {handle=h.ToInt64(),title=s.ToString(),x=r.Left,y=r.Top,width=r.Right-r.Left,height=r.Bottom-r.Top,visible=IsWindowVisible(h),minimized=IsIconic(h)});return true;
     },IntPtr.Zero);return list.ToArray();
@@ -52,9 +52,24 @@ switch ($Action) {
       $Label=[System.Windows.Forms.Label]::new();$Label.Text="Coucou contributor demo`n`nNative Windows test window`n`nMochi follows the exposed top edge.";$Label.Font=[System.Drawing.Font]::new('Segoe UI',15);$Label.Dock='Fill';$Label.Padding=[System.Windows.Forms.Padding]::new(28);$Form.Controls.Add($Label)
       $Form.Show();$Forms+=$Form
     }
+    foreach($Form in $Forms){
+      # A hidden console startup flag may suppress the first Form.Show().
+      # Explicitly show the real fixture, then bring its normal window forward.
+      [MochiQA]::ShowWindow($Form.Handle,9)|Out-Null
+      [MochiQA]::SetWindowPos($Form.Handle,[IntPtr]::Zero,0,0,0,0,0x43)|Out-Null
+      $Form.BringToFront();$Form.Activate()
+    }
     $Forms | ForEach-Object { @{handle=$_.Handle.ToInt64();title=$_.Text;x=$_.Left;y=$_.Top;width=$_.Width;height=$_.Height} } | ConvertTo-Json | Set-Content $Out
     $Timer=[System.Windows.Forms.Timer]::new();$Timer.Interval=500;$Timer.Add_Tick({if(Test-Path ($Out+'.stop')){[System.Windows.Forms.Application]::Exit()}});$Timer.Start()
     [System.Windows.Forms.Application]::Run()
+  }
+  'prepare-desktop' {
+    $Changed=@()
+    foreach($Window in [MochiQA]::Windows(0)){
+      if($Window.visible -and $Window.title -eq 'System Properties'){[MochiQA]::PostMessage([IntPtr]::new($Window.handle),0x10,[IntPtr]::Zero,[IntPtr]::Zero)|Out-Null;$Changed+=$Window.title}
+      elseif($Window.visible -and $Window.title -like '*GitHub*Host*'){[MochiQA]::ShowWindow([IntPtr]::new($Window.handle),6)|Out-Null;$Changed+=$Window.title}
+    }
+    ConvertTo-Json -InputObject @($Changed) -Compress
   }
   'state' { ConvertTo-Json -InputObject @([MochiQA]::Windows($AppPid)) -Depth 4 -Compress }
   'drag' {
