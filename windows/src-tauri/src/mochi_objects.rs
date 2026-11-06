@@ -25,11 +25,15 @@ fn page(app: &AppHandle, query: &str) -> WebviewUrl {
 }
 fn build(app: &AppHandle, id: &str, query: &str, size: (f64,f64)) -> Option<WebviewWindow> {
     if let Some(window) = app.get_webview_window(id) { return Some(window) }
-    WebviewWindowBuilder::new(app,id,page(app,query)).additional_browser_args(crate::BROWSER_ARGS)
+    let window = WebviewWindowBuilder::new(app,id,page(app,query)).additional_browser_args(crate::BROWSER_ARGS)
         .title("Mochi").inner_size(size.0,size.1).position(PARK.0 as f64,PARK.1 as f64).resizable(false)
         .decorations(false).transparent(true).shadow(false).always_on_top(true).skip_taskbar(true)
         .visible_on_all_workspaces(true).focused(false).focusable(false).maximizable(false).minimizable(false)
-        .closable(false).disable_drag_drop_handler().visible(true).build().map_err(|e| crate::log::line(format!("Mochi object: {e}"))).ok()
+        .closable(false).disable_drag_drop_handler().visible(true).build().map_err(|e| crate::log::line(format!("Mochi object: {e}"))).ok()?;
+    // Windows may cascade a logical position outside every monitor. Park explicitly
+    // in physical coordinates before an auxiliary overlay can be presented.
+    let _ = window.set_position(PhysicalPosition::new(PARK.0, PARK.1));
+    Some(window)
 }
 pub fn setup(app: &AppHandle) {
     let state = Arc::new(Objects::default());
