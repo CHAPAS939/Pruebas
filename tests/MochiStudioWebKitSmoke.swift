@@ -7,7 +7,7 @@ import Foundation
 final class StudioSmoke: NSObject, @preconcurrency WKScriptMessageHandler, @preconcurrency WKNavigationDelegate {
     private var web: WKWebView!
     private var window: NSWindow!
-        private var stage = 0
+    private var stage = 0
     private var lastDiagnostic = ""
     func start(folder url: URL) {
         let config = WKWebViewConfiguration();config.websiteDataStore = .nonPersistent();config.preferences.javaScriptCanOpenWindowsAutomatically = false
@@ -18,8 +18,8 @@ final class StudioSmoke: NSObject, @preconcurrency WKScriptMessageHandler, @prec
         window.addEventListener('error',e=>window.webkit.messageHandlers.smokeDiagnostics.postMessage({error:String(e.message||e.type),file:e.filename||e.target?.src||'',frame:location.href}),true);
         document.addEventListener('securitypolicyviolation',e=>window.webkit.messageHandlers.smokeDiagnostics.postMessage({policy:e.violatedDirective,blocked:e.blockedURI,frame:location.href}));
         """,injectionTime:.atDocumentStart,forMainFrameOnly:false))
-        web = WKWebView(frame:CGRect(x:0,y:0,width:640,height:520),configuration:config);web.navigationDelegate = self
-        window = NSWindow(contentRect:CGRect(x:80,y:80,width:640,height:520),styleMask:[.titled],backing:.buffered,defer:false)
+        web = WKWebView(frame:CGRect(x:0,y:0,width:1120,height:780),configuration:config);web.navigationDelegate = self
+        window = NSWindow(contentRect:CGRect(x:80,y:80,width:1120,height:780),styleMask:[.titled,.resizable],backing:.buffered,defer:false)
         window.contentView = web;window.makeKeyAndOrderFront(nil)
         web.load(URLRequest(url:MochiStudioResources.entry))
         DispatchQueue.main.asyncAfter(deadline:.now()+40) { print("FAIL: packaged Mac Studio did not finish its WebKit smoke test");exit(1) }
@@ -28,7 +28,7 @@ final class StudioSmoke: NSObject, @preconcurrency WKScriptMessageHandler, @prec
         if message.name == "smokeDiagnostics" { print("WK diagnostic: \(message.body)");return }
         guard message.frameInfo.isMainFrame,let value=message.body as? [String:Any],value["channel"] as? String == "coucou-mochi-studio" else{return}
         if value["event"] as? String == "loaded" {
-            let snapshot:[String:Any] = ["active":true,"state":"idle","outfit":"frogHat","seasonalOutfit":"none","language":"es","reducedMotion":true,"preferences":["mochiSkin":"diamond","mochiOutfit":"frogHat","mochiOutfitGlasses":"roundGlasses","mochiOutfitScarf":true]]
+            let snapshot:[String:Any] = ["active":true,"standalone":true,"state":"idle","outfit":"frogHat","seasonalOutfit":"none","language":"es","reducedMotion":true,"preferences":["mochiStudio":"{\"lighting\":{\"intensity\":1.15,\"temperature\":0.25},\"camera\":{\"yaw\":0.25,\"pitch\":0.2}}","mochiSkin":"diamond","mochiOutfit":"frogHat","mochiOutfitGlasses":"roundGlasses","mochiOutfitScarf":true]]
             web.callAsyncJavaScript("window.MochiStudio.update(snapshot)",arguments:["snapshot":snapshot],in:nil,in:.page,completionHandler:nil)
             poll()
         } else if value["event"] as? String == "photo",let image=value["data"] as? String,let data=MochiPhotoLogic.decode(image) {

@@ -18,11 +18,13 @@
       result[id]={x:Math.max(-3.5+hx,Math.min(3.5-hx,Math.round(number(p.x,-3.5+hx,3.5-hx)*20)/20)),z:Math.max(-2.5+hz,Math.min(2.5-hz,Math.round(number(p.z,-2.5+hz,2.5-hz)*20)/20)),rotation};
     }return result;
   }
+  function camera(value){return {yaw:number(value?.yaw,-1,1),pitch:number(value?.pitch,-.25,.65)}}
+  function lighting(value){return {intensity:number(value?.intensity,.35,1.6,1),temperature:number(value?.temperature,-1,1)}}
   function room(value){const v=value&&typeof value==='object'?value:{};const settings={};
     for(const [key,values]of Object.entries(choices))settings[key]=pick(v.settings?.[key],values);
     for(const key of ['mochiRoomPlant','mochiRoomRug','mochiRoomLamp','mochiRoomRain'])settings[key]=v.settings?.[key]!==false;
     settings.mochiRoomLighting=pick(v.settings?.mochiRoomLighting,['automatic','day','night']);
-    return {name:name(v.name,'My room'),settings,layout:layout(v.layout),objects:objects.filter(x=>Array.isArray(v.objects)&&v.objects.includes(x))};
+    return {name:name(v.name,'My room'),settings,camera:camera(v.camera),lighting:lighting(v.lighting),layout:layout(v.layout),objects:objects.filter(x=>Array.isArray(v.objects)&&v.objects.includes(x))};
   }
   function outfit(value){const v=value&&typeof value==='object'?value:{};return {name:name(v.name,'My Mochi'),outfit:pick(v.outfit,outfits),glasses:pick(v.glasses,['none','sunglasses','roundGlasses']),scarf:v.scarf===true,skin:pick(v.skin,skins),accent:accent(v.accent)};}
   function accent(value){return typeof value==='string'&&/^#[0-9a-f]{6}$/i.test(value)?value.toLowerCase():'original';}
@@ -30,7 +32,7 @@
     let v=value;
     if(typeof v==='string'){if(v.length>32768)return normalize(null);try{v=JSON.parse(v)}catch{v=null}}
     if(!v||typeof v!=='object'||Array.isArray(v))v={};
-    return {version:1,layout:layout(v.layout),objects:objects.filter(x=>Array.isArray(v.objects)&&v.objects.includes(x)),rooms:(Array.isArray(v.rooms)?v.rooms:[]).slice(0,4).map(room),outfits:(Array.isArray(v.outfits)?v.outfits:[]).slice(0,8).map(outfit),desktopProps:props.filter(x=>Array.isArray(v.desktopProps)&&v.desktopProps.includes(x))};
+    return {version:1,camera:camera(v.camera),lighting:lighting(v.lighting),layout:layout(v.layout),objects:objects.filter(x=>Array.isArray(v.objects)&&v.objects.includes(x)),rooms:(Array.isArray(v.rooms)?v.rooms:[]).slice(0,4).map(room),outfits:(Array.isArray(v.outfits)?v.outfits:[]).slice(0,8).map(outfit),desktopProps:props.filter(x=>Array.isArray(v.desktopProps)&&v.desktopProps.includes(x))};
   }
   function preferences(value){const v=value&&typeof value==='object'?value:{};const result={};
     for(const[key,values]of Object.entries(choices))result[key]=pick(v[key],values);
@@ -39,6 +41,6 @@
     result.mochiOutfit=pick(v.mochiOutfit,outfits);result.mochiOutfitGlasses=pick(v.mochiOutfitGlasses,['none','sunglasses','roundGlasses']);result.mochiOutfitScarf=v.mochiOutfitScarf===true;
     result.mochiSkin=pick(v.mochiSkin,skins);result.mochiAccent=accent(v.mochiAccent);result.mochiStudio=JSON.stringify(normalize(v.mochiStudio));return result;
   }
-  const api=Object.freeze({skins,outfits,objects,furniture,props,choices,normalize,layout,room,outfit,accent,preferences});
+  const api=Object.freeze({skins,outfits,objects,furniture,props,choices,normalize,layout,camera,lighting,room,outfit,accent,preferences});
   if(typeof module==='object'&&module.exports)module.exports=api;else globalThis.MochiStudioData=api;
 })();

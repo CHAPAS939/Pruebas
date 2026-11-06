@@ -160,6 +160,8 @@ window.MochiScene.register("home",(host)=>{
     const appearance=window.createMochiAppearance(T,renderer,scene,body,bodyMaterial,eyeMat);
     const studio=window.createRoomStudio(T,world,{wall:wallGroup,cushion:cushionGroup,laptop:laptopGroup,plant:plantGroup,rug,rugLine,desk:deskGroup,details:deskDetails,host,renderer},{box,sphere,cylinder,rod,mat,palette});
     const editor=window.createRoomEditor(T,host,camera,world,studio.roots);
+    const orbit=window.createRoomOrbit(host),reactions=window.createMochiReactions();
+    let cameraYaw=0,cameraPitch=0,viewZoom=1;
     const diorama=new T.Group();world.children.filter(part=>part!==mochi).forEach(part=>diorama.add(part));world.add(diorama);
     const gamepad=new T.Group();mochi.add(gamepad);box(.55,.18,.10,palette.black,0,-.29,.48,.08,gamepad);
     for(const side of [-1,1])sphere(.04,palette.rose,side*.15,-.27,.55,[1,1,.3],gamepad);
@@ -169,7 +171,7 @@ window.MochiScene.register("home",(host)=>{
     rod([[-.80,.03,.10],[-.71,.14,.10],[-.60,.03,.10]],.018,palette.mint,watering);
     rod([[-.81,-.05,.10],[-1.02,.01,.10]],.035,palette.mint,watering);
     const waterDrops=[];for(let i=0;i<5;i++)waterDrops.push(sphere(.018,new T.MeshBasicMaterial({color:'#93bed1'}),-1.04,-.12-i*.09,.10,[1,1.5,1],watering));
-    let lastTime=0;
+    let lastTime=0,reactionTime=0;
     // Soft key light and a visible pool of warm light at night.
     const hemi=new T.HemisphereLight('#fff6e5','#b0937c',2.9);scene.add(hemi);
     const key=new T.DirectionalLight('#fff0d7',3.4);key.position.set(3,8,6);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-6;key.shadow.camera.right=6;key.shadow.camera.top=6;key.shadow.camera.bottom=-6;key.shadow.normalBias=.025;key.shadow.bias=-.001;key.shadow.radius=3;key.shadow.blurSamples=8;scene.add(key);
@@ -180,52 +182,60 @@ window.MochiScene.register("home",(host)=>{
     let renderAspect=1,capturing=false;
     function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);renderer.setSize(w,h,false);renderAspect=w/h;}
     function draw(time=0,settings=current){
-      current=settings;decorate(settings);const layout=editor.update(settings),room=studio.update({...settings,layout});
+      current=settings;host.dataset.editing=String(settings.editing);host.dataset.orbiting=String(settings.orbiting);decorate(settings);const layout=editor.update(settings),room=studio.update({...settings,layout}),roomCamera=orbit.update(settings);
       diorama.visible=!settings.portrait;host.style.background=settings.portrait?(settings.transparent?'transparent':'radial-gradient(ellipse at 50% 25%,#fffaf0,#dcd5cc)'):room.background;
       renderer.setClearColor('#eee8df',capturing&&!settings.transparent?1:0);
+      reactionTime+=Math.max(0,Math.min(250,time-lastTime));
       const delta=Math.max(0,Math.min(.08,(time-lastTime)/1000));lastTime=time;
       const quiet=settings.reduceMotion;
       const now=quiet?0:time/1000;
-      const wantsNight=settings.night,wantsLamp=settings.lamp;
-      if(lastLighting!==String(wantsNight)||lastLamp!==wantsLamp){
-        night=wantsNight;lastLighting=String(night);lastLamp=wantsLamp;
+      const wantsNight=settings.night,wantsLamp=settings.lamp,light=settings.lighting||{intensity:1,temperature:0};
+      const lightKey=JSON.stringify([wantsNight,wantsLamp,light]);
+      if(lastLighting!==lightKey){
+        night=wantsNight;lastLighting=lightKey;lastLamp=wantsLamp;
         skyMaterial.color.set(night?'#53647d':'#c8dcdb');hillMaterial.color.set(night?'#516975':'#9bac93');sun.material.color.set(night?'#f6e9c4':'#fff2ce');
         hemi.intensity=night?.9:1.7;hemi.color.set(night?'#b9c2cd':'#fff6e5');key.intensity=night?1:2.4;key.color.set(night?'#f5ceab':'#fff0d7');fill.color.set(night?'#a6b6d4':'#e9e1da');fill.intensity=night?.6:.9;
         lampLight.intensity=wantsLamp?(night?6:3):0;bulb.visible=wantsLamp;renderer.toneMappingExposure=night?1.0:1.08;renderer.shadowMap.needsUpdate=true;
+        lampLight.color.set('#ffc375');moonLight.color.set('#a9b9c8');moonLight.intensity=1.2;
+        const tint=new T.Color(light.temperature<0?'#b5cfff':'#ffd2a1'),amount=Math.abs(light.temperature)*.42;
+        for(const source of[hemi,key,fill,lampLight,moonLight]){source.color.lerp(tint,amount);source.intensity*=light.intensity}
+        host.dataset.lightIntensity=String(light.intensity);host.dataset.lightTemperature=String(light.temperature);
         stars.forEach(s=>s.visible=night);
       }
       rain.visible=settings.rain;
       drops.forEach((d,i)=>{d.position.y=wy-wh/2+.1+((i*.317+now*.72)%2.22)});
       steams.forEach((s,i)=>{s.rotation.z=Math.sin(now*1.1+i)*.035;steamMaterial.opacity=.22+Math.sin(now*.9)*.07});
       const pose=settings.photoPose||'idle',state=pose==='sleeping'?'sleeping':pose==='happy'?'finished':settings.state,love=pose==='love'||settings.emote==='love';
-      const happy=state==='finished'||settings.activity==='console',asleep=state==='sleeping'||(state==='idle'&&['rest','bed'].includes(settings.activity));
+      let happy=state==='finished'||settings.activity==='console',asleep=state==='sleeping'||(state==='idle'&&['rest','bed'].includes(settings.activity));
       const activity=(settings.activity==='plant'&&settings.plant===false)||(['bed','console','bookshelf'].includes(settings.activity)&&!settings.objects?.includes(settings.activity))?'desk':settings.activity||'desk';
-      const seat=room.seats[activity]||room.seats.desk;
-      const blend=quiet||settings.editing?1:1-Math.exp(-delta*8);
+      const activitySeat=room.seats[activity]||room.seats.desk,reaction=reactions.sample(settings,reactionTime,activitySeat,studio.roots),seat=reaction.position;
+      happy=happy||reaction.happy;if(reaction.kind==='explore')asleep=false;host.dataset.reaction=reaction.kind;
+      const blend=quiet||settings.editing||settings.portrait||capturing||reaction.kind==='explore'?1:1-Math.exp(-delta*8);
       mochi.position.x+=(seat[0]-mochi.position.x)*blend;mochi.position.z+=(seat[2]-mochi.position.z)*blend;
-      const targetY=seat[1]+(quiet?0:Math.sin(now*(asleep?1.3:1.8))*(asleep?.012:.018))+(happy&&!quiet?Math.abs(Math.sin(now*3.7))*.12:0);
+      const targetY=seat[1]+(reaction.walking&&!quiet?Math.abs(Math.sin(now*12))*.04:0)+(quiet?0:Math.sin(now*(asleep?1.3:1.8))*(asleep?.012:.018))+(happy&&!quiet?Math.abs(Math.sin(now*3.7))*.12:0);
       if(Math.abs(seat[0]-mochi.position.x)+Math.abs(seat[2]-mochi.position.z)+Math.abs(targetY-mochi.position.y)>.04)renderer.shadowMap.needsUpdate=true;
       mochi.position.y+=(targetY-mochi.position.y)*blend;
-      mochi.rotation.y+=( ((activity==='rest'||activity==='bed'?.20:.52)+room.rotation(activity==='plant'?'plant':activity))-mochi.rotation.y)*blend;
-      gamepad.visible=activity==='console';reading.visible=activity==='bookshelf';watering.visible=activity==='plant';watering.scale.x=room.plantPoint[0]>0?-1:1;waterDrops.forEach((drop,i)=>drop.position.y=-.09-((now*.6+i*.11)%.48));
-      host.dataset.activity=activity;host.dataset.roomStyle=settings.roomStyle||'cozy';
+      mochi.rotation.y+=( (reaction.yaw??((activity==='rest'||activity==='bed'?.20:.52)+room.rotation(activity==='plant'?'plant':activity)))-mochi.rotation.y)*blend;
+      gamepad.visible=activity==='console'&&reaction.kind!=='explore';reading.visible=activity==='bookshelf'&&reaction.kind!=='explore';watering.visible=activity==='plant'&&reaction.kind!=='explore';watering.scale.x=room.plantPoint[0]>0?-1:1;waterDrops.forEach((drop,i)=>drop.position.y=-.09-((now*.6+i*.11)%.48));
+      host.dataset.activity=activity;host.dataset.roomStyle=settings.roomStyle||'cozy';host.dataset.actorPosition=[mochi.position.x,mochi.position.y,mochi.position.z].map(v=>v.toFixed(3)).join(',');
       mochi.rotation.z=happy&&!quiet?Math.sin(now*3.7)*.055:0;
       const blink=quiet?1:(Math.sin(now*.87)>0.995?.1:1);
       eyes.forEach((e,i)=>{e.visible=!happy&&!asleep&&!love;e.scale.y=blink*(pose==='wink'&&i===0?.12:state==='approval'?1.3:state==='error'?.25:1)});happyEyes.forEach(e=>e.visible=happy&&!love);sleepyEyes.forEach(e=>e.visible=asleep&&!love);hearts.forEach(e=>e.visible=love);
       sparkleGroup.visible=happy&&!quiet;sparkleGroup.rotation.y=now*.25;
       bodyMaterial.color.set(({working:'#d3e0e5',thinking:'#d9cee8',searching:'#ced6e9',approval:'#efd5a5',question:'#c4e1df',error:'#e6c4c1',finished:'#dde6cd',ratelimit:'#e4c8ae',sleeping:'#dbdcd4',dizzy:'#e6ccd8'})[state]||'#eeeae0');
-      if(settings.outfit==='pumpkin')bodyMaterial.color.set('#eab17d');
+      if(settings.outfit==='pumpkin')bodyMaterial.color.set('#f58224');
       appearance.update(settings.skin,'#'+bodyMaterial.color.getHexString(),time,settings.reduceMotion);host.dataset.skin=settings.skin||'classic';
-      world.rotation.y=settings.editing?0:world.rotation.y+(targetRY-world.rotation.y)*.08;world.rotation.x=settings.editing?0:world.rotation.x+(targetRX-world.rotation.x)*.08;
+      world.rotation.y=settings.editing||settings.orbiting?0:world.rotation.y+(targetRY-world.rotation.y)*.08;world.rotation.x=settings.editing||settings.orbiting?0:world.rotation.x+(targetRX-world.rotation.x)*.08;
       mochi.visible=settings.character!==false;
       // At detail magnification, frame the active spot instead of cropping Mochi off screen.
-      const magnification=settings.roomZoom||1,portrait=settings.portrait,focus=portrait?1:magnification-1;
-      const cx=seat[0]*focus,cy=portrait?seat[1]+.25:1.8+(seat[1]-.15-1.8)*focus,cz=seat[2]*focus,angle=settings.cameraAngle||0;
-      const vx=portrait?1.8:9,vy=portrait?1:5.6,vz=portrait?8:11;
+      const cameraBlend=quiet||capturing||settings.editing?1:1-Math.exp(-delta*9);cameraYaw+=(roomCamera.yaw-cameraYaw)*cameraBlend;cameraPitch+=(roomCamera.pitch-cameraPitch)*cameraBlend;viewZoom+=((settings.roomZoom||1)-viewZoom)*cameraBlend;
+      const magnification=viewZoom,portrait=settings.portrait,focus=portrait?1:magnification-1;
+      const cx=seat[0]*focus,cy=portrait?seat[1]+.25:1.8+(seat[1]-.15-1.8)*focus,cz=seat[2]*focus,angle=portrait?settings.cameraAngle||0:cameraYaw*.9;
+      const vx=portrait?1.8:9,vy=portrait?1:5.6*Math.exp(cameraPitch),vz=portrait?8:11;
       camera.position.set(cx+vx*Math.cos(angle)+vz*Math.sin(angle),cy+vy,cz+vz*Math.cos(angle)-vx*Math.sin(angle));camera.lookAt(cx,cy,cz);
       const framing=portrait?1.24:Math.max(3.8,5.8/renderAspect)*1.04;
       camera.left=-framing*renderAspect;camera.right=framing*renderAspect;camera.top=framing;camera.bottom=-framing;camera.zoom=magnification;camera.updateProjectionMatrix();
-      host.dataset.roomZoom=String(magnification);
+      host.dataset.roomZoom=String(settings.roomZoom||1);host.dataset.cameraYaw=String(cameraYaw);host.dataset.cameraPitch=String(cameraPitch);host.dataset.cameraZoom=String(viewZoom);
       renderer.render(scene,camera);rendered++;
       // Keep the keyboard/touch target on the actual projected character.
       // The hit target follows the room, not the breathing/jump animation. Quantize to
@@ -238,11 +248,11 @@ window.MochiScene.register("home",(host)=>{
     }
 
     host.addEventListener("pointermove",event=>{
-      if(current.reduceMotion||current.editing)return;
+      if(current.reduceMotion||current.editing||current.orbiting)return;
       const r=host.getBoundingClientRect();targetRY=((event.clientX-r.left)/r.width-.5)*.09;
       targetRX=-((event.clientY-r.top)/r.height-.5)*.035;
     });
     host.addEventListener("pointerleave",()=>{targetRX=targetRY=0;});
     function capture(){const ratio=renderer.getPixelRatio();capturing=true;renderer.setPixelRatio(1);renderer.setSize(1600,1600,false);renderAspect=1;draw(performance.now(),current);const png=renderer.domElement.toDataURL('image/png');capturing=false;renderer.setPixelRatio(ratio);resize();draw(performance.now(),current);return png;}
-    return {draw,resize,capture,dispose(){editor.dispose();studio.dispose();wardrobe.dispose();appearance.dispose();scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material]){m.map?.dispose();m.dispose();}}});renderer.dispose();renderer.domElement.remove();}};
+    return {draw,resize,capture,dispose(){editor.dispose();orbit.dispose();studio.dispose();wardrobe.dispose();appearance.dispose();scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material]){m.map?.dispose();m.dispose();}}});renderer.dispose();renderer.domElement.remove();}};
 });

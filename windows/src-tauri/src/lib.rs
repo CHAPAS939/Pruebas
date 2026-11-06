@@ -13,6 +13,7 @@ mod window_perch;
 mod mochi_photo;
 mod mochi_photo_logic;
 mod mochi_objects;
+mod mochi_studio;
 mod files;
 mod flow;
 mod github;
@@ -954,6 +955,7 @@ pub fn run() {
             open_n8n,
             open_settings_window,
             mochi_photo::save_mochi_photo,
+            mochi_studio::open_mochi_studio,
             mochi_objects::put_away_mochi_prop,
             set_paused,
             shortcuts_status,

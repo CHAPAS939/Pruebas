@@ -28,3 +28,36 @@ test('non-finite positions and malformed decoration choices cannot enter a rende
  const p=D.layout({desk:{x:NaN,z:Infinity,rotation:NaN}}).desk;assert.deepEqual(p,{x:0,z:0,rotation:0});
  const value=D.preferences({mochiRoomTheme:'<script>',mochiSkin:'constructor',mochiAccent:'#abc',mochiStudio:'{bad'});assert.equal(value.mochiSkin,'classic');assert.equal(value.mochiRoomTheme,'sand');assert.equal(value.mochiAccent,'original');assert.deepEqual(JSON.parse(value.mochiStudio),D.normalize({}));
 });
+
+test('light and orbit settings are bounded, survive saved rooms and migrate old data',()=>{
+ const source={camera:{yaw:.7,pitch:.35},lighting:{intensity:1.3,temperature:-.6}};
+ const saved=D.normalize(JSON.stringify({...source,rooms:[{name:'Evening',...source}]}));
+ assert.deepEqual(saved.camera,source.camera);assert.deepEqual(saved.rooms[0].lighting,source.lighting);
+ assert.deepEqual(D.camera({yaw:Infinity,pitch:NaN}),{yaw:0,pitch:0});
+ assert.deepEqual(D.lighting({intensity:-100,temperature:500}),{intensity:.35,temperature:1});
+ assert.deepEqual(D.normalize({}).lighting,{intensity:1,temperature:0});
+});
+test('fast dragging cannot tunnel through a desk and rugs remain placeable underneath',()=>{
+ globalThis.MochiStudioData=D;const P=require('../shared/mochi-scenes/placement.js');
+ const result=P.place({},'plant',{x:2.8,z:.76,rotation:0},{objects:[]});
+ assert.equal(result.blocked,true);assert.ok(result.layout.plant.x< -2.1);
+ assert.equal(P.overlap('plant',result.layout.plant,'desk',P.pose({},'desk')),false);
+ const rug=P.place({},'rug',{x:0,z:.8,rotation:0},{objects:[]});assert.equal(rug.blocked,false);
+});
+test('placement aligns close centers, rejects overlapping rotation and finds space for new furniture',()=>{
+ globalThis.MochiStudioData=D;const P=require('../shared/mochi-scenes/placement.js');
+ const aligned=P.place({},'desk',{x:.07,z:.8,rotation:0},{objects:[]});assert.equal(aligned.layout.desk.x,0);assert.ok(aligned.snapped.includes('x'));
+ const layout={plant:{x:1.3,z:-.9,rotation:0}};assert.equal(P.overlap('desk',P.pose({},'desk'),'plant',layout.plant),false);
+ const blocked=P.place(layout,'desk',{x:0,z:.8,rotation:Math.PI/4},{objects:[]});assert.equal(blocked.blocked,true);assert.equal(blocked.layout.desk,undefined);
+ const context={objects:['bed','console','bookshelf'],plantPosition:'left'};
+ const spot=P.findSpot({},'console',context);assert.ok(spot);
+ const resolved=P.resolve({},context);for(const id of ['desk','rest','plant','bed','bookshelf'])assert.equal(P.overlap('console',spot,id,P.pose(resolved,id)),false,id);
+});
+test('Mochi explores and returns to its real activity, with no motion when reduced motion is on',()=>{
+ const create=require('../shared/mochi-scenes/room-reactions.js'),r=create(),seat=[0,2.43,-.12],roots={bed:{position:{x:-2,z:-1},visible:true}},settings={state:'idle',reaction:{id:1,kind:'explore',target:'bed'}};
+ r.sample(settings,100,seat,roots);const middle=r.sample(settings,2100,seat,roots);assert.equal(middle.kind,'explore');assert.ok(middle.position[0]< -1.5);assert.ok(middle.position[1]<1);
+ assert.deepEqual(r.sample(settings,4200,seat,roots).position,seat);
+ assert.deepEqual(r.sample({...settings,reduceMotion:true},1500,seat,roots).position,seat);
+ const celebrate=r.sample({state:'idle',reaction:{id:2,kind:'celebrate'}},5000,seat,roots);assert.equal(celebrate.happy,true);
+ assert.equal(r.sample({state:'working',reaction:{id:3,kind:'celebrate'}},5100,seat,roots).happy,false);
+});

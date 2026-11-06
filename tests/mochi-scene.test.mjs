@@ -7,7 +7,7 @@ const studioSource = readFileSync(new URL('../shared/mochi-scenes/studio-data.js
 const source = readFileSync(new URL('../shared/mochi-scenes/runtime.js', import.meta.url), 'utf8');
 function harness({ fails = false, native = false } = {}) {
   const events = [], listeners = {}, documentListeners = {}, canvasListeners = {}, frames = new Map();
-  const counters = { mounted: 0, drawn: 0, resized: 0, disposed: 0, disconnected: 0 };
+  const counters = { mounted: 0, drawn: 0, resized: 0, disposed: 0, disconnected: 0, drawTimes: [] };
   let sequence = 0, loader;
   const parent = { postMessage: m => events.push(m) };
   const document = { hidden: false, documentElement: { dataset: {} },
@@ -24,7 +24,7 @@ function harness({ fails = false, native = false } = {}) {
   vm.runInContext(source, context);
   window.MochiScene.register('home', () => {
     counters.mounted++; if (fails) throw new Error('WebGL unavailable');
-    return { draw() { counters.drawn++; return { anchor: { x: 2, y: -1 } }; },
+    return { draw(time) { counters.drawTimes.push(time);counters.drawn++; return { anchor: { x: 2, y: -1 } }; },
       resize() { counters.resized++; }, dispose() { counters.disposed++; } };
   });
   loader.onload();
@@ -121,4 +121,15 @@ test('body appearance, editing and photo state remain a bounded display-only con
 test('new furniture activities survive the native-to-renderer boundary',()=>{
  const h=harness();for(const activity of ['bed','console','bookshelf'])assert.equal(h.api.normalize({activity}).activity,activity);
  assert.equal(h.api.normalize({activity:'execute'}).activity,'desk');
+});
+
+test('room tools reject unbounded camera/light input and do not accept arbitrary reaction targets',()=>{
+ const h=harness(),v=h.api.normalize({camera:{yaw:99,pitch:Infinity},lighting:{intensity:99,temperature:-99},orbiting:true,reaction:{id:5,kind:'explore',target:'plant',command:'never forwarded'}});
+ assert.equal(v.camera.yaw,1);assert.equal(v.camera.pitch,0);assert.equal(v.lighting.intensity,1.6);assert.equal(v.lighting.temperature,-1);assert.equal(v.orbiting,true);assert.equal(v.reaction.target,'plant');assert.equal(v.reaction.command,undefined);
+ const bad=h.api.normalize({reaction:{id:Infinity,kind:'execute',target:'file'}});assert.equal(bad.reaction,null);
+});
+
+
+test('resume and RAF use one monotonic document clock even when frame timestamps have another origin',()=>{
+ const h=harness();h.api.update({paused:false});h.frame(8000);h.api.update({paused:false,state:'working'});assert.ok(h.counters.drawTimes.length>=3);assert.ok(h.counters.drawTimes.every(t=>t===100));
 });

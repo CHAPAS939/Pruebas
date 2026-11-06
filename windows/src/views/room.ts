@@ -11,14 +11,14 @@ type Studio={update(value:object):void;photoSaved(result:object):void;dispose():
 let assets: Promise<void> | null=null;
 function loadStudioAssets(){
   return assets??= (async()=>{
-    for(const file of ["studio-data.js","outfit-icons.js","studio.js"]){
+    for(const file of ["studio-data.js","placement.js","outfit-icons.js","studio.js"]){
       await new Promise<void>((resolve,reject)=>{const script=document.createElement("script");script.src=`/mochi-scenes/${file}`;script.onload=()=>resolve();script.onerror=reject;document.head.append(script);});
     }
   })().catch(error=>{assets=null;throw error;});
 }
 
 /** Shared editor in a style-isolated DOM; only the 3D renderer needs a sandbox. */
-export function buildRoom(actions: ViewActions): ViewHost {
+export function buildRoom(actions: ViewActions, options: {standalone?:boolean} = {}): ViewHost {
   const host=h("div",{class:"mochi-studio-host"}),el=h("div",{class:"view mochi-room mochi-room-studio"},host);
   const shadow=host.attachShadow({mode:"open"}),seasons=new SeasonCache(),motion=matchMedia("(prefers-reduced-motion: reduce)");
   let instance: Studio|null=null,mounting=false,last="",saving=false,typing=false;
@@ -36,15 +36,16 @@ export function buildRoom(actions: ViewActions): ViewHost {
     finally{mounting=false;}
   }
   function sync(){
-    const active=State.mode==="expanded"&&State.view==="room"&&!State.paused;
+    const active=(!options.standalone||!document.hidden)&&State.mode==="expanded"&&State.view==="room"&&!State.paused;
     if(!active&&typing){typing=false;actions.keyboard(false);actions.holdOpen(false);}
     if(active&&!instance){void mount();return;}
-    const snapshot={active,state:State.effectiveState,outfit:seasons.get(parseOutfit(State.settings.mochiOutfit)),seasonalOutfit:seasons.get("auto"),language:language(),reducedMotion:motion.matches,preferences:studioPreferences(State.settings)};
+    const snapshot={active,standalone:options.standalone===true,state:State.effectiveState,outfit:seasons.get(parseOutfit(State.settings.mochiOutfit)),seasonalOutfit:seasons.get("auto"),language:language(),reducedMotion:motion.matches,preferences:studioPreferences(State.settings)};
     const key=JSON.stringify(snapshot);if(instance&&key!==last){last=key;instance.update(snapshot);}
   }
   async function receive(message: any){
     if(message?.channel!=="coucou-mochi-studio")return;
-    if(message.event==="text-focus"&&typeof message.on==="boolean"){typing=message.on;actions.keyboard(typing);actions.holdOpen(typing);}
+    if(message.event==="open-studio"){await invoke("open_mochi_studio");}
+    else if(message.event==="text-focus"&&typeof message.on==="boolean"){typing=message.on;actions.keyboard(typing);actions.holdOpen(typing);}
     else if(message.event==="patch"){
       const patch=studioPatch(message.patch);if(!Object.keys(patch).length)return;
       State.settings={...State.settings,...patch};State.wardrobePreview=null;

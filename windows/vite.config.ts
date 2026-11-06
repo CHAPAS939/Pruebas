@@ -92,6 +92,7 @@ export default defineConfig({
         settings: resolve(__dirname, "settings.html"),
         mochi: resolve(__dirname, "mochi.html"),
         utility: resolve(__dirname, "utility.html"),
+        studio: resolve(__dirname, "studio.html"),
         pill: resolve(__dirname, "pill.html"),
       },
       output: {

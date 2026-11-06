@@ -19,7 +19,7 @@
       lookX:finite(v.lookX),lookY:finite(v.lookY),outfit:outfits.has(v.outfit)?v.outfit:"none",
       theme:themes.has(v.theme)?v.theme:"sand",plant:v.plant!==false,rug:v.rug!==false,
       ...Object.fromEntries(Object.keys(choices).map(key=>[key,pick(key,v[key])])),skin:window.MochiStudioData?.skins.includes(v.skin)?v.skin:'classic',accent:window.MochiStudioData?.accent(v.accent)||'original',
-      editing:v.editing===true,selected:window.MochiStudioData?.furniture.includes(v.selected)?v.selected:'desk',layout:window.MochiStudioData?.layout(v.layout)||{},objects:['bed','console','bookshelf'].filter(id=>Array.isArray(v.objects)&&v.objects.includes(id)),portrait:v.portrait===true,transparent:v.transparent===true,photoPose:['idle','happy','sleeping','wink','love'].includes(v.photoPose)?v.photoPose:'idle',cameraAngle:finite(v.cameraAngle)*.55,reaching:v.reaching===true,lean:Math.max(-.12,Math.min(.12,finite(v.lean))),scarf:v.scarf===true,roomZoom:typeof v.roomZoom==="number"&&Number.isFinite(v.roomZoom)?Math.max(1,Math.min(2,v.roomZoom)):1};
+      camera:window.MochiStudioData?.camera(v.camera)||{yaw:0,pitch:0},lighting:window.MochiStudioData?.lighting(v.lighting)||{intensity:1,temperature:0},orbiting:v.orbiting===true,reaction:Number.isSafeInteger(v.reaction?.id)&&v.reaction.id>0&&['explore','celebrate'].includes(v.reaction.kind)?{id:v.reaction.id,kind:v.reaction.kind,target:window.MochiStudioData?.furniture.includes(v.reaction.target)?v.reaction.target:'desk'}:null,editing:v.editing===true,selected:window.MochiStudioData?.furniture.includes(v.selected)?v.selected:'desk',layout:window.MochiStudioData?.layout(v.layout)||{},objects:['bed','console','bookshelf'].filter(id=>Array.isArray(v.objects)&&v.objects.includes(id)),portrait:v.portrait===true,transparent:v.transparent===true,photoPose:['idle','happy','sleeping','wink','love'].includes(v.photoPose)?v.photoPose:'idle',cameraAngle:finite(v.cameraAngle)*.55,reaching:v.reaching===true,lean:Math.max(-.12,Math.min(.12,finite(v.lean))),scarf:v.scarf===true,roomZoom:typeof v.roomZoom==="number"&&Number.isFinite(v.roomZoom)?Math.max(1,Math.min(2,v.roomZoom)):1};
   }
   function report(event,detail={}){
     const message={channel:"coucou-mochi-scene",event,...detail};
@@ -48,7 +48,9 @@
   function frame(time){
     raf=0;if(disposed||settings.paused||settings.reduceMotion||document.hidden||!instance)return;
     const interval=settings.state==="sleeping"?200:1000/24;
-    if(time-last>=interval){last=time;draw(time);}
+    // Use the document clock for both RAF and synchronous redraws.
+    // Embedded WebKit frames can have a different animation-timeline origin.
+    if(time-last>=interval){last=time;draw(performance.now());}
     if(instance)raf=requestAnimationFrame(frame);
   }
   function resume(){

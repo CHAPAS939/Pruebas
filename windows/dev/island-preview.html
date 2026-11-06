@@ -6,9 +6,11 @@
     <div id="root"></div>
     <script>window.__answers = {
         boot: { settings: { ...JSON.parse(localStorage.getItem("coucou-studio-preview") || "{}"), language: new URLSearchParams(location.search).get("lang") || "fr" }, cursorPoll: true },
+        open_mochi_studio: () => { window.open("/dev/studio-preview.html?lang=es","mochi-studio-preview");return null; },
         save_settings: args => { localStorage.setItem("coucou-studio-preview",JSON.stringify(args.settings));return null; },
         save_mochi_photo: args => { window.__lastMochiPhoto = args.image;return true; }
       };</script>
+    <script>window.addEventListener("storage",e=>{if(e.key==="coucou-studio-preview"&&e.newValue)window.__emit?.("settings-changed",JSON.parse(e.newValue));});</script>
     <script type="module">
       import "./tauri-mock.ts";
       await import("/src/main.ts");

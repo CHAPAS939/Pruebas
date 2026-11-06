@@ -8,11 +8,13 @@ import CoreFoundation
 /// The same local room, materials, wardrobe and photo editor on both systems.
 struct MochiRoomView: View {
     @ObservedObject var state: AppState
+    var standalone=false
+    var windowActive=true
     @Environment(\.islandViewActive) private var active
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var revision = 0
     var body: some View {
-        MochiStudioWebView(state: state, active: active && state.mode == .expanded, reduceMotion: reduceMotion, revision: revision)
+        MochiStudioWebView(state: state, active: standalone ? windowActive : active && state.mode == .expanded, standalone:standalone, reduceMotion: reduceMotion, revision: revision)
             .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in revision &+= 1 }
     }
 }
@@ -21,6 +23,7 @@ struct MochiRoomView: View {
 private struct MochiStudioWebView: NSViewRepresentable {
     @ObservedObject var state: AppState
     let active: Bool
+    let standalone: Bool
     let reduceMotion: Bool
     let revision: Int
     private static let defaults: [String: Any] = [
@@ -32,7 +35,7 @@ private struct MochiStudioWebView: NSViewRepresentable {
     private var snapshot: [String: Any] {
         var preferences: [String: Any] = [:]
         for (key, fallback) in Self.defaults { preferences[key] = UserDefaults.standard.object(forKey: key) ?? fallback }
-        return ["active":active, "state":state.effectiveState.rawValue, "outfit":state.resolvedOutfit.rawValue, "seasonalOutfit":Outfit.seasonal(for:Date(),calendar:.current).rawValue,
+        return ["active":active,"standalone":standalone, "state":state.effectiveState.rawValue, "outfit":state.resolvedOutfit.rawValue, "seasonalOutfit":Outfit.seasonal(for:Date(),calendar:.current).rawValue,
                 "language":state.appLanguage.isEmpty ? Locale.preferredLanguages.first ?? "en" : state.appLanguage,
                 "reducedMotion":reduceMotion, "preferences":preferences]
     }
@@ -68,6 +71,7 @@ private struct MochiStudioWebView: NSViewRepresentable {
         func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
             guard active, message.frameInfo.isMainFrame, let body = message.body as? [String: Any], body["channel"] as? String == "coucou-mochi-studio" else { return }
             if body["event"] as? String == "loaded" { ready = true; last = nil; push() }
+            else if body["event"] as? String == "open-studio" { MochiStudioWindowController.shared.open(state:parent.state) }
             else if body["event"] as? String == "text-focus", body["on"] as? Bool == true { webView?.window?.makeKey(); }
             else if body["event"] as? String == "patch", let patch = body["patch"] as? [String: Any] { apply(patch) }
             else if body["event"] as? String == "photo", let id = body["id"] as? Int, let image = body["data"] as? String { savePhoto(image, id: id) }
@@ -97,12 +101,12 @@ private struct MochiStudioWebView: NSViewRepresentable {
         private func savePhoto(_ image: String, id: Int) {
             guard !saving, let data = MochiPhotoLogic.decode(image) else { photoResult(id:id,success:false);return }
             saving = true
-            let wasPinned = parent.state.isPinned;parent.state.isPinned = true
+            let wasPinned = parent.state.isPinned;if !parent.standalone { parent.state.isPinned = true }
             let panel = NSSavePanel(); panel.allowedContentTypes = [.png];panel.nameFieldStringValue = "Mochi.png";panel.canCreateDirectories = true
             // This explicit save button is the only action that opens a file dialog.
             NSApp.activate(ignoringOtherApps: true)
             let response = panel.runModal()
-            defer { saving = false;parent.state.isPinned = wasPinned }
+            defer { saving = false;if !parent.standalone { parent.state.isPinned = wasPinned } }
             guard response == .OK, let url = panel.url else { photoResult(id:id, success:false, cancelled:true);return }
             do { try data.write(to: url, options: .atomic); photoResult(id:id, success:true) }
             catch { photoResult(id:id, success:false) }
