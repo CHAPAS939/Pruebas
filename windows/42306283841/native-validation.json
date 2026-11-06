@@ -1,0 +1,80 @@
+{
+  "nativeApp": true,
+  "bridge": "native Windows UI Automation and physical input; no development bridge",
+  "tests": {
+    "installedAppStarts": true,
+    "nativeRoomAndWardrobePersist": true,
+    "nativeMinimize": true,
+    "nativeRestore": true,
+    "closeHidesReusableWindow": true,
+    "reopenSameNativeWindow": true,
+    "preferencesSurviveActualRestart": true
+  },
+  "errors": [
+    "AssertionError [ERR_ASSERTION]: Actual Mochi must attach and follow the native target window\n    at D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:65:10"
+  ],
+  "source_commit": "38f05b0e7a81cf2061bff1228b196ca7bfd9e9dc",
+  "version": "0.6.0-beta.1",
+  "harness_commit": "7eb72ed7bf3b359683bfec0d4eddcca62cf82b1b",
+  "executable_sha256": "54003228151f3c393a11849c5aed77c9ba1e1e258b585dca34a1b9e864529dda",
+  "desktop_before_drag": {
+    "handle": 197178,
+    "title": "Mochi",
+    "x": 156,
+    "y": 156,
+    "width": 136,
+    "height": 120,
+    "visible": true,
+    "minimized": false,
+    "source": "island",
+    "grab": {
+      "x": 260,
+      "y": 101
+    }
+  },
+  "attachment_trace": {
+    "initial": {
+      "handle": 197178,
+      "title": "Mochi",
+      "x": 156,
+      "y": 156,
+      "width": 136,
+      "height": 120,
+      "visible": true,
+      "minimized": false
+    },
+    "before": {
+      "handle": 197178,
+      "title": "Mochi",
+      "x": -32000,
+      "y": -32000,
+      "width": 136,
+      "height": 120,
+      "visible": true,
+      "minimized": false
+    },
+    "after": {
+      "handle": 197178,
+      "title": "Mochi",
+      "x": -32000,
+      "y": -32000,
+      "width": 136,
+      "height": 120,
+      "visible": true,
+      "minimized": false
+    },
+    "target": {
+      "width": 460,
+      "y": 290,
+      "title": "Design notes",
+      "handle": 131686,
+      "height": 300,
+      "x": 120
+    },
+    "settings": {
+      "onDesktop": false,
+      "spot": null
+    }
+  },
+  "passed": false
+}
