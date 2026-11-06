@@ -43,7 +43,7 @@ jobs:
         run: brew install xcodegen
       - name: Native feature geometry
         if: runner.os == 'macOS'
-        run: bash scripts/test-mochi-room.sh && bash scripts/test-mochi-photo.sh
+        run: bash scripts/test-mochi-room.sh && bash scripts/test-window-perch.sh
       - name: Generate Mac project
         if: runner.os == 'macOS'
         working-directory: NotchBuddy

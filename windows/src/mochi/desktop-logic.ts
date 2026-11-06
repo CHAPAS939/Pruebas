@@ -15,6 +15,11 @@ export interface DesktopSnapshot {
   state: BotStateName;
   /** He is always the main Mochi, so always dressed (try-ons included). */
   outfit: Outfit;
+  glasses?: string;
+  scarf?: boolean;
+  skin?: string;
+  accent?: string;
+  language?: string;
   soundEnabled: boolean;
   soundVolume: number;
   /** Tray → Pause: he dozes off and stays asleep. */
