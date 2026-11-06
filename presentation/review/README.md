@@ -4,9 +4,9 @@ An editable room, saved looks and native window companionship for Coucou, based 
 
 ## Start here
 
-- [Room and wardrobe draft](https://github.com/CHAPAS939/Pruebas/pull/1): source changes relative to the upstream snapshot.
-- [Window attachment and jumps draft](https://github.com/CHAPAS939/Pruebas/pull/2): stacked on the room contribution.
-- [Integrated source branch](https://github.com/CHAPAS939/Pruebas/tree/build/coucou-mochi-installers).
+- [Room and wardrobe draft](https://github.com/Jose-SMG/Pruebas/pull/1): source changes relative to the upstream snapshot.
+- [Window attachment and jumps draft](https://github.com/Jose-SMG/Pruebas/pull/2): stacked on the room contribution.
+- [Integrated source branch](https://github.com/Jose-SMG/Pruebas/tree/build/coucou-mochi-installers).
 - [Overlap with wardrobe PRs #1025, #737 and #738](WARDROBE-OVERLAP.md).
 
 These are draft reviews in the contributor's repository, not pull requests opened against Louis's repository. No merge or endorsement is implied. The feature branches exclude beta packaging and publication metadata.
@@ -32,7 +32,7 @@ The second draft contains the AppKit/Win32 implementation: automatic edge select
 ## Build from source
 
 ```sh
-git clone --branch contrib/mochi-room-review-0.6 https://github.com/CHAPAS939/Pruebas.git coucou-review
+git clone --branch contrib/mochi-room-review-0.6 https://github.com/Jose-SMG/Pruebas.git coucou-review
 cd coucou-review
 ```
 
@@ -54,7 +54,7 @@ npm ci
 npm run tauri -- dev
 ```
 
-Both integrated native packages compiled from source revision `6b4e5ea2f80ab59375973c73034d1f16d020b49e`. The Mac build also rendered the packaged studio in WebKit and exported a valid PNG. [Build and test details](https://github.com/CHAPAS939/Pruebas/actions/runs/42304291267) include a failed interactive automation job; full interaction QA is not marked complete. Physical multi-monitor/DPI checks and Mac Accessibility behavior remain review items.
+Both integrated native packages compiled from source revision `6b4e5ea2f80ab59375973c73034d1f16d020b49e`. The Mac build also rendered the packaged studio in WebKit and exported a valid PNG. [Build and test details](https://github.com/Jose-SMG/Pruebas/actions/runs/42304291267) include a failed interactive automation job; full interaction QA is not marked complete. Physical multi-monitor/DPI checks and Mac Accessibility behavior remain review items.
 
 ## Decisions for review
 
