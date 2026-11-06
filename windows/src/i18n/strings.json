@@ -947,6 +947,21 @@
    "ko": "노치에서 승인",
    "ja": "ノッチから承認"
   },
+  "Art prints": {
+   "zh-Hans": "艺术画",
+   "hi": "कला चित्र",
+   "es": "Láminas",
+   "ar": "لوحات فنية",
+   "fr": "Affiches",
+   "bn": "শিল্পচিত্র",
+   "pt-BR": "Quadros",
+   "ru": "Постеры",
+   "id": "Poster seni",
+   "de": "Kunstdrucke",
+   "tr": "Sanat baskıları",
+   "ko": "아트 포스터",
+   "ja": "アート"
+  },
   "As heard": {
    "zh-Hans": "听到的原文",
    "hi": "जैसा सुना गया",
@@ -1277,6 +1292,36 @@
    "ko": "앗, Claude 계정에 결제 문제가 있어요.",
    "ja": "Claude アカウントの請求に問題があります。"
   },
+  "Body appearance": {
+   "zh-Hans": "身体外观",
+   "hi": "शरीर का रूप",
+   "es": "Apariencia del cuerpo",
+   "ar": "مظهر الجسم",
+   "fr": "Apparence du corps",
+   "bn": "শরীরের চেহারা",
+   "pt-BR": "Aparência do corpo",
+   "ru": "Внешний вид тела",
+   "id": "Tampilan tubuh",
+   "de": "Körperdesign",
+   "tr": "Gövde görünümü",
+   "ko": "몸체 외형",
+   "ja": "ボディの外観"
+  },
+  "Botanical": {
+   "zh-Hans": "植物画",
+   "hi": "वानस्पतिक",
+   "es": "Botánica",
+   "ar": "نباتي",
+   "fr": "Botanique",
+   "bn": "উদ্ভিদচিত্র",
+   "pt-BR": "Botânico",
+   "ru": "Ботаника",
+   "id": "Botani",
+   "de": "Botanisch",
+   "tr": "Botanik",
+   "ko": "보태니컬",
+   "ja": "ボタニカル"
+  },
   "Both use Claude, on your Claude plan through Claude Code or with your own key: only the words go to Anthropic, never your voice, which stays on your Mac. If Claude doesn't answer in time, the words are pasted as heard. Through Claude Code it takes a little longer than with a key.": {
    "zh-Hans": "两者都使用 Claude：通过 Claude Code 使用你的套餐，或使用你自己的密钥。只有文字会发送给 Anthropic，声音始终留在你的 Mac 上。如果 Claude 没有及时回复，就按听到的原文粘贴。通过 Claude Code 会比用密钥稍慢一些。",
    "hi": "दोनों Claude का उपयोग करते हैं, Claude Code के ज़रिए आपके प्लान पर या आपकी अपनी कुंजी से: सिर्फ़ शब्द Anthropic को जाते हैं, आपकी आवाज़ कभी नहीं, वह आपके Mac पर रहती है। अगर Claude समय पर जवाब न दे, तो शब्द जैसे सुने गए वैसे पेस्ट होते हैं। Claude Code के ज़रिए कुंजी की तुलना में थोड़ा ज़्यादा समय लगता है।",
@@ -1411,6 +1456,21 @@
    "tr": "KOMUTLAR",
    "ko": "명령",
    "ja": "コマンド"
+  },
+  "Cactus": {
+   "zh-Hans": "仙人掌",
+   "hi": "कैक्टस",
+   "es": "Cactus",
+   "ar": "صبار",
+   "fr": "Cactus",
+   "bn": "ক্যাকটাস",
+   "pt-BR": "Cacto",
+   "ru": "Кактус",
+   "id": "Kaktus",
+   "de": "Kaktus",
+   "tr": "Kaktüs",
+   "ko": "선인장",
+   "ja": "サボテン"
   },
   "Call · {0}": {
    "zh-Hans": "通话 · {0}",
@@ -1637,6 +1697,21 @@
    "ko": "지금 확인",
    "ja": "今すぐ確認"
   },
+  "Checkerboard": {
+   "zh-Hans": "棋盘格",
+   "hi": "चौखाना",
+   "es": "Ajedrezada",
+   "ar": "مربعات",
+   "fr": "Damier",
+   "bn": "চেকারবোর্ড",
+   "pt-BR": "Xadrez",
+   "ru": "Шахматный",
+   "id": "Kotak-kotak",
+   "de": "Schachbrett",
+   "tr": "Dama",
+   "ko": "체크",
+   "ja": "チェック"
+  },
   "Checking the download…": {
    "zh-Hans": "正在校验下载内容…",
    "hi": "डाउनलोड जाँचा जा रहा है…",
@@ -1756,6 +1831,21 @@
    "tr": "Şehir",
    "ko": "도시",
    "ja": "都市"
+  },
+  "Classic": {
+   "zh-Hans": "经典",
+   "hi": "क्लासिक",
+   "es": "Clásico",
+   "ar": "كلاسيكي",
+   "fr": "Classique",
+   "bn": "ক্লাসিক",
+   "pt-BR": "Clássico",
+   "ru": "Классический",
+   "id": "Klasik",
+   "de": "Klassisch",
+   "tr": "Klasik",
+   "ko": "기본",
+   "ja": "クラシック"
   },
   "Classic token with repo scope, or fine-grained with read access to Pull requests, commit statuses, and Actions.": {
    "zh-Hans": "具有 repo 权限的经典令牌，或具有 Pull requests、Commit statuses 和 Actions 读取权限的细粒度令牌。",
@@ -2161,6 +2251,36 @@
    "tr": "Renk",
    "ko": "색상",
    "ja": "色"
+  },
+  "Color palette": {
+   "zh-Hans": "配色",
+   "hi": "रंग पैलेट",
+   "es": "Paleta de colores",
+   "ar": "لوحة الألوان",
+   "fr": "Palette de couleurs",
+   "bn": "রঙের প্যালেট",
+   "pt-BR": "Paleta de cores",
+   "ru": "Цветовая палитра",
+   "id": "Palet warna",
+   "de": "Farbpalette",
+   "tr": "Renk paleti",
+   "ko": "색상 팔레트",
+   "ja": "カラーパレット"
+  },
+  "Combine outfits": {
+   "zh-Hans": "搭配装扮",
+   "hi": "पोशाकें मिलाएँ",
+   "es": "Combinar atuendos",
+   "ar": "دمج الأزياء",
+   "fr": "Combiner les tenues",
+   "bn": "পোশাক মেলাও",
+   "pt-BR": "Combinar trajes",
+   "ru": "Сочетать наряды",
+   "id": "Gabungkan pakaian",
+   "de": "Outfits kombinieren",
+   "tr": "Kıyafetleri birleştir",
+   "ko": "의상 조합",
+   "ja": "衣装を組み合わせる"
   },
   "Coming soon": {
    "zh-Hans": "即将推出",
@@ -2822,6 +2942,21 @@
    "ko": "Mac에서만 세고, 어디로도 안 보내요.",
    "ja": "Mac 上で集計し、どこにも送信しません。"
   },
+  "Cozy": {
+   "zh-Hans": "温馨",
+   "hi": "आरामदायक",
+   "es": "Acogedor",
+   "ar": "دافئ",
+   "fr": "Chaleureux",
+   "bn": "আরামদায়ক",
+   "pt-BR": "Aconchegante",
+   "ru": "Уютный",
+   "id": "Nyaman",
+   "de": "Gemütlich",
+   "tr": "Rahat",
+   "ko": "아늑함",
+   "ja": "くつろぎ"
+  },
   "Crown": {
    "zh-Hans": "王冠",
    "hi": "मुकुट",
@@ -2896,6 +3031,51 @@
    "tr": "Özel…",
    "ko": "사용자 지정…",
    "ja": "カスタム…"
+  },
+  "Dark": {
+   "zh-Hans": "深色",
+   "hi": "गहरा",
+   "es": "Oscuro",
+   "ar": "داكن",
+   "fr": "Sombre",
+   "bn": "গাঢ়",
+   "pt-BR": "Escuro",
+   "ru": "Тёмный",
+   "id": "Gelap",
+   "de": "Dunkel",
+   "tr": "Koyu",
+   "ko": "어두움",
+   "ja": "ダーク"
+  },
+  "Daylight": {
+   "zh-Hans": "日光",
+   "hi": "दिन की रोशनी",
+   "es": "Luz de día",
+   "ar": "ضوء النهار",
+   "fr": "Lumière du jour",
+   "bn": "দিনের আলো",
+   "pt-BR": "Luz do dia",
+   "ru": "Дневной свет",
+   "id": "Cahaya siang",
+   "de": "Tageslicht",
+   "tr": "Gün ışığı",
+   "ko": "낮빛",
+   "ja": "昼の光"
+  },
+  "Decorate": {
+   "zh-Hans": "布置",
+   "hi": "सजाएँ",
+   "es": "Decorar",
+   "ar": "تزيين",
+   "fr": "Décorer",
+   "bn": "সাজান",
+   "pt-BR": "Decorar",
+   "ru": "Оформление",
+   "id": "Dekorasi",
+   "de": "Gestalten",
+   "tr": "Dekorasyon",
+   "ko": "꾸미기",
+   "ja": "模様替え"
   },
   "DeepSeek key saved.": {
    "zh-Hans": "DeepSeek 密钥已保存。",
@@ -3046,6 +3226,51 @@
    "tr": "Dağıtımlar",
    "ko": "배포",
    "ja": "デプロイ"
+  },
+  "Desk finish": {
+   "zh-Hans": "书桌材质",
+   "hi": "मेज़ की सज्जा",
+   "es": "Acabado del escritorio",
+   "ar": "تشطيب المكتب",
+   "fr": "Finition du bureau",
+   "bn": "ডেস্কের ফিনিশ",
+   "pt-BR": "Acabamento da mesa",
+   "ru": "Отделка стола",
+   "id": "Finis meja",
+   "de": "Schreibtischoberfläche",
+   "tr": "Masa kaplaması",
+   "ko": "책상 마감",
+   "ja": "机の仕上げ"
+  },
+  "Desk lamp": {
+   "zh-Hans": "台灯",
+   "hi": "डेस्क लैंप",
+   "es": "Lámpara del escritorio",
+   "ar": "مصباح المكتب",
+   "fr": "Lampe de bureau",
+   "bn": "ডেস্ক ল্যাম্প",
+   "pt-BR": "Luminária de mesa",
+   "ru": "Настольная лампа",
+   "id": "Lampu meja",
+   "de": "Schreibtischlampe",
+   "tr": "Masa lambası",
+   "ko": "책상 램프",
+   "ja": "デスクライト"
+  },
+  "Diamonds": {
+   "zh-Hans": "钻石",
+   "hi": "हीरे",
+   "es": "Diamantes",
+   "ar": "ألماس",
+   "fr": "Diamants",
+   "bn": "হীরা",
+   "pt-BR": "Diamantes",
+   "ru": "Бриллианты",
+   "id": "Berlian",
+   "de": "Diamanten",
+   "tr": "Elmaslar",
+   "ko": "다이아몬드",
+   "ja": "ダイヤモンド"
   },
   "Dictate (right-click to choose the language)": {
    "zh-Hans": "听写（右键点按选择语言）",
@@ -3331,6 +3556,21 @@
    "tr": "Taslak",
    "ko": "초안",
    "ja": "下書き"
+  },
+  "Drag Mochi to a window’s top edge to attach automatically.": {
+   "zh-Hans": "将 Mochi 拖到窗口上沿，它就会自动抓住。",
+   "hi": "मोची को विंडो के ऊपरी किनारे तक खींचें, वह अपने आप पकड़ लेगा।",
+   "es": "Arrastra a Mochi al borde superior de una ventana para que se agarre automáticamente.",
+   "ar": "اسحب موتشي إلى الحافة العلوية للنافذة ليتعلق تلقائيًا.",
+   "fr": "Glissez Mochi vers le bord supérieur d’une fenêtre pour qu’il s’accroche automatiquement.",
+   "bn": "মোচিকে জানালার ওপরের প্রান্তে টেনে আনলে সে নিজেই ধরে থাকবে।",
+   "pt-BR": "Arraste Mochi até a borda superior de uma janela para ele se prender automaticamente.",
+   "ru": "Перетащите Моти к верхнему краю окна: он зацепится автоматически.",
+   "id": "Seret Mochi ke tepi atas jendela agar menempel otomatis.",
+   "de": "Ziehe Mochi an den oberen Fensterrand, damit er sich automatisch festhält.",
+   "tr": "Mochi’yi pencerenin üst kenarına sürükleyin; otomatik olarak tutunur.",
+   "ko": "모치를 창 위쪽 가장자리로 끌면 자동으로 매달립니다.",
+   "ja": "Mochiをウィンドウの上端にドラッグすると、自動でつかまります。"
   },
   "Drop a file named like one of Mochi's sounds (finish.wav, approval.mp3, greet.m4a…) in the sounds folder to replace it, then Reload.": {
    "zh-Hans": "在声音文件夹中放入与 Mochi 某个声音同名的文件（finish.wav、approval.mp3、greet.m4a…）即可替换它，然后重新载入。",
@@ -3737,6 +3977,36 @@
    "ko": "Flow 받아쓰기",
    "ja": "Flow 口述"
   },
+  "Flower": {
+   "zh-Hans": "花朵",
+   "hi": "फूल",
+   "es": "Flor",
+   "ar": "زهرة",
+   "fr": "Fleur",
+   "bn": "ফুল",
+   "pt-BR": "Flor",
+   "ru": "Цветок",
+   "id": "Bunga",
+   "de": "Blume",
+   "tr": "Çiçek",
+   "ko": "꽃",
+   "ja": "お花"
+  },
+  "Follow the time of day": {
+   "zh-Hans": "随一天的时间变化",
+   "hi": "दिन के समय के अनुसार",
+   "es": "Seguir la hora del día",
+   "ar": "حسب وقت اليوم",
+   "fr": "Suivre l’heure de la journée",
+   "bn": "দিনের সময় অনুযায়ী",
+   "pt-BR": "Acompanhar a hora do dia",
+   "ru": "По времени суток",
+   "id": "Ikuti waktu setempat",
+   "de": "Der Tageszeit folgen",
+   "tr": "Günün saatini izle",
+   "ko": "시간대에 맞추기",
+   "ja": "時間帯に合わせる"
+  },
   "For a more natural voice, download a Premium voice: System Settings → Accessibility → Spoken Content → System Voice → Manage Voices. In English: Ava for a woman, Jamie for a man (British).": {
    "zh-Hans": "想要更自然的声音，请下载 Premium 语音：系统设置 → 辅助功能 → 朗读内容 → 系统语音 → 管理语音。英语：女声选 Ava，男声选 Jamie（英式）。",
    "hi": "ज़्यादा स्वाभाविक आवाज़ के लिए Premium आवाज़ डाउनलोड करें: System Settings → Accessibility → Spoken Content → System Voice → Manage Voices। अंग्रेज़ी में: महिला के लिए Ava, पुरुष के लिए Jamie (ब्रिटिश)।",
@@ -3781,6 +4051,21 @@
    "tr": "Süresiz",
    "ko": "영구 보관",
    "ja": "無期限"
+  },
+  "Frog hat": {
+   "zh-Hans": "青蛙帽",
+   "hi": "मेंढक टोपी",
+   "es": "Gorro de rana",
+   "ar": "قبعة الضفدع",
+   "fr": "Bonnet grenouille",
+   "bn": "ব্যাঙের টুপি",
+   "pt-BR": "Chapéu de sapo",
+   "ru": "Шапка-лягушка",
+   "id": "Topi katak",
+   "de": "Froschmütze",
+   "tr": "Kurbağa şapka",
+   "ko": "개구리 모자",
+   "ja": "カエル帽子"
   },
   "From Open-Meteo for this city, only when you ask.": {
    "zh-Hans": "仅在你询问时，从 Open-Meteo 获取该城市的天气。",
@@ -3827,6 +4112,36 @@
    "ko": "완전한 문장과 문단으로 깔끔하게. 메일 쓸 때 딱이에요.",
    "ja": "メール向けの、整った文と段落。"
   },
+  "Galaxy": {
+   "zh-Hans": "银河",
+   "hi": "आकाशगंगा",
+   "es": "Galaxia",
+   "ar": "مجرة",
+   "fr": "Galaxie",
+   "bn": "ছায়াপথ",
+   "pt-BR": "Galáxia",
+   "ru": "Галактика",
+   "id": "Galaksi",
+   "de": "Galaxie",
+   "tr": "Galaksi",
+   "ko": "은하",
+   "ja": "銀河"
+  },
+  "Gamer": {
+   "zh-Hans": "电竞",
+   "hi": "गेमर",
+   "es": "Gamer",
+   "ar": "ألعاب",
+   "fr": "Gamer",
+   "bn": "গেমার",
+   "pt-BR": "Gamer",
+   "ru": "Игровой",
+   "id": "Gamer",
+   "de": "Gaming",
+   "tr": "Oyuncu",
+   "ko": "게이머",
+   "ja": "ゲーミング"
+  },
   "Gemini CLI hooks": {
    "zh-Hans": "Gemini CLI 钩子",
    "hi": "Gemini CLI हुक",
@@ -3856,6 +4171,21 @@
    "tr": "Genel",
    "ko": "일반",
    "ja": "一般"
+  },
+  "Geometric": {
+   "zh-Hans": "几何",
+   "hi": "ज्यामितीय",
+   "es": "Geométrica",
+   "ar": "هندسي",
+   "fr": "Géométrique",
+   "bn": "জ্যামিতিক",
+   "pt-BR": "Geométrico",
+   "ru": "Геометрия",
+   "id": "Geometris",
+   "de": "Geometrisch",
+   "tr": "Geometrik",
+   "ko": "기하학",
+   "ja": "幾何学"
   },
   "Get Spotify": {
    "zh-Hans": "获取 Spotify",
@@ -3932,6 +4262,21 @@
    "ko": "잠깐만요 — 3초만 쉬고 다시 일할게요.",
    "ja": "ちょっと待ってね — 3 秒で仕事に戻るよ。"
   },
+  "Glasses": {
+   "zh-Hans": "眼镜",
+   "hi": "चश्मा",
+   "es": "Gafas",
+   "ar": "نظارات",
+   "fr": "Lunettes",
+   "bn": "চশমা",
+   "pt-BR": "Óculos",
+   "ru": "Очки",
+   "id": "Kacamata",
+   "de": "Brille",
+   "tr": "Gözlük",
+   "ko": "안경",
+   "ja": "メガネ"
+  },
   "Global shortcuts — active from any app": {
    "zh-Hans": "全局快捷键 — 在任何应用中有效",
    "hi": "ग्लोबल शॉर्टकट — किसी भी ऐप से काम करते हैं",
@@ -4007,6 +4352,21 @@
    "ko": "Coucou 릴레이를 거쳐 Apple 푸시 서비스로 가요. 에이전트 이름과 상태만 보내고, 프로젝트 이름·명령·경로는 안 보내요.",
    "ja": "Coucou のリレー経由で Apple のプッシュサービスに送られます。送られるのはエージェント名と状態だけで、プロジェクト名、コマンド、パスは送られません。"
   },
+  "Gold": {
+   "zh-Hans": "黄金",
+   "hi": "सोना",
+   "es": "Oro",
+   "ar": "ذهب",
+   "fr": "Or",
+   "bn": "সোনা",
+   "pt-BR": "Ouro",
+   "ru": "Золото",
+   "id": "Emas",
+   "de": "Gold",
+   "tr": "Altın",
+   "ko": "금",
+   "ja": "ゴールド"
+  },
   "Google AI": {
    "zh-Hans": "Google AI",
    "hi": "Google AI",
@@ -4081,6 +4441,21 @@
    "tr": "İşlemci tam yükteyken terler, Mac ısındığında kızarır, bellek azaldığında şişer ve pil azaldığında uykusu gelir. Nedenini görmek için imleci Mochi'nin üzerine getir. Bilgiler yalnızca Mochi ekrandayken okunur; hiçbir şey Mac'inden dışarı çıkmaz.",
    "ko": "프로세서가 풀가동이면 땀을 뻘뻘, Mac이 뜨거우면 얼굴이 빨개지고, 메모리가 모자라면 빵빵하게 부풀고, 배터리가 부족하면 꾸벅꾸벅 졸아요. 모찌를 가리키면 이유를 알려 줘요. 모찌가 화면에 있을 때만 읽고, Mac 밖으로는 아무것도 안 나가요.",
    "ja": "プロセッサがフル稼働すると汗をかき、Mac が熱いと赤くなり、メモリが足りないとふくらみ、バッテリーが少ないと眠そうになります。Mochi を指すと理由がわかります。Mochi が画面にいる間だけ読み取り、何も Mac の外に出ません。"
+  },
+  "Headphones": {
+   "zh-Hans": "耳机",
+   "hi": "हेडफ़ोन",
+   "es": "Auriculares",
+   "ar": "سماعات الرأس",
+   "fr": "Casque audio",
+   "bn": "হেডফোন",
+   "pt-BR": "Fones de ouvido",
+   "ru": "Наушники",
+   "id": "Headphone",
+   "de": "Kopfhörer",
+   "tr": "Kulaklık",
+   "ko": "헤드폰",
+   "ja": "ヘッドホン"
   },
   "Heard, e.g. cloud code": {
    "zh-Hans": "听到的，例如 cloud code",
@@ -4772,6 +5147,21 @@
    "ko": "연동",
    "ja": "連携"
   },
+  "Jelly": {
+   "zh-Hans": "果冻",
+   "hi": "जेली",
+   "es": "Gelatina",
+   "ar": "هلام",
+   "fr": "Gelée",
+   "bn": "জেলি",
+   "pt-BR": "Gelatina",
+   "ru": "Желе",
+   "id": "Jeli",
+   "de": "Gelee",
+   "tr": "Jöle",
+   "ko": "젤리",
+   "ja": "ゼリー"
+  },
   "Journal": {
    "zh-Hans": "记录",
    "hi": "लॉग",
@@ -4786,6 +5176,21 @@
    "tr": "Günlük",
    "ko": "기록",
    "ja": "履歴"
+  },
+  "Jump to another window": {
+   "zh-Hans": "跳到其他窗口",
+   "hi": "दूसरी विंडो पर कूदें",
+   "es": "Saltar a otra ventana",
+   "ar": "القفز إلى نافذة أخرى",
+   "fr": "Sauter vers une autre fenêtre",
+   "bn": "অন্য উইন্ডোতে লাফাও",
+   "pt-BR": "Pular para outra janela",
+   "ru": "Прыгнуть на другое окно",
+   "id": "Lompat ke jendela lain",
+   "de": "Zu einem anderen Fenster springen",
+   "tr": "Başka pencereye atla",
+   "ko": "다른 창으로 점프",
+   "ja": "別のウィンドウへジャンプ"
   },
   "Jump to terminal": {
    "zh-Hans": "跳转到终端",
@@ -5012,13 +5417,43 @@
    "ko": "Mac 시작 시 실행",
    "ja": "Mac の起動時に開く"
   },
+  "Lava": {
+   "zh-Hans": "熔岩",
+   "hi": "लावा",
+   "es": "Lava",
+   "ar": "حمم",
+   "fr": "Lave",
+   "bn": "লাভা",
+   "pt-BR": "Lava",
+   "ru": "Лава",
+   "id": "Lava",
+   "de": "Lava",
+   "tr": "Lav",
+   "ko": "용암",
+   "ja": "溶岩"
+  },
+  "Leafy plant": {
+   "zh-Hans": "绿植",
+   "hi": "पत्तेदार पौधा",
+   "es": "Planta de hojas",
+   "ar": "نبات مورق",
+   "fr": "Plante feuillue",
+   "bn": "পাতাবাহার",
+   "pt-BR": "Planta de folhas",
+   "ru": "Лиственное",
+   "id": "Tanaman berdaun",
+   "de": "Blattpflanze",
+   "tr": "Yapraklı bitki",
+   "ko": "관엽식물",
+   "ja": "観葉植物"
+  },
   "Left": {
    "zh-Hans": "左侧",
    "hi": "बाएँ",
    "es": "Izquierda",
    "ar": "يسار",
-   "fr": "À gauche",
-   "bn": "বাঁয়ে",
+   "fr": "Gauche",
+   "bn": "বামে",
    "pt-BR": "Esquerda",
    "ru": "Слева",
    "id": "Kiri",
@@ -5567,6 +6002,21 @@
    "ko": "나",
    "ja": "自分"
   },
+  "Mediterranean": {
+   "zh-Hans": "地中海",
+   "hi": "भूमध्यसागरीय",
+   "es": "Mediterráneo",
+   "ar": "متوسطي",
+   "fr": "Méditerranéen",
+   "bn": "ভূমধ্যসাগরীয়",
+   "pt-BR": "Mediterrâneo",
+   "ru": "Средиземноморский",
+   "id": "Mediterania",
+   "de": "Mediterran",
+   "tr": "Akdeniz",
+   "ko": "지중해",
+   "ja": "地中海"
+  },
   "Memory is full": {
    "zh-Hans": "内存已满",
    "hi": "मेमोरी भर गई है",
@@ -5657,6 +6107,36 @@
    "ko": "마이크:",
    "ja": "マイク："
   },
+  "Midnight": {
+   "zh-Hans": "午夜蓝",
+   "hi": "आधी रात",
+   "es": "Medianoche",
+   "ar": "منتصف الليل",
+   "fr": "Minuit",
+   "bn": "মধ্যরাত",
+   "pt-BR": "Meia-noite",
+   "ru": "Полночь",
+   "id": "Tengah malam",
+   "de": "Mitternacht",
+   "tr": "Gece yarısı",
+   "ko": "미드나이트",
+   "ja": "ミッドナイト"
+  },
+  "Minimalist": {
+   "zh-Hans": "极简",
+   "hi": "न्यूनतम",
+   "es": "Minimalista",
+   "ar": "بسيط",
+   "fr": "Minimaliste",
+   "bn": "মিনিমাল",
+   "pt-BR": "Minimalista",
+   "ru": "Минимализм",
+   "id": "Minimalis",
+   "de": "Minimalistisch",
+   "tr": "Minimalist",
+   "ko": "미니멀",
+   "ja": "ミニマル"
+  },
   "Missing recipient.": {
    "zh-Hans": "收件人缺失。",
    "hi": "प्राप्तकर्ता गुम है।",
@@ -5671,6 +6151,21 @@
    "tr": "Alıcı eksik.",
    "ko": "받는 사람이 빠졌어요!",
    "ja": "宛先がありません。"
+  },
+  "Mochi Studio": {
+   "zh-Hans": "Mochi Studio",
+   "hi": "Mochi Studio",
+   "es": "Mochi Studio",
+   "ar": "Mochi Studio",
+   "fr": "Mochi Studio",
+   "bn": "Mochi Studio",
+   "pt-BR": "Mochi Studio",
+   "ru": "Mochi Studio",
+   "id": "Mochi Studio",
+   "de": "Mochi Studio",
+   "tr": "Mochi Studio",
+   "ko": "Mochi Studio",
+   "ja": "Mochi Studio"
   },
   "Mochi and your Mac": {
    "zh-Hans": "Mochi 和你的 Mac",
@@ -5761,6 +6256,21 @@
    "tr": "Mochi, sesleri ve çentiğin davranışı.",
    "ko": "모찌들의 사운드, 노치가 움직이는 방식이에요.",
    "ja": "Mochi、そのサウンド、ノッチの動作。"
+  },
+  "Mochi’s room": {
+   "zh-Hans": "Mochi 的房间",
+   "hi": "Mochi का कमरा",
+   "es": "La habitación de Mochi",
+   "ar": "غرفة Mochi",
+   "fr": "La chambre de Mochi",
+   "bn": "Mochi-এর ঘর",
+   "pt-BR": "O quarto do Mochi",
+   "ru": "Комната Mochi",
+   "id": "Kamar Mochi",
+   "de": "Mochis Zimmer",
+   "tr": "Mochi’nin odası",
+   "ko": "Mochi의 방",
+   "ja": "Mochi の部屋"
   },
   "Model": {
    "zh-Hans": "模型",
@@ -6077,6 +6587,21 @@
    "ko": "입력 필요",
    "ja": "入力が必要"
   },
+  "Neon": {
+   "zh-Hans": "霓虹",
+   "hi": "नियॉन",
+   "es": "Neón",
+   "ar": "نيون",
+   "fr": "Néon",
+   "bn": "নিয়ন",
+   "pt-BR": "Neon",
+   "ru": "Неон",
+   "id": "Neon",
+   "de": "Neon",
+   "tr": "Neon",
+   "ko": "네온",
+   "ja": "ネオン"
+  },
   "New Claude Code session": {
    "zh-Hans": "新的 Claude Code 会话",
    "hi": "नया Claude Code सत्र",
@@ -6196,6 +6721,21 @@
    "tr": "Sonraki parça",
    "ko": "다음 곡",
    "ja": "次の曲"
+  },
+  "Night": {
+   "zh-Hans": "夜晚",
+   "hi": "रात",
+   "es": "Noche",
+   "ar": "ليل",
+   "fr": "Nuit",
+   "bn": "রাত",
+   "pt-BR": "Noite",
+   "ru": "Ночь",
+   "id": "Malam",
+   "de": "Nacht",
+   "tr": "Gece",
+   "ko": "밤",
+   "ja": "夜"
   },
   "No PDF found in that message": {
    "zh-Hans": "该邮件中没有 PDF",
@@ -6406,6 +6946,21 @@
    "tr": "Çalışan müzik uygulaması yok",
    "ko": "켜져 있는 음악 앱이 없어요",
    "ja": "音楽アプリが起動していません"
+  },
+  "No other available window": {
+   "zh-Hans": "没有其他可用窗口",
+   "hi": "कोई दूसरी उपयुक्त विंडो नहीं है",
+   "es": "No hay otra ventana disponible",
+   "ar": "لا توجد نافذة أخرى متاحة",
+   "fr": "Aucune autre fenêtre disponible",
+   "bn": "অন্য উপযুক্ত উইন্ডো নেই",
+   "pt-BR": "Nenhuma outra janela disponível",
+   "ru": "Нет другого доступного окна",
+   "id": "Tidak ada jendela lain yang tersedia",
+   "de": "Kein weiteres Fenster verfügbar",
+   "tr": "Uygun başka pencere yok",
+   "ko": "이동할 수 있는 다른 창이 없습니다",
+   "ja": "移動できる他のウィンドウがありません"
   },
   "No other open app": {
    "zh-Hans": "没有其他打开的 App",
@@ -6947,6 +7502,21 @@
    "ko": "알겠어요, 그냥 둘게요",
    "ja": "わかりました、そのままにします"
   },
+  "Obsidian": {
+   "zh-Hans": "黑曜石",
+   "hi": "ओब्सीडियन",
+   "es": "Obsidiana",
+   "ar": "سبج",
+   "fr": "Obsidienne",
+   "bn": "অবসিডিয়ান",
+   "pt-BR": "Obsidiana",
+   "ru": "Обсидиан",
+   "id": "Obsidian",
+   "de": "Obsidian",
+   "tr": "Obsidyen",
+   "ko": "흑요석",
+   "ja": "黒曜石"
+  },
   "Off: the chat uses your API key below.": {
    "zh-Hans": "已关闭：聊天使用下方的 API 密钥。",
    "hi": "बंद: चैट नीचे दी गई आपकी API कुंजी का इस्तेमाल करती है।",
@@ -6961,6 +7531,21 @@
    "tr": "Kapalı: sohbet aşağıdaki API anahtarınızı kullanır.",
    "ko": "꺼짐: 채팅은 아래 API 키를 사용합니다.",
    "ja": "オフ: チャットは下の API キーを使います。"
+  },
+  "Olive tree": {
+   "zh-Hans": "橄榄树",
+   "hi": "जैतून का पेड़",
+   "es": "Olivo",
+   "ar": "شجرة زيتون",
+   "fr": "Olivier",
+   "bn": "জলপাই গাছ",
+   "pt-BR": "Oliveira",
+   "ru": "Оливковое дерево",
+   "id": "Pohon zaitun",
+   "de": "Olivenbaum",
+   "tr": "Zeytin ağacı",
+   "ko": "올리브 나무",
+   "ja": "オリーブ"
   },
   "Ollama disconnected.": {
    "zh-Hans": "Ollama 已断开连接。",
@@ -7081,6 +7666,21 @@
    "tr": "Yalnızca: {0}",
    "ko": "{0}만 표시",
    "ja": "{0} のみ"
+  },
+  "Opal": {
+   "zh-Hans": "欧泊",
+   "hi": "ओपल",
+   "es": "Ópalo",
+   "ar": "أوبال",
+   "fr": "Opale",
+   "bn": "ওপাল",
+   "pt-BR": "Opala",
+   "ru": "Опал",
+   "id": "Opal",
+   "de": "Opal",
+   "tr": "Opal",
+   "ko": "오팔",
+   "ja": "オパール"
   },
   "Open": {
    "zh-Hans": "打开",
@@ -7967,6 +8567,51 @@
    "ko": "요금제 사용량",
    "ja": "プランの使用状況"
   },
+  "Plant": {
+   "zh-Hans": "植物",
+   "hi": "पौधा",
+   "es": "Planta",
+   "ar": "نبات",
+   "fr": "Plante",
+   "bn": "গাছ",
+   "pt-BR": "Planta",
+   "ru": "Растение",
+   "id": "Tanaman",
+   "de": "Pflanze",
+   "tr": "Bitki",
+   "ko": "식물",
+   "ja": "植物"
+  },
+  "Plant position": {
+   "zh-Hans": "植物位置",
+   "hi": "पौधे की जगह",
+   "es": "Posición de la planta",
+   "ar": "موضع النبات",
+   "fr": "Position de la plante",
+   "bn": "গাছের অবস্থান",
+   "pt-BR": "Posição da planta",
+   "ru": "Положение растения",
+   "id": "Posisi tanaman",
+   "de": "Pflanzenposition",
+   "tr": "Bitki konumu",
+   "ko": "식물 위치",
+   "ja": "植物の位置"
+  },
+  "Plant type": {
+   "zh-Hans": "植物种类",
+   "hi": "पौधे का प्रकार",
+   "es": "Tipo de planta",
+   "ar": "نوع النبات",
+   "fr": "Type de plante",
+   "bn": "গাছের ধরন",
+   "pt-BR": "Tipo de planta",
+   "ru": "Тип растения",
+   "id": "Jenis tanaman",
+   "de": "Pflanzentyp",
+   "tr": "Bitki türü",
+   "ko": "식물 종류",
+   "ja": "植物の種類"
+  },
   "Play": {
    "zh-Hans": "播放",
    "hi": "चलाएँ",
@@ -8266,6 +8911,21 @@
    "tr": "Qwen anahtarı kaydedildi.",
    "ko": "Qwen 키 저장 완료!",
    "ja": "Qwen のキーを保存しました。"
+  },
+  "Rain at the window": {
+   "zh-Hans": "窗外下雨",
+   "hi": "खिड़की के बाहर बारिश",
+   "es": "Lluvia en la ventana",
+   "ar": "مطر خلف النافذة",
+   "fr": "Pluie à la fenêtre",
+   "bn": "জানালার বাইরে বৃষ্টি",
+   "pt-BR": "Chuva na janela",
+   "ru": "Дождь за окном",
+   "id": "Hujan di jendela",
+   "de": "Regen am Fenster",
+   "tr": "Pencerede yağmur",
+   "ko": "창밖의 비",
+   "ja": "窓の外の雨"
   },
   "Reads": {
    "zh-Hans": "读取",
@@ -8702,6 +9362,36 @@
    "ko": "모두 기본값으로 재설정",
    "ja": "すべてデフォルトに戻す"
   },
+  "Reset decoration": {
+   "zh-Hans": "重置装饰",
+   "hi": "सजावट रीसेट करें",
+   "es": "Restablecer decoración",
+   "ar": "إعادة ضبط الزينة",
+   "fr": "Réinitialiser le décor",
+   "bn": "সাজসজ্জা রিসেট",
+   "pt-BR": "Redefinir decoração",
+   "ru": "Сбросить декор",
+   "id": "Atur ulang dekorasi",
+   "de": "Dekoration zurücksetzen",
+   "tr": "Dekorasyonu sıfırla",
+   "ko": "장식 초기화",
+   "ja": "装飾をリセット"
+  },
+  "Reset zoom": {
+   "zh-Hans": "重置缩放",
+   "hi": "ज़ूम रीसेट करें",
+   "es": "Restablecer zoom",
+   "ar": "إعادة ضبط التكبير",
+   "fr": "Réinitialiser le zoom",
+   "bn": "জুম রিসেট করুন",
+   "pt-BR": "Redefinir zoom",
+   "ru": "Сбросить масштаб",
+   "id": "Atur ulang zoom",
+   "de": "Zoom zurücksetzen",
+   "tr": "Yakınlaştırmayı sıfırla",
+   "ko": "확대/축소 초기화",
+   "ja": "ズームをリセット"
+  },
   "Resetting…": {
    "zh-Hans": "重置中…",
    "hi": "रीसेट हो रहा है…",
@@ -8731,6 +9421,21 @@
    "tr": "Dinlenme",
    "ko": "휴식",
    "ja": "休憩"
+  },
+  "Rest on the cushion": {
+   "zh-Hans": "休息",
+   "hi": "आराम करें",
+   "es": "Descansar",
+   "ar": "استراحة",
+   "fr": "Se reposer",
+   "bn": "বিশ্রাম নাও",
+   "pt-BR": "Descansar",
+   "ru": "Отдохнуть",
+   "id": "Beristirahat",
+   "de": "Ausruhen",
+   "tr": "Dinlen",
+   "ko": "쉬기",
+   "ja": "休憩する"
   },
   "Restart Coucou": {
    "zh-Hans": "重启 Coucou",
@@ -8792,6 +9497,21 @@
    "ko": "다시 시도",
    "ja": "再試行"
   },
+  "Return to the top bar": {
+   "zh-Hans": "返回顶部栏",
+   "hi": "ऊपरी बार पर लौटें",
+   "es": "Volver a la barra superior",
+   "ar": "العودة إلى الشريط العلوي",
+   "fr": "Revenir à la barre supérieure",
+   "bn": "উপরের বারে ফেরো",
+   "pt-BR": "Voltar à barra superior",
+   "ru": "Вернуться наверх",
+   "id": "Kembali ke bilah atas",
+   "de": "Zur oberen Leiste",
+   "tr": "Üst çubuğa dön",
+   "ko": "상단 바로 돌아가기",
+   "ja": "上部バーに戻る"
+  },
   "Review the JSON below before confirming.": {
    "zh-Hans": "确认前请检查以下 JSON。",
    "hi": "पुष्टि करने से पहले नीचे दिए JSON की समीक्षा करें।",
@@ -8827,7 +9547,7 @@
    "hi": "दाएँ",
    "es": "Derecha",
    "ar": "يمين",
-   "fr": "À droite",
+   "fr": "Droite",
    "bn": "ডানে",
    "pt-BR": "Direita",
    "ru": "Справа",
@@ -8852,6 +9572,36 @@
    "ko": "오른쪽 {0}",
    "ja": "右 {0}"
   },
+  "Room style": {
+   "zh-Hans": "房间风格",
+   "hi": "कमरे की शैली",
+   "es": "Estilo de habitación",
+   "ar": "طراز الغرفة",
+   "fr": "Style de la pièce",
+   "bn": "ঘরের ধরন",
+   "pt-BR": "Estilo do quarto",
+   "ru": "Стиль комнаты",
+   "id": "Gaya kamar",
+   "de": "Zimmerstil",
+   "tr": "Oda tarzı",
+   "ko": "방 스타일",
+   "ja": "部屋のスタイル"
+  },
+  "Rose": {
+   "zh-Hans": "玫瑰色",
+   "hi": "गुलाबी",
+   "es": "Rosa",
+   "ar": "وردي",
+   "fr": "Rose",
+   "bn": "গোলাপি",
+   "pt-BR": "Rosa",
+   "ru": "Розовый",
+   "id": "Mawar",
+   "de": "Rosé",
+   "tr": "Gül",
+   "ko": "로즈",
+   "ja": "ローズ"
+  },
   "Round glasses": {
    "zh-Hans": "圆框眼镜",
    "hi": "गोल चश्मा",
@@ -8866,6 +9616,36 @@
    "tr": "Yuvarlak gözlük",
    "ko": "동그란 안경",
    "ja": "丸メガネ"
+  },
+  "Rug": {
+   "zh-Hans": "地毯",
+   "hi": "गलीचा",
+   "es": "Alfombra",
+   "ar": "سجادة",
+   "fr": "Tapis",
+   "bn": "কার্পেট",
+   "pt-BR": "Tapete",
+   "ru": "Ковёр",
+   "id": "Karpet",
+   "de": "Teppich",
+   "tr": "Halı",
+   "ko": "러그",
+   "ja": "ラグ"
+  },
+  "Rug pattern": {
+   "zh-Hans": "地毯图案",
+   "hi": "गलीचे का पैटर्न",
+   "es": "Diseño de alfombra",
+   "ar": "نقشة السجادة",
+   "fr": "Motif du tapis",
+   "bn": "কার্পেটের নকশা",
+   "pt-BR": "Padrão do tapete",
+   "ru": "Узор ковра",
+   "id": "Pola karpet",
+   "de": "Teppichmuster",
+   "tr": "Halı deseni",
+   "ko": "러그 무늬",
+   "ja": "ラグの柄"
   },
   "Rules": {
    "zh-Hans": "规则",
@@ -8927,6 +9707,21 @@
    "ko": "세션",
    "ja": "セッション"
   },
+  "Sage": {
+   "zh-Hans": "鼠尾草绿",
+   "hi": "सेज हरा",
+   "es": "Salvia",
+   "ar": "أخضر المريمية",
+   "fr": "Sauge",
+   "bn": "ঋষি সবুজ",
+   "pt-BR": "Sálvia",
+   "ru": "Шалфей",
+   "id": "Hijau sage",
+   "de": "Salbei",
+   "tr": "Adaçayı",
+   "ko": "세이지",
+   "ja": "セージ"
+  },
   "Said by": {
    "zh-Hans": "说话人",
    "hi": "किसने कहा",
@@ -8941,6 +9736,21 @@
    "tr": "Konuşan",
    "ko": "말한 사람",
    "ja": "発言者"
+  },
+  "Sand": {
+   "zh-Hans": "沙色",
+   "hi": "रेतीला",
+   "es": "Arena",
+   "ar": "رملي",
+   "fr": "Sable",
+   "bn": "বালুরঙা",
+   "pt-BR": "Areia",
+   "ru": "Песочный",
+   "id": "Pasir",
+   "de": "Sand",
+   "tr": "Kum",
+   "ko": "모래",
+   "ja": "サンド"
   },
   "Santa hat": {
    "zh-Hans": "圣诞帽",
@@ -10232,6 +11042,21 @@
    "ko": "한 번 탭하고 원하는 만큼 말한 다음, 다시 탭하면 붙여넣어져요.",
    "ja": "1 回タップして好きなだけ話し、もう一度タップで貼り付けます。"
   },
+  "Tap the objects": {
+   "zh-Hans": "点击物品",
+   "hi": "वस्तुओं पर टैप करें",
+   "es": "Toca los objetos",
+   "ar": "اضغط على الأشياء",
+   "fr": "Touchez les objets",
+   "bn": "বস্তুতে চাপ দাও",
+   "pt-BR": "Toque nos objetos",
+   "ru": "Нажимайте на предметы",
+   "id": "Ketuk objek",
+   "de": "Objekte antippen",
+   "tr": "Nesnelere dokun",
+   "ko": "물건을 눌러보세요",
+   "ja": "アイテムをタップ"
+  },
   "Tap twice, speak as long as you like, tap once to paste.": {
    "zh-Hans": "连按两次，想说多久就说多久，再按一次即粘贴。",
    "hi": "दो बार दबाएँ, जितना चाहें बोलें, चिपकाने के लिए एक बार दबाएँ।",
@@ -11402,6 +12227,21 @@
    "ko": "Claude Code의 답을 기다리는 중…",
    "ja": "Claude Code の応答を待っています"
   },
+  "Wall decoration": {
+   "zh-Hans": "墙面装饰",
+   "hi": "दीवार की सजावट",
+   "es": "Decoración de pared",
+   "ar": "زينة الجدار",
+   "fr": "Décor mural",
+   "bn": "দেয়ালের সাজ",
+   "pt-BR": "Decoração da parede",
+   "ru": "Декор стен",
+   "id": "Dekorasi dinding",
+   "de": "Wanddekoration",
+   "tr": "Duvar dekorasyonu",
+   "ko": "벽 장식",
+   "ja": "壁の飾り"
+  },
   "Wardrobe": {
    "zh-Hans": "衣橱",
    "hi": "अलमारी",
@@ -11431,6 +12271,21 @@
    "tr": "{count} / {total} izleniyor",
    "ko": "{count}개 추적 중 (전체 {total}개)",
    "ja": "{count} 件中 {total} 件を表示"
+  },
+  "Water the plant": {
+   "zh-Hans": "给植物浇水",
+   "hi": "पौधे को पानी दें",
+   "es": "Regar la planta",
+   "ar": "سقي النبات",
+   "fr": "Arroser la plante",
+   "bn": "গাছে জল দাও",
+   "pt-BR": "Regar a planta",
+   "ru": "Полить растение",
+   "id": "Siram tanaman",
+   "de": "Pflanze gießen",
+   "tr": "Bitkiyi sula",
+   "ko": "식물에 물 주기",
+   "ja": "水やりする"
   },
   "Weather by voice": {
    "zh-Hans": "语音天气",
@@ -11732,6 +12587,21 @@
    "ko": "듣는 동안 메뉴 막대 오른쪽 위에 주황색 마이크 점이 떠요. macOS가 원래 그러니까 놀라지 마세요!",
    "ja": "聞き取り中は、macOS がメニューバーの右上にオレンジ色のマイクの点を表示します。これはシステムの通常の動作です。"
   },
+  "White": {
+   "zh-Hans": "白色",
+   "hi": "सफ़ेद",
+   "es": "Blanco",
+   "ar": "أبيض",
+   "fr": "Blanc",
+   "bn": "সাদা",
+   "pt-BR": "Branco",
+   "ru": "Белый",
+   "id": "Putih",
+   "de": "Weiß",
+   "tr": "Beyaz",
+   "ko": "흰색",
+   "ja": "ホワイト"
+  },
   "Who is it?": {
    "zh-Hans": "这是谁？",
    "hi": "यह कौन है?",
@@ -11837,6 +12707,21 @@
    "ko": "여성",
    "ja": "女性"
   },
+  "Wood": {
+   "zh-Hans": "木质",
+   "hi": "लकड़ी",
+   "es": "Madera",
+   "ar": "خشب",
+   "fr": "Bois",
+   "bn": "কাঠ",
+   "pt-BR": "Madeira",
+   "ru": "Дерево",
+   "id": "Kayu",
+   "de": "Holz",
+   "tr": "Ahşap",
+   "ko": "나무",
+   "ja": "木目"
+  },
   "Words dictated": {
    "zh-Hans": "听写字数",
    "hi": "डिक्टेट किए शब्द",
@@ -11882,6 +12767,21 @@
    "ko": "작업",
    "ja": "作業"
   },
+  "Work at the desk": {
+   "zh-Hans": "去书桌",
+   "hi": "मेज़ पर जाएँ",
+   "es": "Ir al escritorio",
+   "ar": "الذهاب إلى المكتب",
+   "fr": "Aller au bureau",
+   "bn": "ডেস্কে যাও",
+   "pt-BR": "Ir para a mesa",
+   "ru": "К рабочему столу",
+   "id": "Ke meja kerja",
+   "de": "An den Schreibtisch",
+   "tr": "Masaya git",
+   "ko": "책상으로 가기",
+   "ja": "机に行く"
+  },
   "Work, then rest, on repeat, until you stop. Turn the Coucoudoro pill on to use it.": {
    "zh-Hans": "工作，然后休息，如此反复，直到你停止。打开 Coucoudoro 胶囊即可使用。",
    "hi": "काम, फिर आराम, और फिर से, जब तक तुम रोक न दो। Coucoudoro गोली चालू करो।",
@@ -11926,6 +12826,21 @@
    "tr": "İş akışları",
    "ko": "워크플로",
    "ja": "ワークフロー"
+  },
+  "Woven": {
+   "zh-Hans": "编织",
+   "hi": "बुना हुआ",
+   "es": "Tejida",
+   "ar": "منسوج",
+   "fr": "Tissé",
+   "bn": "বোনা",
+   "pt-BR": "Tecido",
+   "ru": "Плетёный",
+   "id": "Tenun",
+   "de": "Gewebt",
+   "tr": "Dokuma",
+   "ko": "직조",
+   "ja": "織り"
   },
   "Write the summary": {
    "zh-Hans": "生成摘要",
@@ -12286,6 +13201,36 @@
    "tr": "Artık Coucou {0} kullanıyorsun",
    "ko": "이제 Coucou {0}을 쓰고 있어요",
    "ja": "Coucou {0} をお使いです"
+  },
+  "Zoom in": {
+   "zh-Hans": "放大",
+   "hi": "ज़ूम इन",
+   "es": "Acercar",
+   "ar": "تكبير",
+   "fr": "Agrandir",
+   "bn": "বড় করুন",
+   "pt-BR": "Ampliar",
+   "ru": "Приблизить",
+   "id": "Perbesar",
+   "de": "Vergrößern",
+   "tr": "Yakınlaştır",
+   "ko": "확대",
+   "ja": "拡大"
+  },
+  "Zoom out": {
+   "zh-Hans": "缩小",
+   "hi": "ज़ूम आउट",
+   "es": "Alejar",
+   "ar": "تصغير",
+   "fr": "Réduire",
+   "bn": "ছোট করুন",
+   "pt-BR": "Reduzir",
+   "ru": "Отдалить",
+   "id": "Perkecil",
+   "de": "Verkleinern",
+   "tr": "Uzaklaştır",
+   "ko": "축소",
+   "ja": "縮小"
   },
   "banned word “{0}”": {
    "zh-Hans": "屏蔽词“{0}”",

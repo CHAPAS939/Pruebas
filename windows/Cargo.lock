@@ -806,6 +806,7 @@ dependencies = [
 name = "coucou"
 version = "0.5.9"
 dependencies = [
+ "base64 0.22.1",
  "arboard",
  "cpal",
  "dbus",

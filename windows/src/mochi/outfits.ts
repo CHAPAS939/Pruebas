@@ -977,7 +977,7 @@ function withLayer(ctx: Ctx, alpha: number, fn: (c: Ctx) => void) {
 
 /** Glasses, bow, scarf and pumpkin are on the face: behind the head once it has turned away. */
 const ON_FACE: ReadonlySet<Outfit> = new Set(["sunglasses", "roundGlasses", "bow", "scarf", "pumpkin"]);
-const HATS: ReadonlySet<Outfit> = new Set(["beanie", "santaHat", "partyHat", "crown", "witchHat"]);
+const HATS: ReadonlySet<Outfit> = new Set(["beanie", "santaHat", "partyHat", "crown", "witchHat", "frogHat"]);
 
 export interface OutfitState {
   /** 0 = gone, 1 = fully on. Animated by the engine. */
@@ -1065,10 +1065,54 @@ export function drawOutfitFront(ctx: Ctx, outfit: Outfit, H: Head, st: OutfitSta
       case "partyHat": partyHat(l, H, simple); break;
       case "crown": crownFront(l, H, body, simple); break;
       case "witchHat": witchHatFront(l, H, body); break;
+      case "headphones": case "frogHat": case "flower": personalOutfit(l, outfit, H); break;
       default: drawFace(l, outfit, H, body, simple);
     }
   });
   ctx.restore();
+}
+
+// The new accessories use the same head projection as the original wardrobe.
+function personalOutfit(ctx: Ctx, outfit: Outfit, H: Head) {
+  const ellipse = (x: number, y: number, rx: number, ry: number, color: string) => {
+    ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+  };
+  if (outfit === "headphones") {
+    ctx.beginPath();
+    for (let i = 0; i <= 32; i++) {
+      const a = Math.PI * i / 32;
+      const p = proj(H, [Math.cos(a) * 1.04, Math.sin(a) * 1.19, .04]);
+      if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y);
+    }
+    ctx.strokeStyle = "#58566f"; ctx.lineWidth = H.R * .16; ctx.lineCap = "round"; ctx.stroke();
+    for (const side of [-1, 1]) {
+      const p = proj(H, [side * 1.06, .03, .15]);
+      if (p.z < -.3) continue;
+      ellipse(p.x, p.y, H.R * .20, H.R * .34, "#78748e");
+      ellipse(p.x, p.y, H.R * .12, H.R * .24, "#b5aacb");
+      ellipse(p.x - H.R * .03, p.y - H.R * .06, H.R * .035, H.R * .13, "#d7cde5");
+    }
+  } else if (outfit === "frogHat") {
+    const top = proj(H, [0, .89, .15]);
+    ctx.fillStyle = "#8ba677"; ctx.beginPath();
+    ctx.ellipse(top.x, top.y + H.R * .03, H.rx * .91, H.R * .43, 0, Math.PI, Math.PI * 2); ctx.fill();
+    ellipse(top.x, top.y + H.R * .025, H.rx, H.R * .12, "#a9bd8b");
+    for (const side of [-1, 1]) {
+      const p = proj(H, [side * .54, 1.22, .20]);
+      ellipse(p.x, p.y, H.R * .23, H.R * .25, "#94ae7e");
+      ellipse(p.x, p.y - H.R * .025, H.R * .13, H.R * .14, "#f6f1da");
+      ellipse(p.x + H.R * .02, p.y - H.R * .025, H.R * .055, H.R * .075, "#2e3931");
+    }
+  } else if (outfit === "flower") {
+    const p = proj(H, surf(.89, .55, 1.06));
+    if (p.z < -.2) return;
+    for (let i = 0; i < 7; i++) {
+      const a = i * Math.PI * 2 / 7;
+      ellipse(p.x + Math.cos(a) * H.R * .22, p.y + Math.sin(a) * H.R * .22, H.R * .15, H.R * .15, "#fff5df");
+    }
+    ellipse(p.x, p.y, H.R * .145, H.R * .145, "#dfaf51");
+    ellipse(p.x - H.R * .025, p.y - H.R * .035, H.R * .055, H.R * .045, "#f6d785");
+  }
 }
 
 // ── Wardrobe icons ────────────────────────────────────────────────────────────

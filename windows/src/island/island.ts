@@ -1343,7 +1343,7 @@ export class Island {
     const visible = p.opacity > 0 && !greetingActive && !this.uploadActive && !away;
     this.botCanvas.style.opacity = visible ? "1" : "0";
 
-    if (State.mode === "expanded" && State.view !== "uploading" && !greetingActive && !this.uploadActive && !away) {
+    if (State.mode === "expanded" && State.view !== "room" && State.view !== "uploading" && !greetingActive && !this.uploadActive && !away) {
       const d = p.diameter;
       const color = botGlowColor(State.effectiveState);
       this.botGlow.style.display = "block";
@@ -1412,7 +1412,7 @@ export class Island {
     const mainFocused = State.focusId == null || State.focusId === State.mainPillId;
     const showOutfit = mainFocused || State.mode !== "expanded" || inWardrobe;
     const outfit = State.wardrobePreview ?? this.seasons.get(parseOutfit(State.settings.mochiOutfit));
-    this.engine.setOutfit(showOutfit ? outfit : "none", !inWardrobe);
+    this.engine.setOutfit(showOutfit ? outfit : "none", !inWardrobe, showOutfit ? State.settings.mochiOutfitGlasses : "none", showOutfit && State.settings.mochiOutfitScarf, showOutfit ? State.settings.mochiSkin : "classic", State.settings.mochiAccent);
     // Dances while music plays: always in the compact island, expanded only on
     // the music pill's card (BotCanvasView, macOS). Asked every frame.
     this.engine.setDancing(islandDances({
@@ -1484,13 +1484,13 @@ export class Island {
     if (this.greetingShown && !greetingActive) this.greeting.leave();
     this.greetingShown = greetingActive;
     // A wardrobe try-on never outlives the wardrobe.
-    if (State.wardrobePreview && !(expanded && State.view === "wardrobe")) State.wardrobePreview = null;
+    if (State.wardrobePreview && !(expanded && (State.view === "wardrobe" || State.view === "room"))) State.wardrobePreview = null;
 
     this.header.sync();
     for (const [name, view] of this.views) {
       const on = name === State.view;
       view.el.classList.toggle("on", on);
-      if (on) view.sync();
+      if (on || name === "room") view.sync();
     }
 
     // The chat and the launch card are the views with a text field, so they

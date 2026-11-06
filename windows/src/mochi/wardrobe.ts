@@ -8,7 +8,7 @@ import { N_, labels, t } from "../i18n/i18n";
 /** Every outfit, plus "auto" (dress for the season) and "none". Order of the wardrobe. */
 export const OUTFIT_SELECTIONS = [
   "auto", "none", "partyHat", "beanie", "crown", "sunglasses", "roundGlasses",
-  "bow", "scarf", "witchHat", "pumpkin", "santaHat", "bunnyEars",
+  "bow", "scarf", "witchHat", "pumpkin", "santaHat", "bunnyEars", "headphones", "frogHat", "flower",
 ] as const;
 
 /** What can be stored in the preferences. The raw values are the Mac's, keep them stable. */
@@ -36,6 +36,9 @@ export const OUTFIT_KEYS: Record<OutfitSelection, string> = {
   pumpkin: N_("Pumpkin"),
   santaHat: N_("Santa hat"),
   bunnyEars: N_("Bunny ears"),
+  headphones: N_("Headphones"),
+  frogHat: N_("Frog hat"),
+  flower: N_("Flower"),
 };
 
 /** In the current language: every read goes through `t()`. */
@@ -140,4 +143,13 @@ export class SeasonCache {
     }
     return this.value;
   }
+}
+
+/** One item per visual layer: an explicit glasses choice replaces primary glasses. */
+export function outfitLayers(primary: Outfit, glasses: unknown = "none", scarf = false): Outfit[] {
+  const face: Outfit = glasses === "sunglasses" || glasses === "roundGlasses" ? glasses : "none";
+  const items: Outfit[] = primary === "none" || (face !== "none" && (primary === "sunglasses" || primary === "roundGlasses")) ? [] : [primary];
+  if (face !== "none") items.push(face);
+  if (scarf && !items.includes("scarf")) items.push("scarf");
+  return items;
 }

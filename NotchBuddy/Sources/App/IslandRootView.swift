@@ -47,7 +47,7 @@ struct CornerBot: View {
         // The chat grows with the conversation (IslandContainer.chatPromptHeight).
         let h = state.mode == .expanded && state.view == .prompt
             ? min(300, 240 + CGFloat(state.chatHistory.count) * 40) : fixedH
-        let hidden = state.mode == .expanded && (state.view == .greeting
+        let hidden = state.mode == .expanded && (state.view == .room || state.view == .greeting
             || (upload.isActive && [.upload, .uploading, .choose].contains(state.view)))
         BotPlacement(state: state, islandW: w, islandH: h,
                      shift: CGSize(width: p.isRight ? w - box : 0, height: p.isBottom ? h - box : 0),
@@ -449,7 +449,7 @@ struct BotPlacement: View {
                     let t = min(1.0, max(0, elapsed / state.uploadDuration))
                     // cx = 36 + 526*t: bot center at fill right edge (bar left=36, width=526)
                     let uploadCx = 36 + CGFloat(t * (2 - t)) * 526
-                    BotCanvasView(state: state, particleOverhang: 0, paused: state.mochiOnDesktop)
+                    BotCanvasView(state: state, particleOverhang: 0, paused: state.mochiOnDesktop || state.view == .room)
                         .frame(width: canvasSize, height: canvasSize)
                         .opacity(state.isDraggingBot || state.mochiOnDesktop ? 0 : opacity)
                         .position(x: uploadCx, y: cy)
@@ -457,7 +457,7 @@ struct BotPlacement: View {
                 .transition(.scale(scale: 0.01, anchor: .center).combined(with: .opacity))
             } else {
                 // Invisible while Mochi lives on the desktop: no drawing either.
-                BotCanvasView(state: state, particleOverhang: overhang, paused: state.mochiOnDesktop)
+                BotCanvasView(state: state, particleOverhang: overhang, paused: state.mochiOnDesktop || state.view == .room)
                     .frame(width: canvasSize, height: canvasSize + overhang)
                     .opacity(state.isDraggingBot || state.mochiOnDesktop ? 0 : opacity)
                     .position(x: cx, y: cy - overhang / 2)
@@ -648,7 +648,7 @@ struct IslandContentView: View {
                     // Views that fill available height instead of the fixed 98pt content frame:
                     // chat (prompt) is always flexible; mail is flexible only when active so
                     // it doesn't push the ZStack taller when inactive.
-                    let isTall = v == .prompt || ((v == .mail || v == .whatsNew) && active)
+                    let isTall = v == .prompt || (v == .room && active) || ((v == .mail || v == .whatsNew) && active)
                         || (v == .overview && active && cornerHome)
                     let anim: Animation = active
                         ? .spring(response: 0.4, dampingFraction: 0.8).delay(0.16)
@@ -706,6 +706,13 @@ struct IslandHeader: View {
                     #endif
                 })
                 TabButton(icon: "plus", view: .upload, state: state)
+                if state.pendingApproval == nil && state.pendingQuestion == nil {
+                    TabButton(icon: "lamp.desk", view: .room, state: state, preAction: {
+                        if state.mochiOnDesktop { DesktopMochiController.shared.flyHome() }
+                    })
+                        .help(String(localized: "room.title"))
+                        .accessibilityLabel(String(localized: "room.title"))
+                }
                 #if !APPSTORE
                 // A new Claude Code session, in a project, from here.
                 TabButton(icon: "terminal", view: .launch, state: state)

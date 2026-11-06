@@ -98,6 +98,23 @@ export interface IntegrationInfo {
 }
 
 export interface Settings {
+  mochiRoomLighting: string;
+  mochiRoomRain: boolean;
+  mochiRoomLamp: boolean;
+  mochiRoomTheme: string;
+  mochiRoomPlant: boolean;
+  mochiRoomRug: boolean;
+  mochiRoomStyle: string;
+  mochiRoomPlantKind: string;
+  mochiRoomRugKind: string;
+  mochiRoomWallDecor: string;
+  mochiRoomDeskFinish: string;
+  mochiRoomPlantPosition: string;
+  mochiOutfitGlasses: string;
+  mochiOutfitScarf: boolean;
+  mochiSkin: string;
+  mochiAccent: string;
+  mochiStudio: string;
   soundEnabled: boolean;
   soundVolume: number;
   autoCloseInterval: number;
@@ -175,6 +192,23 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  mochiRoomLighting: "automatic",
+  mochiRoomRain: true,
+  mochiRoomLamp: true,
+  mochiRoomTheme: "sand",
+  mochiRoomPlant: true,
+  mochiRoomRug: true,
+  mochiRoomStyle: "cozy",
+  mochiRoomPlantKind: "auto",
+  mochiRoomRugKind: "auto",
+  mochiRoomWallDecor: "auto",
+  mochiRoomDeskFinish: "auto",
+  mochiRoomPlantPosition: "left",
+  mochiOutfitGlasses: "none",
+  mochiOutfitScarf: false,
+  mochiSkin: "classic",
+  mochiAccent: "original",
+  mochiStudio: "{}",
   soundEnabled: true,
   soundVolume: 0.12,
   autoCloseInterval: 15,

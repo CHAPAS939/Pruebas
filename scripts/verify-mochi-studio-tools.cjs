@@ -1,0 +1,71 @@
+// Actual shared UI, including the native-window entry point (bridge mocked in dev).
+const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs');
+(async()=>{
+ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});
+ const directory=process.env.STUDIO_SCREENSHOTS||'/tmp/coucou-studio-tools';fs.mkdirSync(directory,{recursive:true});
+ const context=await browser.newContext({viewport:{width:720,height:560},reducedMotion:'reduce'}),errors=[];
+ context.setDefaultTimeout(45000);
+ context.on('page',p=>{p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error'&&!m.text().includes('404'))errors.push(m.text())})});
+ try{
+  const island=await context.newPage();await island.goto((process.env.PREVIEW_URL||'http://127.0.0.1:1420')+'/dev/island-preview.html?lang=es');
+  await island.waitForFunction(()=>window.__island&&window.__state?.settings.language==='es');
+  await island.evaluate(()=>{__island.setPinned(true);__island.alert('overview');__island.setPointerInside(true)});
+  // The upstream 0.6 launcher must remain reachable beside our room tab.
+  const launcher=island.getByRole('button',{name:'Nueva sesión de Claude Code',exact:true});
+  await launcher.click();await island.locator('.launch-card').waitFor({state:'visible'});
+  await island.locator('.launch-card input').fill('Comprobar la integración');
+  assert.equal(await island.locator('.launch-card input').inputValue(),'Comprobar la integración');
+  // Do not send: this regression never starts a real agent session.
+  console.log('PASS: original 0.6 session launcher coexists with the room tab');
+  await island.getByRole('button',{name:'La habitación de Mochi',exact:true}).click();
+  const old=island.locator('.mochi-studio-host');await old.locator('#tabs').waitFor();
+  const opening=context.waitForEvent('page');await old.getByRole('button',{name:'Abrir estudio',exact:true}).click();const page=await opening;
+  await page.bringToFront();await page.setViewportSize({width:1120,height:780});const ui=page.locator('.mochi-studio-host');await ui.locator('#studio.standalone').waitFor();
+  await page.waitForFunction(()=>window.__mochiStudio?.inspect().sceneLoaded);const scene=page.frames().find(f=>f.url().includes('scene=home'));assert.ok(scene);await scene.waitForSelector('canvas');
+  const bounds=await ui.locator('#scene-wrap').boundingBox();assert.ok(bounds.width>700&&bounds.height>650);
+  assert.equal(await ui.getByRole('button',{name:'Abrir estudio',exact:true}).count(),0);
+  console.log('PASS: the room opens in a separate, larger studio from the island button');
+  const prefs=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('coucou-studio-preview')));
+  const doc=async()=>JSON.parse((await prefs()).mochiStudio);
+  await ui.getByRole('slider',{name:'Intensidad de luz',exact:true}).press('Home');
+  await scene.waitForFunction(()=>document.getElementById('stage').dataset.lightIntensity==='.35'||document.getElementById('stage').dataset.lightIntensity==='0.35');
+  const dim=await ui.locator('#scene-wrap').screenshot({path:directory+'/studio-light-dim.png'});
+  await ui.getByRole('slider',{name:'Intensidad de luz',exact:true}).press('End');
+  await ui.getByRole('slider',{name:'Temperatura de luz',exact:true}).press('End');
+  await scene.waitForFunction(()=>document.getElementById('stage').dataset.lightIntensity==='1.6'&&document.getElementById('stage').dataset.lightTemperature==='1');
+  const bright=await ui.locator('#scene-wrap').screenshot({path:directory+'/studio-light-warm.png'});assert.notEqual(dim.toString('base64'),bright.toString('base64'));
+  assert.deepEqual((await doc()).lighting,{intensity:1.6,temperature:1});
+  await island.waitForFunction(()=>JSON.parse(__state.settings.mochiStudio).lighting?.intensity===1.6);
+  console.log('PASS: intensity and warmth change the actual render, persist and synchronize');
+  await ui.getByRole('button',{name:'Girar vista',exact:true}).click();
+  await scene.waitForFunction(()=>document.getElementById('stage').dataset.orbiting==='true');
+  const r=await ui.locator('#scene-wrap').boundingBox();await page.mouse.move(r.x+r.width*.48,r.y+r.height*.55);await page.mouse.down();await page.mouse.move(r.x+r.width*.48+110,r.y+r.height*.55+50,{steps:10});await page.mouse.up();
+  await page.waitForFunction(()=>JSON.parse(JSON.parse(localStorage.getItem('coucou-studio-preview')).mochiStudio).camera.yaw>.1);
+  const savedCamera=(await doc()).camera;assert.ok(savedCamera.pitch>0);
+  await page.mouse.wheel(0,-120);await scene.waitForFunction(()=>Number(document.getElementById('stage').dataset.roomZoom)>1);
+  await ui.locator('#scene-wrap').screenshot({path:directory+'/studio-camera-orbit.png'});
+  await ui.getByRole('button',{name:'Girar vista',exact:true}).click();
+  await ui.getByRole('textbox',{name:'Nombre de la habitación',exact:true}).fill('Luz cálida');await ui.getByRole('button',{name:'Guardar',exact:true}).click();
+  assert.deepEqual((await doc()).rooms[0].camera,savedCamera);
+  console.log('PASS: physical orbit drag, wheel zoom and camera/light room preset');
+  await ui.getByRole('button',{name:'Mover muebles',exact:true}).click();
+  await ui.getByRole('combobox',{name:'Mueble seleccionado',exact:true}).selectOption('plant');
+  for(let i=0;i<5;i++)await ui.getByRole('button',{name:'Mover a la derecha',exact:true}).click();
+  assert.ok((await doc()).layout.plant.x<=-2.2);assert.equal(await ui.locator('#status').textContent(),'Hay un mueble en medio');
+  const blocked=(await doc()).layout.plant;await ui.getByRole('button',{name:'Mover a la derecha',exact:true}).click();assert.deepEqual((await doc()).layout.plant,blocked);
+  await ui.getByRole('button',{name:'Mover muebles',exact:true}).click();
+  await ui.getByRole('button',{name:'Cargar Luz cálida',exact:true}).click();assert.deepEqual((await doc()).layout,{});assert.deepEqual((await doc()).lighting,{intensity:1.6,temperature:1});
+  await page.setViewportSize({width:860,height:620});assert.ok((await ui.locator('#scene-wrap').boundingBox()).width>500);await page.setViewportSize({width:1120,height:780});
+  console.log('PASS: furniture stops at collisions, room preset restores and the editor resizes');
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await ui.getByRole('button',{name:'Gamer',exact:true}).click();await scene.waitForFunction(()=>document.getElementById('stage').dataset.reaction==='celebrate');
+  await ui.getByRole('button',{name:'Mover muebles',exact:true}).click();await ui.getByRole('combobox',{name:'Mueble seleccionado',exact:true}).selectOption('plant');await ui.getByRole('button',{name:'Mover hacia el fondo',exact:true}).click();
+  await scene.waitForFunction(()=>document.getElementById('stage').dataset.reaction==='explore');await scene.waitForFunction(()=>Number(document.getElementById('stage').dataset.actorPosition.split(',')[1])<1.5);
+  await ui.locator('#scene-wrap').screenshot({path:directory+'/mochi-exploring.png'});
+  await page.emulateMedia({reducedMotion:'reduce'});await scene.waitForFunction(()=>document.getElementById('stage').dataset.reaction==='none');
+  console.log('PASS: Mochi celebrates, explores and respects reduced motion');
+  await page.reload();await page.locator('.mochi-studio-host').locator('#studio.standalone').waitFor();assert.deepEqual((await doc()).lighting,{intensity:1.6,temperature:1});assert.deepEqual((await doc()).camera,savedCamera);assert.deepEqual(errors,[]);
+  const proof={passed:true,upstream06Launcher:true,separateStudio:true,resizableLayout:true,lightingRenderAndPersistence:true,crossWindowPreferences:true,physicalOrbitAndWheel:true,cameraAndLightPresets:true,furnitureCollision:true,reactions:true,reducedMotion:true,reload:true,errors,nativeBridge:'simulated; native window code checked separately'};
+  fs.writeFileSync(directory+'/studio-tools-validation.json',JSON.stringify(proof,null,2));console.log(JSON.stringify(proof));
+ }finally{await browser.close()}
+})().catch(e=>{console.error(e);process.exitCode=1});

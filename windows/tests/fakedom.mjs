@@ -113,6 +113,9 @@ class FakeElement {
     this.parentNode?.removeChild(this);
   }
   /** `.a.b` class selectors only: the first descendant carrying every class. */
+  attachShadow() {
+    const root = new FakeElement("#shadow-root");root.host = this;this.shadowRoot = root;return root;
+  }
   querySelector(selector) {
     const wanted = selector.split(".").filter(Boolean);
     return [...this.walk()].find((e) => wanted.every((c) => e.classList.contains(c))) ?? null;

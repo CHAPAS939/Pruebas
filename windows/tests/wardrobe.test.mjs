@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  OUTFIT_SELECTIONS, OUTFIT_LABELS, SeasonCache, easterDate, parseOutfit, resolveOutfit,
+  outfitLayers, OUTFIT_SELECTIONS, OUTFIT_LABELS, SeasonCache, easterDate, parseOutfit, resolveOutfit,
   seasonalOutfit, wardrobeHeader,
 } from "../src/mochi/wardrobe.ts";
 import { DEFAULT_SETTINGS } from "../src/core/state.ts";
@@ -87,7 +87,7 @@ test("auto dresses for the season, any other choice is worn as is", () => {
 test("the stored values are the Mac's, in the wardrobe's order", () => {
   assert.deepEqual([...OUTFIT_SELECTIONS], [
     "auto", "none", "partyHat", "beanie", "crown", "sunglasses", "roundGlasses",
-    "bow", "scarf", "witchHat", "pumpkin", "santaHat", "bunnyEars",
+    "bow", "scarf", "witchHat", "pumpkin", "santaHat", "bunnyEars", "headphones", "frogHat", "flower",
   ]);
   for (const sel of OUTFIT_SELECTIONS) assert.ok(OUTFIT_LABELS[sel], `${sel} has a label`);
 });
@@ -128,4 +128,12 @@ test("the per-frame season lookup follows the calendar day", () => {
   assert.equal(cache.get("auto", new Date(2026, 9, 1, 0, 0, 1)), "witchHat");
   assert.equal(cache.get("bow", day(2026, 10, 1)), "bow");
   assert.equal(cache.get("auto", day(2026, 12, 2)), "santaHat");
+});
+
+test("combinations use one face layer, preserve the main hat and deduplicate the scarf", () => {
+  assert.deepEqual(outfitLayers("frogHat","roundGlasses",true),["frogHat","roundGlasses","scarf"]);
+  assert.deepEqual(outfitLayers("sunglasses","roundGlasses",false),["roundGlasses"]);
+  assert.deepEqual(outfitLayers("scarf","none",true),["scarf"]);
+  assert.deepEqual(outfitLayers("none","sunglasses",true),["sunglasses","scarf"]);
+  assert.deepEqual(outfitLayers("headphones","bad",false),["headphones"]);
 });

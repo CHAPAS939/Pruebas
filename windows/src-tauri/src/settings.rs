@@ -13,6 +13,23 @@ use std::sync::{Mutex, MutexGuard, PoisonError};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct Settings {
+    pub mochi_room_lighting: String,
+    pub mochi_room_rain: bool,
+    pub mochi_room_lamp: bool,
+    pub mochi_room_theme: String,
+    pub mochi_room_plant: bool,
+    pub mochi_room_rug: bool,
+    pub mochi_room_style: String,
+    pub mochi_room_plant_kind: String,
+    pub mochi_room_rug_kind: String,
+    pub mochi_room_wall_decor: String,
+    pub mochi_room_desk_finish: String,
+    pub mochi_room_plant_position: String,
+    pub mochi_outfit_glasses: String,
+    pub mochi_outfit_scarf: bool,
+    pub mochi_skin: String,
+    pub mochi_accent: String,
+    pub mochi_studio: String,
     pub sound_enabled: bool,
     pub sound_volume: f64,
     pub auto_close_interval: f64,
@@ -146,6 +163,23 @@ fn default_model() -> String {
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            mochi_room_lighting: "automatic".into(),
+            mochi_room_rain: true,
+            mochi_room_lamp: true,
+            mochi_room_theme: "sand".into(),
+            mochi_room_plant: true,
+            mochi_room_rug: true,
+            mochi_room_style: "cozy".into(),
+            mochi_room_plant_kind: "auto".into(),
+            mochi_room_rug_kind: "auto".into(),
+            mochi_room_wall_decor: "auto".into(),
+            mochi_room_desk_finish: "auto".into(),
+            mochi_room_plant_position: "left".into(),
+            mochi_outfit_glasses: "none".into(),
+            mochi_outfit_scarf: false,
+            mochi_skin: "classic".into(),
+            mochi_accent: "original".into(),
+            mochi_studio: "{}".into(),
             sound_enabled: true,
             sound_volume: 0.12,
             auto_close_interval: 15.0,
@@ -454,6 +488,23 @@ mod tests {
     /// A settings.json in which no value is the default one.
     // Two #: the colours in it are written "#RRGGBB".
     const CUSTOM: &str = r##"{
+  "mochiRoomLighting": "night",
+  "mochiRoomRain": false,
+  "mochiRoomLamp": false,
+  "mochiRoomTheme": "rose",
+  "mochiRoomPlant": false,
+  "mochiRoomRug": false,
+  "mochiRoomStyle": "gamer",
+  "mochiRoomPlantKind": "cactus",
+  "mochiRoomRugKind": "checker",
+  "mochiRoomWallDecor": "neon",
+  "mochiRoomDeskFinish": "dark",
+  "mochiRoomPlantPosition": "right",
+  "mochiOutfitGlasses": "roundGlasses",
+  "mochiOutfitScarf": true,
+  "mochiSkin": "diamond",
+  "mochiAccent": "#6e98b5",
+  "mochiStudio": "{}",
   "soundEnabled": false,
   "soundVolume": 0.5,
   "autoCloseInterval": 30.0,
@@ -582,6 +633,17 @@ mod tests {
         let mut expected = custom();
         expected["model"] = json!(crate::claude::DEFAULT_MODEL);
         assert_eq!(loaded, expected);
+    }
+
+    #[test]
+    fn a_file_from_before_the_room_keeps_existing_preferences() {
+        let loaded = parse(br#"{"soundEnabled":false,"mochiOutfit":"witchHat"}"#).unwrap();
+        assert_eq!(loaded.mochi_room_lighting, "automatic");
+        assert!(loaded.mochi_room_rain && loaded.mochi_room_lamp);
+        assert_eq!(loaded.mochi_room_theme, "sand");
+        assert!(loaded.mochi_room_plant && loaded.mochi_room_rug);
+        assert!(!loaded.sound_enabled);
+        assert_eq!(loaded.mochi_outfit, "witchHat");
     }
 
     #[test]
@@ -762,6 +824,23 @@ mod tests {
     #[test]
     fn a_field_of_the_wrong_type_takes_its_default_and_the_rest_are_kept() {
         for (key, wrong) in [
+            ("mochiRoomLighting", json!(true)),
+            ("mochiRoomRain", json!("yes")),
+            ("mochiRoomLamp", json!(1)),
+            ("mochiRoomTheme", json!(false)),
+            ("mochiRoomPlant", json!("yes")),
+            ("mochiRoomRug", json!(1)),
+            ("mochiRoomStyle", json!(false)),
+            ("mochiRoomPlantKind", json!(false)),
+            ("mochiRoomRugKind", json!(false)),
+            ("mochiRoomWallDecor", json!(false)),
+            ("mochiRoomDeskFinish", json!(false)),
+            ("mochiRoomPlantPosition", json!(false)),
+            ("mochiOutfitGlasses", json!(false)),
+            ("mochiOutfitScarf", json!("no")),
+            ("mochiSkin", json!(true)),
+            ("mochiAccent", json!(false)),
+            ("mochiStudio", json!([])),
             ("soundVolume", json!("loud")),
             ("soundEnabled", json!(1)),
             ("activeIntegrations", json!("integration_n8n")),
@@ -977,6 +1056,23 @@ mod tests {
         assert_eq!(
             keys,
             [
+                "mochiRoomLighting",
+                "mochiRoomRain",
+                "mochiRoomLamp",
+                "mochiRoomTheme",
+                "mochiRoomPlant",
+                "mochiRoomRug",
+                "mochiRoomStyle",
+                "mochiRoomPlantKind",
+                "mochiRoomRugKind",
+                "mochiRoomWallDecor",
+                "mochiRoomDeskFinish",
+                "mochiRoomPlantPosition",
+                "mochiOutfitGlasses",
+                "mochiOutfitScarf",
+                "mochiSkin",
+                "mochiAccent",
+                "mochiStudio",
                 "soundEnabled",
                 "soundVolume",
                 "autoCloseInterval",

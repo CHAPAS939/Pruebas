@@ -18,9 +18,11 @@ import {
 } from "./usage";
 import { buildDiffCard } from "./diff";
 import { lastTextStep } from "../core/diff";
-import { Bridge } from "../core/bridge";
+import { Bridge, emitToWindow } from "../core/bridge";
+import { DESKTOP_EVENTS } from "../mochi/desktop-logic";
 import { buildRecap } from "./recap";
 import { buildWardrobe } from "./wardrobe";
+import { buildRoom } from "./room";
 import { buildUpdate } from "./update";
 import { buildWhatsNew } from "./whatsnew";
 import { buildLaunch } from "./launch";
@@ -130,6 +132,11 @@ export function buildHeader(actions: ViewActions): ViewHost {
     svg(ICONS.terminal, 17, { stroke: 1.7 }),
   );
 
+  const tabRoom = h("button", { class: "tab", title: tl("Mochi’s room"), "aria-label": tl("Mochi’s room"), onclick: () => {
+    if (State.mochiOnDesktop) void emitToWindow("island", DESKTOP_EVENTS.home);
+    go("room");
+  } }, svg("M4 20h12M10 20V10m0 0 6-6m-5-1 7 7 3-3-7-7", 16, { stroke: 1.6 }));
+
   const gearBtn = h("button", { title: tl("Settings"), onclick: () => go("settings") }, svg(ICONS.gearLine, 18, { stroke: 1.6 }));
   const soundBtn = h("button", { title: tl("Mute"), onclick: () => actions.toggleSound() }, svg(ICONS.speakerLine, 18, { stroke: 1.6 }));
   // Folds back to the compact island now, without waiting for the timer (the
@@ -149,7 +156,7 @@ export function buildHeader(actions: ViewActions): ViewHost {
   const el = h(
     "div",
     { id: "header" },
-    h("div", { class: "tabs" }, tabHome, tabChat, tabDrop, tabLaunch),
+    h("div", { class: "tabs" }, tabHome, tabChat, tabDrop, tabLaunch, tabRoom),
     h("div", { class: "header-actions" }, planPills, gearBtn, soundBtn, closeBtn),
   );
   const headerActions = el.lastElementChild as HTMLElement;
@@ -158,6 +165,8 @@ export function buildHeader(actions: ViewActions): ViewHost {
     el,
     sync() {
       const v = State.view;
+      tabRoom.hidden = State.pendingApproval != null;
+      tabRoom.classList.toggle("on", v === "room");
       tabHome.classList.toggle("on", v === "overview" || v === "empty");
       tabChat.classList.toggle("on", v === "prompt");
       tabDrop.classList.toggle("on", v === "upload");
@@ -879,6 +888,7 @@ export function buildViews(
   map.set("choose", buildChoose(actions));
   map.set("recap", buildRecap(actions));
   map.set("wardrobe", buildWardrobe(actions));
+  map.set("room", buildRoom(actions));
   map.set("update", buildUpdate());
   map.set("whatsNew", buildWhatsNew());
   map.set("launch", buildLaunch(actions));
