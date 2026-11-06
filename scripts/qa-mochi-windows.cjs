@@ -17,7 +17,7 @@ const performanceResults={},proof={nativeApp:true,bridge:'real Tauri IPC',tests:
   app.on('exit',code=>{proof.appExitCode=code;console.log('Native app exit:',code)});
   let lastConnectionError='';
   for(let i=0;i<60;i++){try{browser=await chromium.connectOverCDP('http://127.0.0.1:9222');break}catch(error){lastConnectionError=error.message;if(app.exitCode!==null)break;await wait(1000)}}
-  if(!browser){console.log('CDP connection:',lastConnectionError);console.log('App stderr:',fs.readFileSync(path.join(out,'app-stderr.log'),'utf8').slice(-4000));console.log('App stdout:',fs.readFileSync(path.join(out,'app-stdout.log'),'utf8').slice(-4000));}
+  if(!browser){console.log('CDP connection:',lastConnectionError);console.log('App stderr:',fs.readFileSync(path.join(out,'app-stderr.log'),'utf8').slice(-4000));console.log('App stdout:',fs.readFileSync(path.join(out,'app-stdout.log'),'utf8').slice(-4000));try{console.log('Native windows:',ps('state',{AppPid:app.pid}));const log=path.join(process.env.LOCALAPPDATA,'Coucou','coucou.log');if(fs.existsSync(log))console.log('Native startup log:',fs.readFileSync(log,'utf8').slice(-4000));}catch(error){console.log('Startup diagnostics:',error.message)}}
   assert.ok(browser,'The actual WebView2 debug endpoint must become ready');
   const pages=()=>browser.contexts().flatMap(c=>c.pages());
   async function pageFor(name){for(let i=0;i<60;i++){const p=pages().find(x=>{try{const u=new URL(x.url());return name==='index.html'?/^\/(index.html)?$/.test(u.pathname)&&u.hostname.includes('tauri'):u.pathname.endsWith('/'+name)}catch{return false}});if(p){await p.waitForFunction(()=>!!window.__TAURI_INTERNALS__);return p}await wait(500)}throw Error(`Native window ${name} not found`)}
