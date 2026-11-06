@@ -39,6 +39,7 @@ pub fn setup(app: &AppHandle) {
     let state = Arc::new(Objects::default());
     if let Ok(text) = std::fs::read_to_string(spots_path()) { if text.len() < 2048 { if let Ok(mut spots) = serde_json::from_str::<BTreeMap<String,[i32;2]>>(&text) { spots.retain(|id,_| IDS.contains(&id.as_str()));*state.spots.lock().unwrap() = spots; } } }
     app.manage(state);
+    if let Some(window)=build(app,"mochi-snap","kind=snap",(96.0,8.0)) { crate::platform::set_click_through(&window,true);crate::webview_memory::set_low(&window,true); }
     // Pre-create overlays before the island, like the official desktop window.
     for id in IDS { if let Some(window)=build(app,&label(id),&format!("kind=prop&id={id}"),(SIDE,SIDE)) { crate::webview_memory::set_low(&window,true); } }
     sync(app);
@@ -83,6 +84,11 @@ fn sync_now(app: &AppHandle) {
             }});
         }
     }
+}
+pub fn snap(app: &AppHandle, point: Option<((f64,f64),f64)>) {
+    let Some(window)=app.get_webview_window("mochi-snap") else {return};
+    if let Some(((x,y),scale))=point {let _=window.set_size(PhysicalSize::new((96.0*scale) as u32,(8.0*scale) as u32));let _=window.set_position(PhysicalPosition::new((x-48.0*scale) as i32,(y-4.0*scale) as i32));}
+    else {let _=window.set_position(PhysicalPosition::new(PARK.0,PARK.1));}
 }
 #[tauri::command]
 pub fn put_away_mochi_prop(app: AppHandle, id: String) {

@@ -1037,6 +1037,13 @@ final class IslandWindowController: NSWindowController {
                 self.attachDragStart = nil
                 self.state.stateOverride = nil
 
+                // Nearby window edges attach without a keyboard gesture.
+                if DesktopMochiController.shared.tryInstallPerched(ghostPanel: self.dragGhostPanel, at: mouse) {
+                    self.dragGhostPanel = nil
+                    self.hideDragGhost()
+                    return
+                }
+
                 // Dropped near a corner of its screen (or back at the top centre): the island
                 // moves there (both builds).
                 if let here = NSScreen.screens.first(where: { $0.frame.contains(mouse) }),
@@ -1049,6 +1056,7 @@ final class IslandWindowController: NSWindowController {
                     NotificationCenter.default.post(name: .triggerEmote, object: BotEmote.happy)
                     return
                 }
+
 
                 #if !APPSTORE
                 let windowCtx = self.windowContextAtPoint(mouse)
@@ -1189,6 +1197,7 @@ final class IslandWindowController: NSWindowController {
     }
 
     private func hideDragGhost() {
+        DesktopMochiController.shared.clearEdgePreview()
         dragGhostPanel?.close()
         dragGhostPanel = nil
         showSnapTarget(nil)
@@ -1202,13 +1211,14 @@ final class IslandWindowController: NSWindowController {
         guard let panel = dragGhostPanel else { return }
         let s = dragGhostSize
         let mouse = NSEvent.mouseLocation
+        DesktopMochiController.shared.previewEdge(at:mouse)
         let now = CACurrentMediaTime()
         let dt = min(0.05, max(0.001, now - lastGhostTick))
         lastGhostTick = now
         var target = NSPoint(x: mouse.x - s/2, y: mouse.y - s/2)
         // Near a corner (or the top centre): the place shows, and the nearer the pointer gets,
         // the harder Mochi is pulled into it (a gradual magnet, no jump at the zone's edge).
-        if let snap = snapTarget(at: mouse) {
+        if let snap = snapTarget(at: mouse), !AppState.shared.mochiEdgePreview {
             let rect = snap.1
             showSnapTarget(snap.0, rect: rect)
             let d = hypot(mouse.x - rect.midX, mouse.y - rect.midY)
