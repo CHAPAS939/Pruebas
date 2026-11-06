@@ -1,0 +1,14 @@
+{
+  "nativeApp": true,
+  "bridge": "native Windows UI Automation and physical input; no development bridge",
+  "tests": {
+    "installedAppStarts": true
+  },
+  "errors": [
+    "Error: Native control not found: Mochi.*room. Available: Coucou, Coucou - Web content\r\nAt D:\\a\\Pruebas\\Pruebas\\scripts\\qa-windows-uia.ps1:21 char:26\r\n+ ... q 'invoke'){throw \"Native control not found: $Pattern. Available: $(( ...\r\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : OperationStopped: (Native control ...u - Web content:String) [], RuntimeException\r\n    + FullyQualifiedErrorId : Native control not found: Mochi.*room. Available: Coucou, Coucou - Web content\r\n \r\n\n    at command (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:7:282)\n    at uia (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:9:29)\n    at openStudio (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:20:3)\n    at async D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:31:14"
+  ],
+  "source_commit": "38f05b0e7a81cf2061bff1228b196ca7bfd9e9dc",
+  "version": "0.6.0-beta.1",
+  "executable_sha256": "54003228151f3c393a11849c5aed77c9ba1e1e258b585dca34a1b9e864529dda",
+  "passed": false
+}
