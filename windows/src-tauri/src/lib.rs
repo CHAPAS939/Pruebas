@@ -11,6 +11,10 @@ mod cli_relay;
 mod codex_plan;
 mod config_file;
 mod desktop;
+mod mochi_photo;
+mod mochi_photo_logic;
+mod mochi_objects;
+mod mochi_studio;
 mod files;
 mod flow;
 mod github;
@@ -142,6 +146,7 @@ fn save_settings(app: AppHandle, shared: State<Shared>, settings: Settings) {
     }
     integrations::settings_saved(&app, &settings.active_integrations);
     spotify::sync(&app, &settings.active_integrations);
+    mochi_objects::sync(&app);
     whatsapp::sync(&settings.active_integrations);
     if shortcuts_changed {
         shortcuts::apply(&app, &settings.shortcuts);
@@ -967,6 +972,9 @@ pub fn run() {
             github_refresh,
             open_n8n,
             open_settings_window,
+            mochi_photo::save_mochi_photo,
+            mochi_studio::open_mochi_studio,
+            mochi_objects::put_away_mochi_prop,
             set_paused,
             shortcuts_status,
             shortcuts_suspend,
@@ -1089,8 +1097,10 @@ pub fn run() {
             tray::build(&handle)?;
             // Before the island: see create_settings_window.
             create_settings_window(&handle);
+            mochi_studio::setup(&handle);
             // Same rule for Mochi's desktop window and the dictation pill.
             desktop::setup(&handle);
+            mochi_objects::setup(&handle);
             flow::setup(&handle);
             notes::setup(&handle);
 

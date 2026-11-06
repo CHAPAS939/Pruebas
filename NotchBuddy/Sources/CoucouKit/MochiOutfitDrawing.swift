@@ -412,6 +412,11 @@ func drawOutfitFrontStatic(
         var c = baseCtx; c.opacity = layerOpacity
         c.drawLayer { lCtx in var l = lCtx; drawPumpkinFront(ctx: &l, H: H, bodyPath: bodyPath, simplified: simplified) }
 
+    case .headphones, .frogHat, .flower:
+        var c = baseCtx; c.opacity = layerOpacity
+        c.translateBy(x: 0, y: -(1 - posP) * H.ry)
+        c.drawLayer { lCtx in var l = lCtx; drawPersonalOutfit(ctx: &l, outfit: outfit, H: H) }
+
     case .bow:
         var c = baseCtx; c.opacity = layerOpacity
         c.scaleBy(x: max(0.001, posP), y: max(0.001, posP))
@@ -1461,4 +1466,55 @@ private func drawBowFront(ctx: inout GraphicsContext, H: MochiH, bodyPath: Path)
         center: CGPoint(x: -s * 0.06, y: -s * 0.1),
         startRadius: 0, endRadius: s * 0.35
     ))
+}
+
+// MARK: - Personal wardrobe additions
+
+private func drawPersonalOutfit(ctx: inout GraphicsContext, outfit: Outfit, H: MochiH) {
+    func ellipse(_ x: CGFloat, _ y: CGFloat, _ rx: CGFloat, _ ry: CGFloat, _ hex: String, in c: inout GraphicsContext) {
+        c.fill(Path(ellipseIn: CGRect(x: x-rx, y: y-ry, width: rx*2, height: ry*2)), with: .color(Color(hex: hex)))
+    }
+    switch outfit {
+    case .headphones:
+        var band = Path()
+        for i in 0...32 {
+            let a = CGFloat.pi * CGFloat(i) / 32
+            let p = mProjRoll(H, (cos(a)*1.04, sin(a)*1.19, 0.04))
+            if i == 0 { band.move(to: CGPoint(x: p.x, y: p.y)) }
+            else { band.addLine(to: CGPoint(x: p.x, y: p.y)) }
+        }
+        ctx.stroke(band, with: .color(Color(hex: "#58566f")), style: StrokeStyle(lineWidth: H.R*0.16, lineCap: .round))
+        for side: CGFloat in [-1, 1] {
+            let p = mProjRoll(H, (side*1.06, 0.03, 0.15))
+            if p.z < -0.3 { continue }
+            ellipse(p.x, p.y, H.R*0.20, H.R*0.34, "#78748e", in: &ctx)
+            ellipse(p.x, p.y, H.R*0.12, H.R*0.24, "#b5aacb", in: &ctx)
+            ellipse(p.x-H.R*0.03, p.y-H.R*0.06, H.R*0.035, H.R*0.13, "#d7cde5", in: &ctx)
+        }
+    case .frogHat:
+        let top = mProjRoll(H, (0, 0.89, 0.15))
+        var cap = Path()
+        cap.addArc(center: CGPoint(x: top.x, y: top.y), radius: H.R*0.94, startAngle: .degrees(180), endAngle: .degrees(360), clockwise: false)
+        var c = ctx
+        c.translateBy(x: 0, y: top.y*0.54)
+        c.scaleBy(x: 1, y: 0.46)
+        c.fill(cap, with: .color(Color(hex: "#8ba677")))
+        ellipse(top.x, top.y+H.R*0.025, H.rx, H.R*0.12, "#a9bd8b", in: &ctx)
+        for side: CGFloat in [-1, 1] {
+            let p = mProjRoll(H, (side*0.54, 1.22, 0.20))
+            ellipse(p.x, p.y, H.R*0.23, H.R*0.25, "#94ae7e", in: &ctx)
+            ellipse(p.x, p.y-H.R*0.025, H.R*0.13, H.R*0.14, "#f6f1da", in: &ctx)
+            ellipse(p.x+H.R*0.02, p.y-H.R*0.025, H.R*0.055, H.R*0.075, "#2e3931", in: &ctx)
+        }
+    case .flower:
+        let p = mProjRoll(H, mSurf(0.89, 0.55, 1.06))
+        guard p.z >= -0.2 else { return }
+        for i in 0..<7 {
+            let a = CGFloat(i)*CGFloat.pi*2/7
+            ellipse(p.x+cos(a)*H.R*0.22, p.y+sin(a)*H.R*0.22, H.R*0.15, H.R*0.15, "#fff5df", in: &ctx)
+        }
+        ellipse(p.x, p.y, H.R*0.145, H.R*0.145, "#dfaf51", in: &ctx)
+        ellipse(p.x-H.R*0.025, p.y-H.R*0.035, H.R*0.055, H.R*0.045, "#f6d785", in: &ctx)
+    default: break
+    }
 }

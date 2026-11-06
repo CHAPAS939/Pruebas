@@ -202,7 +202,7 @@ export function registerShortcutHandlers(host: ShortcutHost, resume: () => void)
     "keydown",
     (e: KeyboardEvent) => {
       if (State.mode !== "expanded") return;
-      const action = islandKeyAction(e, { view: State.view, inTextField: inTextField(e.target) });
+      const action = islandKeyAction(e, { view: State.view, inTextField: inTextField(e.composedPath?.()[0] ?? e.target) });
       if (!action) return;
       e.preventDefault();
       e.stopPropagation();

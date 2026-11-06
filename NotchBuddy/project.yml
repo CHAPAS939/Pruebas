@@ -129,6 +129,9 @@ targets:
       - path: Resources/sounds
         buildPhase: resources
         type: folder
+      - path: ../shared/mochi-scenes
+        buildPhase: resources
+        type: folder
       - path: Resources/Localizable.xcstrings
         buildPhase: resources
       # What's new after an update, once in the notch (WhatsNewViews.swift; GitHub build)
@@ -220,6 +223,9 @@ targets:
       - path: Assets.xcassets
         buildPhase: resources
       - path: Resources/sounds
+        buildPhase: resources
+        type: folder
+      - path: ../shared/mochi-scenes
         buildPhase: resources
         type: folder
       - path: Resources/Localizable.xcstrings

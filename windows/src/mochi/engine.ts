@@ -8,7 +8,8 @@ import { Ease, lerp, type EaseFn } from "../core/anim";
 import { Sound } from "../core/sound";
 import type { BotEmoteName, BotStateName } from "../core/layout";
 import { PUMPKIN_BODY, drawOutfitBehind, drawOutfitFront, makeHead } from "./outfits";
-import type { Outfit } from "./wardrobe";
+import { drawBodySkin, skinName, accessoryHue } from "./appearance";
+import { outfitLayers, type Outfit } from "./wardrobe";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -198,6 +199,10 @@ export class BotEngine {
   isMini = false;
   /** Solid body colour for mini bots / integration pills (null = Mochi gradient). */
   bodyColor: RGB | null = null;
+  reaching = false;
+  private reachPhase = 0;
+  skin = "classic";
+  accent = "original";
   /**
    * A new Coucou waits (whats-new/whats-new.ts): while Mochi is idle or asleep
    * he wears the up-arrow badge. The island turns his body blue alongside.
@@ -214,6 +219,8 @@ export class BotEngine {
   outfit: Outfit = "none";
   /** 0 = gone, 1 = fully on. */
   outfitPresence = 0;
+  private glasses = "none";
+  private scarf = false;
   private outfitTarget: Outfit = "none";
 
   // Spring lag of the soft parts (pompoms, hat tips, scarf end), −1…1.
@@ -534,7 +541,9 @@ export class BotEngine {
    * Dresses Mochi. Animated: the old outfit leaves (180 ms), the new one drops
    * in (350 ms) and Mochi does a little squash — BotEngine.setOutfit on macOS.
    */
-  setOutfit(next: Outfit, animated = true) {
+  setOutfit(next: Outfit, animated = true, glasses = "none", scarf = false, skin = "classic", accent = "original") {
+    this.skin = skinName(skin); this.accent = accent;
+    this.glasses=glasses;this.scarf=scarf;
     if (next === this.outfitTarget) return;
     this.outfitTarget = next;
     this.tweens.delete("outfitPresence");
@@ -558,7 +567,7 @@ export class BotEngine {
 
   /** Wearing something visible: the body then turns as one piece when it rolls. */
   private get rigidRoll(): boolean {
-    return !this.isMini && this.outfit !== "none" && this.outfitPresence > 0.05;
+    return !this.isMini && ((this.outfit !== "none" && this.outfitPresence > 0.05) || this.glasses !== "none" || this.scarf);
   }
 
   /** True while anything is still moving — lets the island stop its RAF loop. */
@@ -595,6 +604,7 @@ export class BotEngine {
   // ── Update ──────────────────────────────────────────────────────────────────
 
   update(dt: number) {
+    this.reachPhase += ((this.reaching?1:0)-this.reachPhase)*Math.min(1,dt*14);
     const n = now();
     const nowMs = performance.now();
 
@@ -817,12 +827,15 @@ export class BotEngine {
     if (this.tilt !== 0) x.rotate(this.tilt);
     x.scale(this.sx, this.sy);
 
-    const dressed = !this.isMini && this.outfit !== "none";
+    const layers = outfitLayers(this.outfit, this.glasses, this.scarf);
+    const dressed = !this.isMini && layers.length > 0;
     const head = dressed ? makeHead(R, this.yaw, this.pitch, this.physDx, this.physDy) : null;
     const outfitState = { presence: this.outfitPresence, morph: this.morph };
-    if (head) drawOutfitBehind(x, this.outfit, head, outfitState);
+    x.save(); if (this.accent !== "original") x.filter = `hue-rotate(${accessoryHue(this.accent)}deg)`;
+    if (head) for(const outfit of layers) drawOutfitBehind(x, outfit, head, {...outfitState,presence:outfit===this.outfit?outfitState.presence:1});
 
     const body = this.bodyPath(rx, ry, R);
+    x.restore();
     this.drawBody(x, body, R, rx, ry);
 
     const blushVal = Math.max(this.blush, this.tint * 0.5) * (1 - this.morph);
@@ -842,7 +855,9 @@ export class BotEngine {
     this.drawEyes(x, body, R, rx, ry);
     if (this.morph > 0.05) this.drawMouth(x, body, R);
 
-    if (head) drawOutfitFront(x, this.outfit, head, outfitState);
+    x.save(); if (this.accent !== "original") x.filter = `hue-rotate(${accessoryHue(this.accent)}deg)`;
+    if (head) for(const outfit of layers) drawOutfitFront(x, outfit, head, {...outfitState,presence:outfit===this.outfit?outfitState.presence:1});
+    x.restore();
 
     x.restore();
     x.restore();
@@ -888,6 +903,7 @@ export class BotEngine {
   }
 
   private drawBody(x: CanvasRenderingContext2D, body: Path2D, R: number, rx: number, ry: number) {
+    if (!this.isMini && drawBodySkin(x, body, rx, ry, this.skin)) return;
     const pumpkin = this.pumpkinAlpha;
     if (this.bodyColor) {
       // Mini bots: flat solid fill — no gradient, no reflection, no highlight
@@ -950,7 +966,7 @@ export class BotEngine {
 
     x.save();
     x.clip(body);
-    const ink = this.isMini ? MINI_INK : INK;
+    const ink = this.isMini ? MINI_INK : ["diamond","obsidian","galaxy","lava"].includes(this.skin) ? "#fff0dc" : INK;
     x.fillStyle = ink;
     x.strokeStyle = ink;
 
@@ -1132,13 +1148,13 @@ export class BotEngine {
     x: CanvasRenderingContext2D,
     R: number, rx: number, ry: number, cx: number, cy: number,
   ) {
-    if (this.hands <= 0.01 || this.isMini) return;
+    if (Math.max(this.hands,this.reachPhase) <= 0.01 || this.isMini) return;
     if (R <= 14) return; // meaningless at compact/peek sizes
 
     const n = now();
     const bodyH = 2 * ry;
-    const hew = 0.3 * ry * this.hands;
-    const heh = 0.26 * ry * this.hands;
+    const hew = 0.3 * ry * Math.max(this.hands,this.reachPhase);
+    const heh = 0.26 * ry * Math.max(this.hands,this.reachPhase);
     const hwB = rx * this.sx;
     const hhB = ry * this.sy;
     const isWaving = n >= this.waveStart && this.waveStart > 0 && n < this.waveUntil;
@@ -1148,7 +1164,8 @@ export class BotEngine {
       let localY: number;
       let handRot = 0;
 
-      if (sd > 0 && isWaving) {
+      if(this.reachPhase>.01){localX=sd*hwB*1.14;localY=lerp(hhB*.7,-hhB*.8,this.reachPhase);handRot=-sd*.3*this.reachPhase;}
+      else if (sd > 0 && isWaving) {
         const wt = n - this.waveStart;
         const rise = Math.min(1, wt / 0.18);
         const riseEased = 1 - Math.pow(1 - rise, 3);
@@ -1179,7 +1196,8 @@ export class BotEngine {
       x.translate(worldX, worldY);
       if (handRot !== 0) x.rotate(handRot);
       const g = x.createLinearGradient(hew * 0.7, -heh * 0.85, -hew * 0.8, heh * 0.9);
-      if (this.bodyColor) {
+      if(this.skin==="diamond"){g.addColorStop(0,"#343342");g.addColorStop(1,"#10131c");}
+      else if (this.bodyColor) {
         g.addColorStop(0, rgba(mix3(this.bodyColor, [1, 1, 1], 0.35)));
         g.addColorStop(1, rgba(this.bodyColor));
       } else {

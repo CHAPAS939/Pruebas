@@ -26,6 +26,7 @@ struct IslandViewContent: View {
         case .settings:  SettingsIslandView(state: state)
         case .greeting:  EmptyView()  // GreetingCanvasView overlaid in IslandRootView
         case .wardrobe:  WardrobeView(state: state)
+        case .room:      MochiRoomView(state: state)
         case .recap:     WeeklyRecapCardView(state: state)
         case .listening:
             #if !APPSTORE
@@ -4694,6 +4695,36 @@ struct ColumnAgentsView: View {
 
 // MARK: - Wardrobe
 
+struct MochiBodyAppearanceControls: View {
+    @AppStorage("mochiSkin") private var skin = "classic"
+    var body: some View {
+        HStack {
+            Text("Body appearance").foregroundStyle(.secondary)
+            Picker("Body appearance", selection: $skin) {
+                ForEach(MochiSkin.allCases, id: \.rawValue) { value in Text(value.title).tag(value.rawValue) }
+            }.labelsHidden().pickerStyle(.menu)
+            Button("Mochi Studio") { AppState.shared.view = .room }.buttonStyle(.plain)
+        }.font(.system(size: 10)).padding(.vertical, 4)
+    }
+}
+
+struct MochiOutfitCombinationControls: View {
+    @AppStorage("mochiOutfitGlasses") private var glasses = "none"
+    @AppStorage("mochiOutfitScarf") private var scarf = false
+    var body: some View {
+        VStack(spacing: 5) {
+            Text("Combine outfits").font(.system(size: 10)).foregroundStyle(.secondary)
+            Button {
+                let options = ["none", "sunglasses", "roundGlasses"]
+                glasses = options[((options.firstIndex(of: glasses) ?? 0) + 1) % options.count]
+            } label: {
+                HStack { Text("Glasses"); Spacer(); Text((Outfit(rawValue: glasses) ?? .none).displayName) }
+            }.buttonStyle(.plain)
+            Toggle("Scarf", isOn: $scarf).toggleStyle(.button)
+        }.font(.system(size: 10)).padding(5)
+    }
+}
+
 struct WardrobeView: View {
     @ObservedObject var state: AppState
     @State private var hoveredOutfit: Outfit? = nil
@@ -4736,6 +4767,8 @@ struct WardrobeView: View {
             .padding(.top, 6)
             .padding(.horizontal, 10)
 
+            MochiOutfitCombinationControls().padding(.horizontal, 10)
+            MochiBodyAppearanceControls().padding(.horizontal, 10)
             // Grid
             let allOutfits = Outfit.allCases.filter { $0 != .auto }
             let withAuto = [Outfit.auto] + allOutfits
@@ -4824,7 +4857,7 @@ struct OutfitPillView: View {
     }
 }
 
-private func drawOutfitIcon(context: GraphicsContext, size: CGSize, outfit: Outfit, seasonal: Outfit = .none) {
+func drawOutfitIcon(context: GraphicsContext, size: CGSize, outfit: Outfit, seasonal: Outfit = .none) {
     let W = size.width, H = size.height
     let cx = W / 2, cy = H / 2
     let R: CGFloat = 6.5   // small scale for icon

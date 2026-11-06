@@ -2,7 +2,7 @@ import Foundation
 
 enum Outfit: String, CaseIterable {
     case auto, none, partyHat, beanie, crown, sunglasses, roundGlasses,
-         bow, scarf, witchHat, pumpkin, santaHat, bunnyEars
+         bow, scarf, witchHat, pumpkin, santaHat, bunnyEars, headphones, frogHat, flower
 
     var displayName: String {
         switch self {
@@ -19,6 +19,9 @@ enum Outfit: String, CaseIterable {
         case .pumpkin:      return String(localized: "Pumpkin")
         case .santaHat:     return String(localized: "Santa hat")
         case .bunnyEars:    return String(localized: "Bunny ears")
+        case .headphones:   return String(localized: "Headphones")
+        case .frogHat:      return String(localized: "Frog hat")
+        case .flower:       return String(localized: "Flower")
         }
     }
 
@@ -55,6 +58,18 @@ enum Outfit: String, CaseIterable {
     // If selection == .auto → seasonal; otherwise selection itself.
     static func resolved(selection: Outfit, date: Date, calendar: Calendar) -> Outfit {
         selection == .auto ? seasonal(for: date, calendar: calendar) : selection
+    }
+
+    static var savedGlasses: Outfit {
+        let raw = UserDefaults.standard.string(forKey: "mochiOutfitGlasses") ?? "none"
+        return raw == "sunglasses" ? .sunglasses : raw == "roundGlasses" ? .roundGlasses : .none
+    }
+    static var savedScarf: Bool { UserDefaults.standard.bool(forKey: "mochiOutfitScarf") }
+    static func layers(primary: Outfit, glasses: Outfit, scarf: Bool) -> [Outfit] {
+        var layers: [Outfit] = primary == .none || (glasses != .none && (primary == .sunglasses || primary == .roundGlasses)) ? [] : [primary]
+        if glasses == .sunglasses || glasses == .roundGlasses { layers.append(glasses) }
+        if scarf && !layers.contains(.scarf) { layers.append(.scarf) }
+        return layers
     }
 
     // UserDefaults key "mochiOutfit", default "auto", unknown value → .auto

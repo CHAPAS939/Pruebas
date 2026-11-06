@@ -8,12 +8,14 @@ on:
   pull_request:
     paths:
       - 'windows/**'
+      - 'shared/**'
       - 'scripts/test-whats-new.py'
       - '.github/workflows/windows-ci.yml'
   push:
     branches: [main]
     paths:
       - 'windows/**'
+      - 'shared/**'
       - '.github/workflows/windows-ci.yml'
 
 permissions:

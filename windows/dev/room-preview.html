@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><link rel="icon" href="data:,"><title>Coucou · Room studio</title></head>
+<body style="background:#e8e3da;padding:36px;display:grid;place-content:center;min-height:100vh;margin:0;box-sizing:border-box">
+<div id="preview" style="position:relative;width:620px;height:468px;overflow:hidden;border-radius:24px;background:#17191c;color:#f2f1ec;padding:12px;box-shadow:0 24px 80px #42342c22"></div>
+<script type="module">
+import './tauri-mock.ts';
+import '../src/style.css';
+import { State, DEFAULT_SETTINGS } from '../src/core/state';
+import { buildRoom } from '../src/views/room';
+import { setLanguage } from '../src/i18n/i18n';
+setLanguage('es');
+State.settings={...DEFAULT_SETTINGS,...JSON.parse(localStorage.getItem('room-preview-settings')||'{}')};
+State.mode='expanded';State.view='room';
+const room=buildRoom({
+ previewOutfit(outfit){State.wardrobePreview=outfit;State.notify()},
+ chooseOutfit(outfit){State.settings={...State.settings,mochiOutfit:outfit};localStorage.setItem('room-preview-settings',JSON.stringify(State.settings));State.notify()},
+});
+room.el.classList.add('on');room.el.style.height='100%';
+document.getElementById('preview').append(room.el);
+State.subscribe(()=>{localStorage.setItem('room-preview-settings',JSON.stringify(State.settings));room.sync()});room.sync();
+window.roomState=State;
+function tick(time){room.tick?.(time);requestAnimationFrame(tick)}requestAnimationFrame(tick);
+</script></body></html>
