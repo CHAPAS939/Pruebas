@@ -1,0 +1,15 @@
+{
+  "nativeApp": true,
+  "bridge": "native Windows UI Automation and physical input; no development bridge",
+  "tests": {
+    "installedAppStarts": true
+  },
+  "errors": [
+    "Error: Native control does not expose an invocation pattern: Gamer\r\nAt D:\\a\\Pruebas\\Pruebas\\scripts\\qa-windows-uia.ps1:17 char:4\r\n+    throw \"Native control does not expose an invocation pattern: $($Cu ...\r\n+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : OperationStopped: (Native control ... pattern: Gamer:String) [], RuntimeException\r\n    + FullyQualifiedErrorId : Native control does not expose an invocation pattern: Gamer\r\n \r\n\n    at command (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:7:282)\n    at uia (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:9:29)\n    at invoke (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:10:80)\n    at async D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:33:3"
+  ],
+  "source_commit": "38f05b0e7a81cf2061bff1228b196ca7bfd9e9dc",
+  "version": "0.6.0-beta.1",
+  "harness_commit": "4fbbd81e23908fdb5150ddf818d7a6c744b3a559",
+  "executable_sha256": "54003228151f3c393a11849c5aed77c9ba1e1e258b585dca34a1b9e864529dda",
+  "passed": false
+}

@@ -1,0 +1,11 @@
+{
+  "closedAtStartup": {
+    "privateBytes": 502423552,
+    "workingSetBytes": 808017920,
+    "logicalProcessors": 4,
+    "seconds": 5.0646985,
+    "scope": "Coucou plus descendant processes; GitHub-hosted Windows VM, not a user-device benchmark",
+    "processCount": 16,
+    "cpuPercentOneCore": 5
+  }
+}
