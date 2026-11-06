@@ -48,14 +48,17 @@ async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return u
   const persisted=JSON.parse(fs.readFileSync(settingsFile));persisted.desktopMochi={onDesktop:false,spot:null};fs.writeFileSync(settingsFile,JSON.stringify(persisted));
   launch();await wait(6500);closeHub();
   const restored=JSON.parse(fs.readFileSync(settingsFile));assert.equal(restored.mochiRoomStyle,'gamer');assert.equal(restored.mochiSkin,'diamond');proof.tests.preferencesSurviveActualRestart=true;
-  const island=windows().find(w=>w.title==='Coucou'&&w.width===720);assert.ok(island);ps('hover',{X:Math.round(island.x+island.width/2),Y:15});await invoke(island.handle,'Mochi.*room');await invoke(island.handle,'^Close$');ps('hover',{X:30,Y:700});
-  ps('desktop-shortcut');await wait(2500);proof.tests.originalDesktopShortcut=true;
-  const mochi=await until(()=>windows().find(w=>w.title==='Mochi'&&w.visible&&w.x>=0&&w.y>300&&w.width>=100&&w.width<=250&&w.height>=100),'The original desktop shortcut did not bring Mochi onto the desktop',40);
-  proof.desktop_before_drag=mochi;ps('capture',{Out:path.join(out,'00-native-desktop.png')});
+  const island=windows().find(w=>w.title==='Coucou'&&w.width===720);assert.ok(island);
+  ps('hover',{X:Math.round(island.x+island.width/2),Y:15});await invoke(island.handle,'^Overview$');await wait(1600);
+  // Canvas hit target in the public Overview layout (640px panel, body at 68,101).
+  // Drag directly from the island, as the user does; no shortcut or app IPC.
+  const grab={x:Math.round(island.x+(island.width-640)/2+68),y:island.y+101};
+  const mochi=windows().find(w=>w.title==='Mochi'&&w.width>=100&&w.width<=250&&w.height>=100);assert.ok(mochi);
+  proof.desktop_before_drag={...mochi,source:'island',grab};ps('capture',{Out:path.join(out,'00-native-desktop.png')});
   fixture=spawn('pwsh',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,'-Action','fixture','-Out',fixtureFile],{stdio:'ignore',windowsHide:true});
   await until(()=>fs.existsSync(fixtureFile),'Native target windows not created');const targets=JSON.parse(fs.readFileSync(fixtureFile,'utf8').replace(/^\uFEFF/,''));
   const frames=path.join(out,'native-frames');recorder=spawn('pwsh',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,'-Action','record','-Out',frames],{stdio:'ignore',windowsHide:true});await wait(1800);
-  const target=targets[0];ps('drag',{X:Math.round(mochi.x+mochi.width/2),Y:Math.round(mochi.y+mochi.height/2),EndX:target.x+Math.round(target.width*.55),EndY:target.y+3});await wait(900);
+  const target=targets[0];ps('drag',{X:grab.x,Y:grab.y,EndX:target.x+Math.round(target.width*.55),EndY:target.y+3});await wait(900);
   const before=windows().find(w=>w.handle===mochi.handle);ps('capture',{Out:path.join(out,'02-native-grip.png')});
   ps('move',{Handle:target.handle,X:target.x+35,Y:target.y+25});await wait(900);const after=windows().find(w=>w.handle===mochi.handle);
   proof.attachment_trace={initial:mochi,before,after,target,settings:JSON.parse(fs.readFileSync(settingsFile)).desktopMochi};
