@@ -1,4 +1,4 @@
-param([ValidateSet('fixture','state','drag','move','close','minimize','capture','record','sample')][string]$Action, [string]$Out, [int]$AppPid, [long]$Handle, [int]$X, [int]$Y, [int]$EndX, [int]$EndY)
+param([ValidateSet('fixture','state','drag','move','close','minimize','show','hover','context','capture','record','sample')][string]$Action, [string]$Out, [int]$AppPid, [long]$Handle, [int]$X, [int]$Y, [int]$EndX, [int]$EndY)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms,System.Drawing
 Add-Type @'
@@ -21,6 +21,8 @@ public class MochiQA {
   [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr h,IntPtr after,int x,int y,int w,int ht,uint flags);
   [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h,uint m,IntPtr w,IntPtr l);
   [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h,int c);
+  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+  [DllImport("user32.dll")] public static extern IntPtr SetThreadDpiAwarenessContext(IntPtr c);
   public static Win[] Windows(int owner) {
     var list=new List<Win>();
     EnumWindows((h,l)=>{uint p;GetWindowThreadProcessId(h,out p);if(p!=(uint)owner)return true;
@@ -30,6 +32,7 @@ public class MochiQA {
   }
 }
 '@
+[MochiQA]::SetThreadDpiAwarenessContext([IntPtr]::new(-4)) | Out-Null
 function Save-Screen([string]$Path) {
   $Bounds=[System.Windows.Forms.Screen]::PrimaryScreen.Bounds
   $Bitmap=[System.Drawing.Bitmap]::new($Bounds.Width,$Bounds.Height)
@@ -64,6 +67,9 @@ switch ($Action) {
   'move' { [MochiQA]::SetWindowPos([IntPtr]::new($Handle),[IntPtr]::Zero,$X,$Y,0,0,0x15)|Out-Null }
   'close' { [MochiQA]::PostMessage([IntPtr]::new($Handle),0x10,[IntPtr]::Zero,[IntPtr]::Zero)|Out-Null }
   'minimize' { [MochiQA]::ShowWindow([IntPtr]::new($Handle),6)|Out-Null }
+  'show' { [MochiQA]::ShowWindow([IntPtr]::new($Handle),9)|Out-Null;[MochiQA]::SetForegroundWindow([IntPtr]::new($Handle))|Out-Null }
+  'hover' { [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 800 }
+  'context' { [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 200;[MochiQA]::mouse_event(8,0,0,0,[UIntPtr]::Zero);[MochiQA]::mouse_event(16,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 300 }
   'capture' { Save-Screen $Out }
   'record' {
     New-Item -ItemType Directory -Path $Out -Force|Out-Null

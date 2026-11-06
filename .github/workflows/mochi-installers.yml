@@ -126,18 +126,45 @@ jobs:
         with:
           name: Coucou-Mochi-Windows-x64
           path: build/native-input
-      - name: Install CDP client and extract actual packaged binaries
+      - name: Check out native accessibility test controller
+        uses: actions/checkout@v4
+        with:
+          ref: qa/mochi-runtime
+          path: native-controller
+          persist-credentials: false
+      - name: Use native controller helpers
+        shell: pwsh
+        run: Copy-Item native-controller/scripts/qa-* scripts/ -Force
+      - name: Install the actual beta and verify its dependencies
         shell: pwsh
         run: |
-          npm.cmd install --prefix "$env:RUNNER_TEMP/coucou-qa" --no-package-lock --ignore-scripts playwright@1.62.1
-          if ($LASTEXITCODE -ne 0) { throw 'Could not install native QA CDP client' }
-          New-Item -ItemType Directory windows/target/release -Force | Out-Null
-          Expand-Archive (Get-ChildItem build/native-input/*portable.zip).FullName windows/target/release -Force
-      - name: Exercise actual Tauri app and native Windows windows
+          $Target = Join-Path $env:RUNNER_TEMP 'Coucou-beta-installed'
+          $Installer = Get-ChildItem build/native-input/*setup.exe
+          $Process = Start-Process $Installer.FullName -ArgumentList @('/S', "/D=$Target") -Wait -PassThru
+          Write-Host "Installer exit: $($Process.ExitCode)"
+          if ($Process.ExitCode -ne 0) { throw 'Beta installation failed' }
+          Get-Process coucou -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Target*" } | Stop-Process -Force
+          $Roots = @($Target, (Join-Path $env:LOCALAPPDATA 'Coucou'), (Join-Path $env:LOCALAPPDATA 'Programs/Coucou'))
+          $Entries = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like 'Coucou*' }
+          $Entries | Select-Object DisplayName, DisplayVersion, InstallLocation | Format-Table
+          foreach ($Entry in $Entries) { if ($Entry.InstallLocation) { $Roots += $Entry.InstallLocation } }
+          $Executables = @($Roots | Select-Object -Unique | Where-Object { Test-Path $_ } | ForEach-Object { Get-ChildItem $_ -Filter coucou.exe -File -Recurse -ErrorAction SilentlyContinue })
+          if (-not $Executables.Count) {
+            New-Item -ItemType Directory build/mochi-native-qa/windows -Force | Out-Null
+            & ./scripts/qa-windows-desktop.ps1 -Action capture -Out build/mochi-native-qa/windows/installer-failure.png
+            @{passed=$false;stage='installer';target=$Target;exitCode=$Process.ExitCode} | ConvertTo-Json | Set-Content build/mochi-native-qa/windows/native-validation.json
+            Get-ChildItem $Target -Recurse -ErrorAction SilentlyContinue | Select-Object Name,Length
+            throw 'Installed app executable is missing'
+          }
+          $Executable = $Executables[0].FullName
+          Write-Host "Installed executable: $Executable"
+          Write-Output "COUCOU_QA_EXE=$Executable" >> $env:GITHUB_ENV
+          Write-Host 'WebView2 installations:'
+          Get-ChildItem "${env:ProgramFiles(x86)}/Microsoft/EdgeWebView/Application", "$env:LOCALAPPDATA/Microsoft/EdgeWebView/Application" -Directory -ErrorAction SilentlyContinue | Select-Object Name
+      - name: Exercise the installed native app
         shell: pwsh
         run: |
-          $env:COUCOU_QA_PLAYWRIGHT = "$env:RUNNER_TEMP/coucou-qa/node_modules/playwright"
-          node scripts/qa-mochi-windows.cjs
+          node scripts/qa-mochi-native-ui.cjs
           if ($LASTEXITCODE -ne 0) { throw 'Native application QA failed' }
       - uses: actions/upload-artifact@v4
         if: always()
@@ -153,7 +180,7 @@ jobs:
   installers:
     name: Both installer builds required
     if: ${{ always() }}
-    needs: [macos, windows, windows-runtime]
+    needs: [macos, windows, windows-runtime, native-media]
     runs-on: ubuntu-latest
     steps:
       - name: Require both platforms
@@ -161,11 +188,11 @@ jobs:
           MACOS_RESULT: ${{ needs.macos.result }}
           WINDOWS_RESULT: ${{ needs.windows.result }}
           RUNTIME_RESULT: ${{ needs.windows-runtime.result }}
-        run: test "$MACOS_RESULT" = success && test "$WINDOWS_RESULT" = success && test "$RUNTIME_RESULT" = success
-  beta-draft:
-    name: Prepare versioned beta release for final review
-    needs: installers
-    if: github.repository == 'CHAPAS939/Pruebas'
+          MEDIA_RESULT: ${{ needs.native-media.result }}
+        run: test "$MACOS_RESULT" = success && test "$WINDOWS_RESULT" = success && test "$RUNTIME_RESULT" = success && test "$MEDIA_RESULT" = success
+  native-media:
+    needs: windows-runtime
+    if: always() && needs.windows-runtime.result != 'cancelled'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -176,13 +203,33 @@ jobs:
           persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
-          path: build/release-input
-      - name: Assemble source-verified release files
-        run: python3 scripts/prepare-mochi-release.py
-      - name: Create draft community beta
+          name: Mochi-native-Windows-QA
+          path: build/native-media
+      - name: Retain successful native presentation evidence
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG=$(node -p 'require("./mochi-preview.json").tag')
-          VERSION=$(node -p 'require("./mochi-preview.json").version')
-          gh release create "$TAG" build/release-files/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "Mochi Studio $VERSION · community beta" --notes-file presentation/release-notes.en.md
+          MEDIA="$RUNNER_TEMP/mochi-media"
+          mkdir -p "$MEDIA"
+          git -C "$MEDIA" init
+          git -C "$MEDIA" remote add origin "https://github.com/$GITHUB_REPOSITORY.git"
+          if git ls-remote --exit-code --heads "https://github.com/$GITHUB_REPOSITORY.git" media/mochi-studio-beta1; then
+            git -C "$MEDIA" fetch --depth=1 origin media/mochi-studio-beta1
+            git -C "$MEDIA" checkout -b media/mochi-studio-beta1 FETCH_HEAD
+          else
+            git -C "$MEDIA" checkout --orphan media/mochi-studio-beta1
+          fi
+          mkdir -p "$MEDIA/windows/$GITHUB_RUN_ID"
+          cp -R build/native-media/. "$MEDIA/windows/$GITHUB_RUN_ID/"
+          export MEDIA
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          proof=json.loads(Path('build/native-media/native-validation.json').read_text())
+          Path(os.environ['MEDIA'],'latest.json').write_text(json.dumps({'run_id':int(os.environ['GITHUB_RUN_ID']),'source_commit':proof['source_commit'],'path':'windows/'+os.environ['GITHUB_RUN_ID'],'passed':proof.get('passed') is True})+'\n')
+          PY
+          git -C "$MEDIA" config user.name 'github-actions[bot]'
+          git -C "$MEDIA" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$MEDIA" add .
+          git -C "$MEDIA" commit -m "Retain native Windows beta evidence $GITHUB_RUN_ID"
+          git -C "$MEDIA" -c 'credential.helper=!gh auth git-credential' push origin HEAD:refs/heads/media/mochi-studio-beta1
