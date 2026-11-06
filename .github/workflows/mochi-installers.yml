@@ -3,6 +3,7 @@ name: Coucou Mochi installers
 on:
   push:
     branches: [build/coucou-mochi-installers]
+    paths-ignore: ['presentation/**', '*.md']
   workflow_dispatch:
 
 permissions:
@@ -39,7 +40,9 @@ jobs:
         with:
           path: build/mochi-xcode
           key: mochi-xcode-${{ hashFiles('NotchBuddy/project.yml') }}-${{ github.sha }}
-          restore-keys: mochi-xcode-${{ hashFiles('NotchBuddy/project.yml') }}-
+          restore-keys: |
+            mochi-xcode-${{ hashFiles('NotchBuddy/project.yml') }}-
+            mochi-xcode-
       - run: brew install xcodegen
       - name: Build and verify DMG
         run: bash scripts/build-mochi-macos.sh
@@ -104,14 +107,82 @@ jobs:
             build/mochi-installers/windows/*.txt
           if-no-files-found: error
           retention-days: 30
+  windows-runtime:
+    name: Actual Windows app, lifecycle, grip and resource measurements
+    needs: windows
+    runs-on: windows-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: Coucou-Mochi-Windows-x64
+          path: build/native-input
+      - name: Install CDP client and extract actual packaged binaries
+        shell: pwsh
+        run: |
+          npm.cmd install --prefix "$env:RUNNER_TEMP/coucou-qa" --no-package-lock --ignore-scripts playwright@1.62.1
+          if ($LASTEXITCODE -ne 0) { throw 'Could not install native QA CDP client' }
+          New-Item -ItemType Directory windows/target/release -Force | Out-Null
+          Expand-Archive (Get-ChildItem build/native-input/*portable.zip).FullName windows/target/release -Force
+      - name: Exercise actual Tauri app and native Windows windows
+        shell: pwsh
+        run: |
+          $env:COUCOU_QA_PLAYWRIGHT = "$env:RUNNER_TEMP/coucou-qa/node_modules/playwright"
+          node scripts/qa-mochi-windows.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Native application QA failed' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Mochi-native-Windows-QA
+          path: |
+            build/mochi-native-qa/windows/*.json
+            build/mochi-native-qa/windows/*.png
+            build/mochi-native-qa/windows/native-frames/*.png
+            build/mochi-native-qa/windows/native-frames/timing.json
+          if-no-files-found: error
+          retention-days: 30
   installers:
     name: Both installer builds required
     if: ${{ always() }}
-    needs: [macos, windows]
+    needs: [macos, windows, windows-runtime]
     runs-on: ubuntu-latest
     steps:
       - name: Require both platforms
         env:
           MACOS_RESULT: ${{ needs.macos.result }}
           WINDOWS_RESULT: ${{ needs.windows.result }}
-        run: test "$MACOS_RESULT" = success && test "$WINDOWS_RESULT" = success
+          RUNTIME_RESULT: ${{ needs.windows-runtime.result }}
+        run: test "$MACOS_RESULT" = success && test "$WINDOWS_RESULT" = success && test "$RUNTIME_RESULT" = success
+  beta-draft:
+    name: Prepare versioned beta release for final review
+    needs: installers
+    if: github.repository == 'CHAPAS939/Pruebas'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          path: build/release-input
+      - name: Assemble source-verified release files
+        run: python3 scripts/prepare-mochi-release.py
+      - name: Create draft community beta
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=$(node -p 'require("./mochi-preview.json").tag')
+          VERSION=$(node -p 'require("./mochi-preview.json").version')
+          gh release create "$TAG" build/release-files/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "Mochi Studio $VERSION · community beta" --notes-file presentation/release-notes.en.md

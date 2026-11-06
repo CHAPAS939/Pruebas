@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local preview installer; does not sign with a Developer ID or publish a release.
+# Community beta installer. Developer ID signing is optional and explicit.
 set -euo pipefail
 [[ "$(uname -s)" == Darwin ]] || { echo 'This build requires macOS and Xcode.' >&2; exit 1; }
 for command in xcodebuild xcodegen node codesign hdiutil lipo; do
@@ -8,6 +8,7 @@ done
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 OUT="$ROOT/build/mochi-installers/macos"
+VERSION="$(node -p 'require("./mochi-preview.json").version')"
 DERIVED="$ROOT/build/mochi-xcode"
 mkdir -p "$OUT"
 node --test tests/mochi-scene.test.mjs tests/mochi-studio.test.mjs
@@ -39,7 +40,11 @@ test -f "$APP/Contents/Resources/mochi-scenes/home.js"
 test -f "$APP/Contents/Resources/mochi-scenes/perch.js"
 # Apple Silicon requires a code signature. Ad-hoc signing authenticates this local
 # build's contents; it does not claim Louis's identity or notarization.
-codesign --force --deep --sign - "$APP"
+if [[ -n "${COUCOU_MAC_SIGN_IDENTITY:-}" ]]; then
+  codesign --force --deep --options runtime --timestamp --sign "$COUCOU_MAC_SIGN_IDENTITY" "$APP"
+else
+  codesign --force --deep --sign - "$APP"
+fi
 codesign --verify --deep --strict "$APP"
 STAGE="$(mktemp -d "${TMPDIR:-/tmp}/coucou-mochi-dmg.XXXXXX")"
 MOUNT="$(mktemp -d "${TMPDIR:-/tmp}/coucou-mochi-mount.XXXXXX")"
@@ -55,10 +60,23 @@ Incluye Mochi Studio: habitación editable, conjuntos, materiales y fotos PNG.
 Arrastra Mochi al borde superior de una ventana y suéltalo para que se enganche.
 No necesita combinaciones de teclas.
 
-Compilación de prueba con firma ad-hoc, sin notarizar. No es una release oficial.
+Beta de la comunidad. Consulta signature-status.json para conocer su firma.
+No es una release oficial de Louis.
 EOF
-DMG="$OUT/Coucou-Mochi-macOS-universal.dmg"
+DMG="$OUT/Coucou-Mochi-$VERSION-macOS-universal.dmg"
 hdiutil create -volname 'Coucou Mochi' -srcfolder "$STAGE" -format UDZO -ov "$DMG"
+SIGNATURE='ad-hoc; not notarized'
+if [[ -n "${COUCOU_MAC_SIGN_IDENTITY:-}" ]]; then
+  SIGNATURE='Developer ID; not notarized'
+  codesign --force --timestamp --sign "$COUCOU_MAC_SIGN_IDENTITY" "$DMG"
+  if [[ -n "${COUCOU_MAC_NOTARY_PROFILE:-}" ]]; then
+    xcrun notarytool submit "$DMG" --keychain-profile "$COUCOU_MAC_NOTARY_PROFILE" --wait --timeout 30m
+    xcrun stapler staple "$DMG"
+    xcrun stapler validate "$DMG"
+    SIGNATURE='Developer ID; notarized and stapled'
+  fi
+fi
+node -e 'require("node:fs").writeFileSync(process.argv[1],JSON.stringify({status:process.argv[2]})+"\n")' "$OUT/signature-status.json" "$SIGNATURE"
 hdiutil verify "$DMG"
 hdiutil attach -nobrowse -readonly -mountpoint "$MOUNT" "$DMG"
 node scripts/test-mochi-resources.mjs "$MOUNT/Coucou.app/Contents/Resources/mochi-scenes"
