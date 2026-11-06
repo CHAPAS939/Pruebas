@@ -1,58 +1,66 @@
-# Coucou · Habitación ampliada y combinaciones visibles — instaladores de prueba
+# Coucou · Mochi Studio — instaladores de prueba
 
-Habitación ampliada con zoom, controles de combinación visibles y saltos entre ventanas integrados en la app completa de Coucou. Compilación nativa y empaquetado verificados en macOS y Windows en [GitHub Actions](https://github.com/CHAPAS939/Pruebas/actions/runs/42028581308).
+Habitación editable, guardarropa combinable, nuevas apariencias y enganche automático a ventanas, integrados en la app completa de Coucou para Windows y macOS.
 
-Origen de ambos paquetes: `7c831314b97f1ab68e38748e6fd04a9c742dae69`, sobre Coucou `74363634b037108393e450428e5f207515c2c29b`.
+Compilación y empaquetado nativos verificados en [GitHub Actions](https://github.com/CHAPAS939/Pruebas/actions/runs/42134455542). Ambos paquetes proceden de `9c33f5dc908d06ac11b01cd0e5a1bab40f7d6c13`, sobre Coucou `74363634b037108393e450428e5f207515c2c29b`.
 
 | Sistema | Descargar | Instalar |
 | --- | --- | --- |
-| macOS 15+, Apple Silicon e Intel | [ZIP con DMG universal](https://github.com/CHAPAS939/Pruebas/actions/runs/42028581308/artifacts/13415257188) | Descomprimir, abrir el DMG y arrastrar Coucou a Aplicaciones. |
-| Windows 10/11 x64 | [ZIP con EXE, MSI y portable](https://github.com/CHAPAS939/Pruebas/actions/runs/42028581308/artifacts/13415088388) | Descomprimir y ejecutar `Coucou-Mochi-Windows-x64-setup.exe`, o elegir el MSI. |
+| macOS 15+, Apple Silicon e Intel | [ZIP con DMG universal](https://github.com/CHAPAS939/Pruebas/actions/runs/42134455542/artifacts/13464084837) | Descomprimir, abrir el DMG y arrastrar Coucou a Aplicaciones. |
+| Windows 10/11 x64 | [ZIP con EXE, MSI y portable](https://github.com/CHAPAS939/Pruebas/actions/runs/42134455542/artifacts/13465012936) | Descomprimir y ejecutar `Coucou-Mochi-Windows-x64-setup.exe`, o elegir el MSI. |
 
-GitHub requiere iniciar sesión para descargar artefactos. Estos enlaces caducan el 5 de diciembre de 2026. Los ZIP incluyen `build-manifest.json` y `SHA256SUMS.txt`.
+Cierra antes la versión anterior desde el icono de Coucou. GitHub requiere iniciar sesión para descargar artefactos; los enlaces caducan el 6 de diciembre de 2026. Cada ZIP incluye `build-manifest.json` y `SHA256SUMS.txt`.
 
-Son builds de prueba: el DMG tiene firma ad-hoc y no está notarizado; los instaladores de Windows no llevan firma comercial. Mantienen los identificadores de Coucou y reemplazan su app cuando se instalan en la misma ubicación.
+Son compilaciones de prueba: Windows no tiene firma comercial y macOS usa firma ad-hoc, sin notarizar. Los avisos de descarga o reputación pueden continuar. Esta actualización mantiene los identificadores de Coucou y sustituye la app si se instala en la misma ubicación. No es una release oficial de Louis.
 
-## Habitación interactiva
+## Habitación
 
-La habitación usa ahora una vista de 520 puntos de alto en ambos sistemas. Los botones **+ / −** acercan la escena del 100 % al 200 %; el porcentaje vuelve al encuadre completo. Al acercar, la cámara sigue el rincón donde Mochi trabaja, descansa o riega.
+Abre la pestaña de la lámpara y entra en **Habitación**. Elige **Acogedor, Gamer, Minimalista o Mediterráneo** y personaliza paleta, planta, alfombra, decoración de pared, escritorio, lluvia y luz. Las opciones automáticas siguen el estilo elegido.
 
-Abre la pestaña de la lámpara. En **Decorar** puedes elegir **Acogedor, Gamer, Minimalista o Mediterráneo**. Cada estilo cambia muebles y detalles de la escena. Puedes editar la especie y posición de la planta, el patrón de alfombra, la decoración de pared y el acabado del escritorio; también se mantienen las cuatro paletas, la lluvia, la lámpara y los interruptores de planta y alfombra.
+Activa **Mover muebles** para arrastrarlos directamente sobre el suelo. También puedes seleccionar un mueble, usar las flechas y girarlo; **Deshacer** recupera la distribución anterior. Los puntos de interacción y la posición de Mochi siguen a cada mueble. Guarda hasta **cuatro habitaciones** con nombre, estilo, decoración, muebles y distribución.
 
-Las opciones **Automático** siguen el estilo elegido. Las elecciones personales se conservan al cambiar de estilo y al reiniciar la app. **Restablecer decoración** vuelve a las opciones automáticas sin cambiar el estilo ni la ropa.
+Añade **cama, consola y estantería**. Sus puntos de interacción llevan a Mochi a dormir, jugar con un mando o leer un libro. El escritorio, el asiento y la planta conservan sus actividades; la lámpara y la ventana cambian la luz y la lluvia.
 
-Toca los objetos en la escena: la lámpara cambia la luz; la ventana cambia la lluvia; el escritorio, el asiento y la planta llevan a Mochi a trabajar en su rincón, descansar o regar. Son actividades visuales, sin iniciar tareas de agentes. El movimiento reducido coloca al personaje directamente en su destino. Si falla WebGL, continúa el dibujo de respaldo.
+Los botones **+ / −** acercan del 100 % al 200 %. El porcentaje restaura el encuadre. La cámara sigue la actividad al acercar. El panel de opciones tiene desplazamiento propio.
 
-## Combinar atuendos y saltar
+## Apariencias y conjuntos
 
-En **Guardarropa → Combinar atuendos** puedes añadir gafas y bufanda al atuendo principal. Los controles aparecen encima de la cuadrícula, sin tener que desplazarse, tanto en la habitación como en el guardarropa independiente. La cuadrícula conserva su propio desplazamiento si hace falta. La combinación se guarda y se mantiene en la habitación, la barra y el escritorio. Una elección adicional de gafas sustituye unas gafas del atuendo principal; una bufanda no se duplica.
+En **Guardarropa** hay siete apariencias nuevas: **Diamantes, Ópalo, Obsidiana, Oro, Galaxia, Gelatina y Lava**, además del aspecto clásico.
 
-Haz clic derecho en el Mochi del escritorio y elige **Saltar a otra ventana**. Busca otra ventana visible con espacio encima y salta en arco hasta ella, sin mover ni activar las ventanas de otras aplicaciones. Si no hay destino, permanece donde está. La opción de reducir movimiento elimina la animación. Las manos se sueltan durante el salto y vuelven al borde al aterrizar, conservando la ropa. El doble clic sigue devolviéndolo a la barra.
+**Diamantes** conserva el cuerpo redondeado de Mochi: base negra, muchas piedras pequeñas individuales, reflejos blancos y azulados y destellos suaves. Las piedras rodean la cara sin ocultar los ojos. El movimiento reducido mantiene los destellos estáticos.
 
-## Probar Alt en Windows
+Combina el atuendo principal con **gafas y bufanda**, personaliza el color de los accesorios y guarda hasta **ocho conjuntos** con nombre. La vista 3D muestra los cambios en grande y conserva el mismo renderizador al cambiar de apariencia. Las apariencias y accesorios se mantienen en la barra, el escritorio y al sujetarse a ventanas. También existe dibujo Canvas de respaldo.
 
-Cierra la versión anterior de Coucou desde el icono junto al reloj antes de instalar el nuevo EXE. Abre una ventana sin maximizar y deja espacio por encima. Arrastra a Mochi desde la barra, mantén Alt y suelta el ratón cerca del borde superior de esa ventana; después suelta Alt.
+## Fotos y objetos de escritorio
 
-La corrección permite elegir una ventana visible aunque no tenga el foco, conserva Alt durante una liberación casi simultánea de tecla y ratón, y da prioridad a una caída válida sobre la ventana frente a la zona invisible de retorno a la barra. Usa la posición real del cursor al soltar. Una ventana maximizada no deja el espacio necesario para sentar a Mochi.
+En **Foto**, elige encuadre de habitación o personaje, pose, ángulo, zoom y fondo transparente. **Ocultar controles** amplía la vista; el botón flotante permite volver. **Guardar PNG** abre el diálogo nativo de guardado y exporta la escena a **1600 × 1600**, sin controles en la imagen. Si no está disponible la vista 3D, la exportación queda desactivada y los cambios se siguen guardando.
+
+Desde **Habitación → Llevar al escritorio**, saca la taza, el cojín o la planta como pequeños objetos independientes. Arrástralos por el escritorio y usa clic derecho para guardarlos. La posición se conserva y se ajusta al área visible al restaurarla.
+
+## Engancharse y saltar entre ventanas
+
+Arrastra Mochi desde la barra o el escritorio hasta el **borde superior de una ventana** y suéltalo. Se engancha automáticamente con los brazos: **no requiere Alt ni Opción**. Una marca anticipa los bordes válidos y Mochi estira las manos al acercarse. Puede seguir una ventana que no tenga el foco, siempre que el borde sea visible y tenga espacio encima. Una ventana maximizada normalmente no deja ese espacio.
+
+Clic derecho en el Mochi del escritorio → **Saltar a otra ventana** busca un destino visible y realiza el salto en arco, conservando apariencia y accesorios. Suelta las manos durante el salto y vuelve a sujetarse al aterrizar. No mueve ni activa las ventanas de otras aplicaciones. Sin destino válido permanece donde está; reducir movimiento elimina la animación. Doble clic lo devuelve a la barra.
 
 ## Verificación
 
-- macOS: app universal compilada, arquitecturas ARM64 e Intel verificadas; recursos compartidos comparados con el código fuente; firma ad-hoc verificada; DMG verificado y montado para repetir la comprobación de recursos y firma.
-- Windows: compilación Release, 579 pruebas de la app y 30 del relay aprobadas (7 pruebas ignoradas, incluido el proceso auxiliar de la prueba nativa); 537 pruebas del frontend y 9 de la escena compartida aprobadas; instaladores NSIS y MSI generados y recursos comparados con el código fuente.
-- Arrastre de Windows: la zona de retorno a la barra conserva su tamaño anterior aunque la habitación sea más alta; se comprueba también a 150 % y 200 %, con monitores por encima del principal.
-- Ambos trabajos nativos y el control final de las dos plataformas terminaron correctamente en la misma ejecución.
-- Windows Alt y destinos de salto: 8 comprobaciones aprobadas en un trabajo nativo independiente; captura de una ventana real sin foco, oclusión, minimizar/restaurar y cierre, además de la conservación de Alt y la prioridad frente a la zona de retorno de la barra. El proceso auxiliar se ejecuta por separado.
-- Interfaz en Chromium con el puente nativo simulado: cuatro estilos 3D distintos sin reemplazar el renderizador; decoración y posición de planta editables; objetos interactivos; ropa combinada guardada y restaurada; respaldo tras perder WebGL. La habitación completa se ha comprobado dentro de la barra (620 × 468, ventana real de 720 × 560): gafas, bufanda e iconos pulsables sin desplazamiento previo; guardarropa independiente; límites 100–200 % y restablecimiento; mismo renderizador. También se comprueba el enfoque al trabajar, descansar y regar, con los puntos interactivos dentro del encuadre. La prueba reproducible está en `scripts/verify-room-layout.cjs` y requiere Vite, Playwright y Chromium. El personaje sobre el borde conserva gorro, gafas y bufanda; suelta las manos durante el estado visual de salto.
-- Saltos: detección de candidatos en ventanas reales de Windows; pruebas de geometría, trayectorias y extremos en ambas plataformas, incluidos monitores con coordenadas negativas, movimiento reducido y rechazo de contactos fuera de pantalla. La ejecución completa de la interacción en el equipo del usuario no está automatizada.
-- Estas comprobaciones no equivalen a una prueba interactiva de todas las funciones en el equipo del usuario.
+- Windows: compilación Release; **579 pruebas de la app**, **30 del relay**, **539 de interfaz** y **16 de la escena y datos compartidos** aprobadas. Siete pruebas de la app están ignoradas. Instaladores NSIS/EXE, MSI y portable generados; recursos comparados con el código fuente.
+- Ventanas reales de Windows: **7 comprobaciones aprobadas**, con un proceso auxiliar ejecutado por separado. Incluyen una ventana sin foco, oclusión, minimizar/restaurar, cierre, geometría, DPI y prioridad de un borde válido frente al retorno a la barra.
+- macOS: app universal compilada con Xcode para ARM64 e Intel, recursos comparados, firma ad-hoc verificada y DMG verificado y montado para repetir la comprobación de recursos y firma.
+- WebKit real de macOS: el editor del paquete abre y renderiza la escena 3D, conserva la apariencia de diamantes y exporta un PNG válido de 323979 bytes. La prueba usa el mismo cargador local de recursos que la app.
+- Interfaz en Chromium: siete materiales sin recrear el renderizador, cuatro estilos distintos, decoración independiente, arrastre físico de muebles, giro y deshacer, cama/consola/lectura, guardar y restaurar habitación y conjunto, selección de objetos de escritorio y foto RGBA de 1600 × 1600 con transparencia comprobada. También se comprueban el movimiento reducido, el respaldo tras perder WebGL y las manos al sujetarse, acercarse y saltar conservando la apariencia y los accesorios.
+- Validadores de PNG de Swift y Rust y esquemas de personalización aprobados. El control final exige que los dos instaladores terminen correctamente en la misma ejecución.
 
-## SHA-256 de los instaladores
+La prueba de interfaz usa Chromium y un puente nativo simulado; la selección de ventanas reales, las APIs y la compilación se comprueban por separado en los trabajos nativos. No equivale a una prueba manual de todas las interacciones en el equipo del usuario.
+
+## SHA-256
 
 ```text
-1f3820e61145a6b882c330640c27b3f2439c51f05e0640ec5ae69c49ae6ea799  Coucou-Mochi-macOS-universal.dmg
-e7f79b69eb67e9d3842d27299997746c26fa27485afb7813d7eae777834010ab  Coucou-Mochi-Windows-x64-setup.exe
-1c4b29f9dd9bc8db01d8f3e6fc8a6928dae7890b5d66dc47abd63faf1be7ec1e  Coucou-Mochi-Windows-x64.msi
-2611dc9f8230dc12fd220e36941024200e1072621c21ff9694068146eac6e763  Coucou-Mochi-Windows-x64-portable.zip
+41239d7c70242980a49942f06147495c0bd3f59b1504405d09b2ef9c65a6b1f1  Coucou-Mochi-macOS-universal.dmg
+bfd4bd9bc98905c0ad3783e63b13755d3ad401397481b27b12f84acf64a9a73c  Coucou-Mochi-Windows-x64-portable.zip
+897c6f9f496b1364477c9599e5e1195db3f6e6fa10bb8499f305ccd553d121ec  Coucou-Mochi-Windows-x64-setup.exe
+deba9d4bef611f9913343ab51605864495bd203680640455e36c19b72da7372c  Coucou-Mochi-Windows-x64.msi
 ```
 
-Código base, personaje y recursos: Louis Raillé y colaboradores. No es una release oficial de Louis-CFM/coucou. La rama principal de `CHAPAS939/Pruebas` y el repositorio original no se han modificado.
+Código base, personaje y recursos: Louis Raillé y colaboradores. El repositorio original y la rama principal de `CHAPAS939/Pruebas` no se han modificado.
