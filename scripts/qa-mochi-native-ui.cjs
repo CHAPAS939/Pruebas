@@ -15,8 +15,12 @@ async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return u
  async function until(fn,label,tries=30){for(let i=0;i<tries;i++){const v=fn();if(v)return v;await wait(500)}throw Error(label);}
  async function stop(){if(!app)return;const p=app;if(p.exitCode===null){p.kill();await new Promise(r=>{p.once('exit',r);setTimeout(r,3000)})}app=null;}
  function closeHub(){for(const w of windows().filter(w=>w.title==='Coucou'&&w.visible&&w.width>800))ps('close',{Handle:w.handle});}
+ async function readyIsland(){
+  const island=await until(()=>windows().find(w=>w.title==='Coucou'&&w.width>=700&&w.width<800),'Native island window did not initialize',45);
+  await until(()=>JSON.parse(uia('tree',{Handle:island.handle})).some(row=>row.name==='Overview'&&row.type==='ControlType.Button'),'Native island web content did not initialize',30);closeHub();return island;
+ }
  async function openStudio(){
-  const ws=windows(),island=ws.find(w=>w.title==='Coucou'&&w.width>=700&&w.width<800);assert.ok(island,'Native island window exists');
+  const island=await readyIsland();
   ps('hover',{X:Math.round(island.x+island.width/2),Y:15});await wait(1000);
   await invoke(island.handle,'Mochi.*room');await wait(1800);
   await invoke(island.handle,'^Open studio$');await wait(2000);
@@ -30,7 +34,7 @@ async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return u
   proof.source_commit=manifest.source_commit;proof.version=manifest.version;proof.harness_commit=spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8',cwd:fs.existsSync('native-controller/.git')?'native-controller':process.cwd()}).stdout.trim();
   proof.executable_sha256=crypto.createHash('sha256').update(fs.readFileSync(process.env.COUCOU_QA_EXE)).digest('hex');
   fs.mkdirSync(path.dirname(settingsFile),{recursive:true});fs.writeFileSync(settingsFile,JSON.stringify({language:'en',soundEnabled:false,autostart:false,hooksInstalled:true,openOnHover:true,activeIntegrations:[],mochiSkin:'diamond',mochiOutfit:'frogHat',mochiOutfitGlasses:'roundGlasses',mochiOutfitScarf:true,desktopMochi:{onDesktop:false,spot:null}}));
-  proof.desktop_preparation=JSON.parse(ps('prepare-desktop'));launch();await wait(6000);assert.equal(app.exitCode,null,'Installed app remains running');proof.tests.installedAppStarts=true;closeHub();
+  proof.desktop_preparation=JSON.parse(ps('prepare-desktop'));launch();await wait(6000);assert.equal(app.exitCode,null,'Installed app remains running');proof.tests.installedAppStarts=true;await readyIsland();
   performanceResults.closedAtStartup=JSON.parse(ps('sample',{AppPid:app.pid}));
   let studio=await openStudio();
   await invoke(studio.handle,'^Gamer$');await wait(700);
@@ -46,7 +50,7 @@ async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return u
   const reopened=await openStudio();assert.equal(reopened.handle,studio.handle);await invoke(reopened.handle,'^Room$');proof.tests.reopenSameNativeWindow=true;
   ps('close',{Handle:studio.handle});await stop();
   const persisted=JSON.parse(fs.readFileSync(settingsFile));persisted.desktopMochi={onDesktop:false,spot:null};fs.writeFileSync(settingsFile,JSON.stringify(persisted));
-  launch();await wait(6500);closeHub();
+  launch();await wait(6500);await readyIsland();
   const restored=JSON.parse(fs.readFileSync(settingsFile));assert.equal(restored.mochiRoomStyle,'gamer');assert.equal(restored.mochiSkin,'diamond');proof.tests.preferencesSurviveActualRestart=true;
   const island=windows().find(w=>w.title==='Coucou'&&w.width===720);assert.ok(island);
   ps('hover',{X:Math.round(island.x+island.width/2),Y:15});await invoke(island.handle,'^Overview$');await wait(1600);
