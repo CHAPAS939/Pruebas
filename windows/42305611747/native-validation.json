@@ -1,0 +1,22 @@
+{
+  "nativeApp": true,
+  "bridge": "native Windows UI Automation and physical input; no development bridge",
+  "tests": {
+    "installedAppStarts": true,
+    "nativeRoomAndWardrobePersist": true,
+    "nativeMinimize": true,
+    "nativeRestore": true,
+    "closeHidesReusableWindow": true,
+    "reopenSameNativeWindow": true,
+    "preferencesSurviveActualRestart": true,
+    "originalDesktopShortcut": true
+  },
+  "errors": [
+    "Error: The original desktop shortcut did not bring Mochi onto the desktop\n    at until (D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:15:116)\n    at async D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:53:15"
+  ],
+  "source_commit": "38f05b0e7a81cf2061bff1228b196ca7bfd9e9dc",
+  "version": "0.6.0-beta.1",
+  "harness_commit": "bfb2b604b887181cfb2b14fc0e4eeb043abc6ed6",
+  "executable_sha256": "54003228151f3c393a11849c5aed77c9ba1e1e258b585dca34a1b9e864529dda",
+  "passed": false
+}

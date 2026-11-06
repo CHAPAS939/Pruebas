@@ -1,0 +1,29 @@
+{
+  "closedAtStartup": {
+    "seconds": 5.0576989,
+    "scope": "Coucou plus descendant processes; GitHub-hosted Windows VM, not a user-device benchmark",
+    "workingSetBytes": 808476672,
+    "privateBytes": 510345216,
+    "logicalProcessors": 4,
+    "processCount": 16,
+    "cpuPercentOneCore": 6
+  },
+  "studioOpen": {
+    "cpuPercentOneCore": 4,
+    "scope": "Coucou plus descendant processes; GitHub-hosted Windows VM, not a user-device benchmark",
+    "workingSetBytes": 1324584960,
+    "seconds": 5.0546922,
+    "logicalProcessors": 4,
+    "processCount": 17,
+    "privateBytes": 835100672
+  },
+  "studioClosed": {
+    "cpuPercentOneCore": 3,
+    "logicalProcessors": 4,
+    "workingSetBytes": 1087569920,
+    "seconds": 5.0541573,
+    "privateBytes": 830820352,
+    "processCount": 17,
+    "scope": "Coucou plus descendant processes; GitHub-hosted Windows VM, not a user-device benchmark"
+  }
+}
