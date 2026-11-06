@@ -1,0 +1,107 @@
+name: Publish Mochi beta installer downloads
+on:
+  push:
+    branches: [build/coucou-mochi-installers]
+    paths: [presentation/installer-download.json]
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: github.repository == 'CHAPAS939/Pruebas'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Read matching installer source
+        id: input
+        run: |
+          python3 - <<'PY'
+          import json,os,re,subprocess
+          from pathlib import Path
+          data=json.loads(Path('presentation/installer-download.json').read_text())
+          assert data['distribution_permission_confirmed'] is True
+          assert re.fullmatch('[0-9a-f]{40}',data['source_commit'])
+          assert data['tag']=='mochi-studio-v0.6.0-beta.1'
+          assert isinstance(data['build_run_id'],int) and data['build_run_id']>0
+          subprocess.run(['git','merge-base','--is-ancestor',data['source_commit'],'HEAD'],check=True)
+          subprocess.run(['git','diff','--exit-code',data['source_commit'],'HEAD','--','NotchBuddy','windows','shared','mochi-preview.json'],check=True)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              for key in ['source_commit','build_run_id','tag']:f.write(f'{key}={data[key]}\n')
+          PY
+      - name: Require both native builds and native edge selection
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_RUN: ${{ steps.input.outputs.build_run_id }}
+          SOURCE: ${{ steps.input.outputs.source_commit }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN" > /tmp/build-run.json
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN/jobs" > /tmp/build-jobs.json
+          python3 - <<'PY'
+          import json,os
+          run=json.load(open('/tmp/build-run.json'));assert run['head_sha']==os.environ['SOURCE']
+          jobs={j['name']:j for j in json.load(open('/tmp/build-jobs.json'))['jobs']}
+          for name in ['Native Windows automatic edge attachment','macOS universal DMG','Windows x64 EXE and MSI']:
+              assert jobs[name]['conclusion']=='success',name
+          print('Both matching native packages and edge-selection tests passed. Full interactive QA remains a separate beta limitation.')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.input.outputs.build_run_id }}
+          name: Coucou-Mochi-macOS-universal
+          path: build/downloads/macOS
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.input.outputs.build_run_id }}
+          name: Coucou-Mochi-Windows-x64
+          path: build/downloads/Windows
+      - name: Verify every package and assemble download checksums
+        env:
+          SOURCE: ${{ steps.input.outputs.source_commit }}
+          BUILD_RUN: ${{ steps.input.outputs.build_run_id }}
+        run: |
+          python3 - <<'PY'
+          import json,hashlib,os,shutil
+          from pathlib import Path
+          root=Path('build/downloads');out=Path('build/github-installers');out.mkdir(parents=True,exist_ok=True)
+          checks=[];platforms={}
+          for platform in ['macOS','Windows']:
+              folder=root/platform;manifest=json.loads((folder/'build-manifest.json').read_text())
+              assert manifest['source_commit']==os.environ['SOURCE']
+              assert manifest['source_base']=='b1bc09de7f7c24a80bd8eca5729b8bee60f66402'
+              assert manifest['version']=='0.6.0-beta.1' and manifest['official_release'] is False
+              for item in manifest['artifacts']:
+                  assert Path(item['name']).name==item['name']
+                  file=folder/item['name'];assert file.stat().st_size==item['size_bytes']
+                  digest=hashlib.sha256(file.read_bytes()).hexdigest();assert digest==item['sha256']
+                  shutil.copy2(file,out/file.name);checks.append(f'{digest}  {file.name}')
+              shutil.copy2(folder/'build-manifest.json',out/(platform+'-build-manifest.json'))
+              platforms[platform]=manifest
+          report={'version':'0.6.0-beta.1','source_commit':os.environ['SOURCE'],'official_release':False,'build_run_id':int(os.environ['BUILD_RUN']),'platforms':platforms,'validation':'Native packages, source/resource checks and edge-selection tests passed. Full installed-app interaction QA is not marked complete.','macOS_configuration':'Upstream Debug configuration with -O optimization; PHONE_LINK/iCloud excluded.','windows_configuration':'Release'}
+          (out/'release-manifest.json').write_text(json.dumps(report,indent=2)+'\n')
+          (out/'SHA256SUMS.txt').write_text('\n'.join(checks)+'\n')
+          print(json.dumps(report,indent=2))
+          PY
+      - name: Publish complete installer prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.input.outputs.tag }}
+          SOURCE: ${{ steps.input.outputs.source_commit }}
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,targetCommitish > /tmp/release-state.json 2>/dev/null; then
+            python3 - <<'PY'
+          import json,os
+          data=json.load(open('/tmp/release-state.json'))
+          assert data['isDraft'] and data['targetCommitish']==os.environ['SOURCE'],'Refusing to overwrite a published or unrelated release'
+          PY
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$SOURCE" --draft --prerelease --title 'Coucou · Mochi Studio 0.6.0-beta.1' --notes-file presentation/installer-release-notes.en.md
+          fi
+          gh release upload "$TAG" build/github-installers/* --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease --notes-file presentation/installer-release-notes.en.md
