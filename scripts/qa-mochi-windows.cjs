@@ -10,8 +10,14 @@ const performanceResults={},proof={nativeApp:true,bridge:'real Tauri IPC',tests:
  try{
   const data=path.join(out,'profile');fs.mkdirSync(path.join(data,'Coucou'),{recursive:true});
   fs.writeFileSync(path.join(data,'Coucou','settings.json'),JSON.stringify({language:'en',soundEnabled:false,autostart:false,hooksInstalled:true,activeIntegrations:[],mochiSkin:'diamond',mochiOutfit:'frogHat',mochiOutfitGlasses:'roundGlasses',mochiOutfitScarf:true}));
-  app=spawn(path.resolve('windows/target/release/coucou.exe'),[],{env:{...process.env,APPDATA:data,LOCALAPPDATA:path.join(data,'local'),WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS:'--remote-debugging-port=9222'},stdio:'ignore'});
-  for(let i=0;i<90;i++){try{browser=await chromium.connectOverCDP('http://127.0.0.1:9222');break}catch{await wait(1000)}}
+  const executable=path.resolve(process.env.COUCOU_QA_EXE||'windows/target/release/coucou.exe');
+  const stdout=fs.openSync(path.join(out,'app-stdout.log'),'w'),stderr=fs.openSync(path.join(out,'app-stderr.log'),'w');
+  // Keep Windows' real LOCALAPPDATA so WebView2 can find a per-user runtime.
+  app=spawn(executable,[],{cwd:path.dirname(executable),env:{...process.env,APPDATA:data,WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS:'--remote-debugging-port=9222 --remote-allow-origins=*'},stdio:['ignore',stdout,stderr],windowsHide:true});
+  app.on('exit',code=>{proof.appExitCode=code;console.log('Native app exit:',code)});
+  let lastConnectionError='';
+  for(let i=0;i<60;i++){try{browser=await chromium.connectOverCDP('http://127.0.0.1:9222');break}catch(error){lastConnectionError=error.message;if(app.exitCode!==null)break;await wait(1000)}}
+  if(!browser){console.log('CDP connection:',lastConnectionError);console.log('App stderr:',fs.readFileSync(path.join(out,'app-stderr.log'),'utf8').slice(-4000));console.log('App stdout:',fs.readFileSync(path.join(out,'app-stdout.log'),'utf8').slice(-4000));}
   assert.ok(browser,'The actual WebView2 debug endpoint must become ready');
   const pages=()=>browser.contexts().flatMap(c=>c.pages());
   async function pageFor(name){for(let i=0;i<60;i++){const p=pages().find(x=>{try{const u=new URL(x.url());return name==='index.html'?/^\/(index.html)?$/.test(u.pathname)&&u.hostname.includes('tauri'):u.pathname.endsWith('/'+name)}catch{return false}});if(p){await p.waitForFunction(()=>!!window.__TAURI_INTERNALS__);return p}await wait(500)}throw Error(`Native window ${name} not found`)}
@@ -35,11 +41,11 @@ const performanceResults={},proof={nativeApp:true,bridge:'real Tauri IPC',tests:
   performanceResults.studioClosed=JSON.parse(ps('sample',{AppPid:app.pid}));
   await invoke(island,'open_mochi_studio');await frame().waitForFunction(()=>window.MochiScene.paused===false);proof.tests.reopenRenders=true;
   ps('close',{Handle:nativeStudio.handle});
-  fixture=spawn('pwsh',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,'-Action','fixture','-Out',fixtureFile],{stdio:'ignore'});
+  fixture=spawn('pwsh',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,'-Action','fixture','-Out',fixtureFile],{stdio:'ignore',windowsHide:true});
   for(let i=0;i<30&&!fs.existsSync(fixtureFile);i++)await wait(500);const targets=JSON.parse(fs.readFileSync(fixtureFile,'utf8').replace(/^\uFEFF/,''));
   assert.equal(await invoke(island,'desktop_mochi_fly_out',{anywhere:true}),true);const desktop=await pageFor('mochi.html');
   await wait(1200);windows=JSON.parse(ps('state',{AppPid:app.pid}));const mochi=windows.find(w=>w.title==='Mochi'&&w.x>=0&&w.width>=110&&w.width<=250);assert.ok(mochi,'Native Mochi window is visible');
-  const frames=path.join(out,'native-frames');recorder=spawn('pwsh',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,'-Action','record','-Out',frames],{stdio:'ignore'});await wait(1500);
+  const frames=path.join(out,'native-frames');recorder=spawn('pwsh',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,'-Action','record','-Out',frames],{stdio:'ignore',windowsHide:true});await wait(1500);
   const target=targets[0],drop={x:target.x+Math.round(target.width*.55),y:target.y+3};
   ps('drag',{X:mochi.x+Math.round(mochi.width/2),Y:mochi.y+Math.round(mochi.height/2),EndX:drop.x,EndY:drop.y});await wait(1000);
   const perch=desktop.frames().find(f=>f.url().includes('scene=perch'));assert.ok(perch,'Native perch renderer loaded');

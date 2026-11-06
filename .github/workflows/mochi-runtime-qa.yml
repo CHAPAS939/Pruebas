@@ -1,0 +1,93 @@
+name: Mochi packaged Windows app QA
+on:
+  push:
+    branches: [qa/mochi-runtime]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  runtime:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42296587760
+          name: Coucou-Mochi-Windows-x64
+          path: build/native-input
+      - name: Install the actual beta and verify its dependencies
+        shell: pwsh
+        run: |
+          npm.cmd install --prefix "$env:RUNNER_TEMP/coucou-qa" --no-package-lock --ignore-scripts playwright@1.62.1
+          if ($LASTEXITCODE -ne 0) { throw 'Could not install CDP client' }
+          $Target = "$env:RUNNER_TEMP/Coucou-beta-installed"
+          $Installer = Get-ChildItem build/native-input/*setup.exe
+          $Process = Start-Process $Installer.FullName -ArgumentList @('/S', "/D=$Target") -Wait -PassThru
+          Write-Host "Installer exit: $($Process.ExitCode)"
+          if ($Process.ExitCode -ne 0) { throw 'Beta installation failed' }
+          Get-Process coucou -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Target*" } | Stop-Process -Force
+          if (-not (Test-Path "$Target/coucou.exe")) { throw 'Installed app executable is missing' }
+          Write-Output "COUCOU_QA_EXE=$Target/coucou.exe" >> $env:GITHUB_ENV
+          Write-Output "COUCOU_QA_PLAYWRIGHT=$env:RUNNER_TEMP/coucou-qa/node_modules/playwright" >> $env:GITHUB_ENV
+          Write-Host 'WebView2 installations:'
+          Get-ChildItem "${env:ProgramFiles(x86)}/Microsoft/EdgeWebView/Application", "$env:LOCALAPPDATA/Microsoft/EdgeWebView/Application" -Directory -ErrorAction SilentlyContinue | Select-Object Name
+      - name: Exercise the installed native app
+        shell: pwsh
+        run: |
+          node scripts/qa-mochi-windows.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Native application QA failed' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Mochi-native-Windows-QA
+          path: |
+            build/mochi-native-qa/windows/*.json
+            build/mochi-native-qa/windows/*.png
+            build/mochi-native-qa/windows/*.log
+            build/mochi-native-qa/windows/native-frames/*.png
+            build/mochi-native-qa/windows/native-frames/timing.json
+          if-no-files-found: error
+  media:
+    needs: runtime
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: Mochi-native-Windows-QA
+          path: build/native-media
+      - name: Retain successful native presentation evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 -c 'import json; assert json.load(open("build/native-media/native-validation.json"))["passed"] is True'
+          MEDIA="$RUNNER_TEMP/mochi-media"
+          mkdir -p "$MEDIA"
+          git -C "$MEDIA" init
+          git -C "$MEDIA" remote add origin "https://github.com/$GITHUB_REPOSITORY.git"
+          if git ls-remote --exit-code --heads "https://github.com/$GITHUB_REPOSITORY.git" media/mochi-studio-beta1; then
+            git -C "$MEDIA" fetch --depth=1 origin media/mochi-studio-beta1
+            git -C "$MEDIA" checkout -b media/mochi-studio-beta1 FETCH_HEAD
+          else
+            git -C "$MEDIA" checkout --orphan media/mochi-studio-beta1
+          fi
+          mkdir -p "$MEDIA/windows/$GITHUB_RUN_ID"
+          cp -R build/native-media/. "$MEDIA/windows/$GITHUB_RUN_ID/"
+          printf '{"run_id":%s,"source_commit":"38f05b0e7a81cf2061bff1228b196ca7bfd9e9dc","path":"windows/%s"}\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ID" > "$MEDIA/latest.json"
+          git -C "$MEDIA" config user.name 'github-actions[bot]'
+          git -C "$MEDIA" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$MEDIA" add .
+          git -C "$MEDIA" commit -m "Retain native Windows beta evidence $GITHUB_RUN_ID"
+          git -C "$MEDIA" -c 'credential.helper=!gh auth git-credential' push origin HEAD:refs/heads/media/mochi-studio-beta1
