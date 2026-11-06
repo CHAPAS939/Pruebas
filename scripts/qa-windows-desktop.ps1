@@ -1,4 +1,4 @@
-param([ValidateSet('fixture','state','drag','move','close','minimize','show','hover','click','context','capture','record','sample')][string]$Action, [string]$Out, [int]$AppPid, [long]$Handle, [int]$X, [int]$Y, [int]$EndX, [int]$EndY)
+param([ValidateSet('fixture','state','drag','move','close','minimize','show','hover','click','desktop-shortcut','context','capture','record','sample')][string]$Action, [string]$Out, [int]$AppPid, [long]$Handle, [int]$X, [int]$Y, [int]$EndX, [int]$EndY)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms,System.Drawing
 Add-Type @'
@@ -15,6 +15,7 @@ public class MochiQA {
   [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h,out Rect r);
   [DllImport("user32.dll",CharSet=CharSet.Unicode)] public static extern int GetWindowText(IntPtr h,StringBuilder s,int n);
   [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+  [DllImport("user32.dll")] public static extern void keybd_event(byte key,byte scan,uint flags,UIntPtr extra);
   [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr h);
   [DllImport("user32.dll")] public static extern bool SetCursorPos(int x,int y);
   [DllImport("user32.dll")] public static extern void mouse_event(uint flags,uint dx,uint dy,uint data,UIntPtr extra);
@@ -57,8 +58,8 @@ switch ($Action) {
   }
   'state' { ConvertTo-Json -InputObject @([MochiQA]::Windows($AppPid)) -Depth 4 -Compress }
   'drag' {
-    [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 180
-    [MochiQA]::mouse_event(2,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 180
+    [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 1400
+    [MochiQA]::mouse_event(2,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 450
     try {for($i=1;$i -le 32;$i++){[MochiQA]::SetCursorPos([int]($X+($EndX-$X)*$i/32),[int]($Y+($EndY-$Y)*$i/32))|Out-Null;Start-Sleep -Milliseconds 45}}
     finally {[MochiQA]::mouse_event(4,0,0,0,[UIntPtr]::Zero)}
     Start-Sleep -Milliseconds 700
@@ -69,6 +70,11 @@ switch ($Action) {
   'minimize' { [MochiQA]::ShowWindow([IntPtr]::new($Handle),6)|Out-Null }
   'show' { [MochiQA]::ShowWindow([IntPtr]::new($Handle),9)|Out-Null;[MochiQA]::SetForegroundWindow([IntPtr]::new($Handle))|Out-Null }
   'hover' { [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 800 }
+  'desktop-shortcut' {
+    try {foreach($Key in @(17,18,68)){[MochiQA]::keybd_event([byte]$Key,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 80}}
+    finally {foreach($Key in @(68,18,17)){[MochiQA]::keybd_event([byte]$Key,0,2,[UIntPtr]::Zero)}}
+    Start-Sleep -Milliseconds 1200
+  }
   'click' { [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 150;[MochiQA]::mouse_event(2,0,0,0,[UIntPtr]::Zero);[MochiQA]::mouse_event(4,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 300 }
   'context' { [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 200;[MochiQA]::mouse_event(8,0,0,0,[UIntPtr]::Zero);[MochiQA]::mouse_event(16,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 300 }
   'capture' { Save-Screen $Out }
