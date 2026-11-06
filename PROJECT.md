@@ -1,9 +1,13 @@
-# Coucou · Mochi Studio + Perch
+# Coucou · Mochi Studio ampliado + Perch
 
 Habitación 3D editable, guardarropa combinable y Mochi sujeto a ventanas reales, integrados en Coucou para macOS y Windows. Los dos proyectos originales se conservan por separado en `docs/mochi-home` y `docs/mochi-perch`.
 
 ## Qué incluye
 
+- Ventana independiente redimensionable para decorar en grande, con giro de cámara, altura y zoom suave. Cámara y luz se guardan en cada habitación.
+- Guías de alineación y colisiones entre huellas de muebles, búsqueda de sitio al añadir piezas y reacciones de Mochi al decorar.
+- Intensidad y temperatura de iluminación regulables.
+- Corrección de los atuendos que perdían saturación al sujetarse a ventanas; se conservan los morados, rojos, azules y los tonos de accesorios.
 - Cuatro estilos: Acogedor, Gamer, Minimalista y Mediterráneo, con decoración independiente y zoom del 100 % al 200 %.
 - Muebles que se arrastran y giran, deshacer y hasta cuatro habitaciones guardadas con nombre.
 - Cama, consola y estantería: Mochi puede dormir, jugar con un mando y leer.
@@ -17,7 +21,7 @@ Los cambios se guardan localmente. El movimiento reducido detiene destellos y el
 
 ## Instaladores
 
-Los paquetes de la revisión `9c33f5dc908d06ac11b01cd0e5a1bab40f7d6c13` están compilados y verificados en ambos sistemas. Descargas, uso y sumas SHA-256 en [INSTALLERS.md](INSTALLERS.md).
+Los paquetes de la revisión `4562eb6fe3384bccf188d19c252e7e643491a1d8` están compilados y verificados en ambos sistemas. Descargas, uso y sumas SHA-256 en [INSTALLERS.md](INSTALLERS.md).
 
 - macOS 15+, Apple Silicon e Intel: DMG universal, firma ad-hoc sin notarizar.
 - Windows 10/11 x64: EXE, MSI y ZIP portable, sin firma comercial.
