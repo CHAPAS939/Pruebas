@@ -1,4 +1,4 @@
-param([ValidateSet('fixture','state','drag','move','close','minimize','show','hover','context','capture','record','sample')][string]$Action, [string]$Out, [int]$AppPid, [long]$Handle, [int]$X, [int]$Y, [int]$EndX, [int]$EndY)
+param([ValidateSet('fixture','state','drag','move','close','minimize','show','hover','click','context','capture','record','sample')][string]$Action, [string]$Out, [int]$AppPid, [long]$Handle, [int]$X, [int]$Y, [int]$EndX, [int]$EndY)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms,System.Drawing
 Add-Type @'
@@ -69,6 +69,7 @@ switch ($Action) {
   'minimize' { [MochiQA]::ShowWindow([IntPtr]::new($Handle),6)|Out-Null }
   'show' { [MochiQA]::ShowWindow([IntPtr]::new($Handle),9)|Out-Null;[MochiQA]::SetForegroundWindow([IntPtr]::new($Handle))|Out-Null }
   'hover' { [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 800 }
+  'click' { [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 150;[MochiQA]::mouse_event(2,0,0,0,[UIntPtr]::Zero);[MochiQA]::mouse_event(4,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 300 }
   'context' { [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 200;[MochiQA]::mouse_event(8,0,0,0,[UIntPtr]::Zero);[MochiQA]::mouse_event(16,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 300 }
   'capture' { Save-Screen $Out }
   'record' {
