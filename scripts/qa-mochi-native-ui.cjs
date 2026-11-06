@@ -27,7 +27,7 @@ async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return u
  }
  try{
   const manifest=JSON.parse(fs.readFileSync('build/native-input/build-manifest.json','utf8'));
-  proof.source_commit=manifest.source_commit;proof.version=manifest.version;proof.harness_commit=spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).stdout.trim();
+  proof.source_commit=manifest.source_commit;proof.version=manifest.version;proof.harness_commit=spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8',cwd:fs.existsSync('native-controller/.git')?'native-controller':process.cwd()}).stdout.trim();
   proof.executable_sha256=crypto.createHash('sha256').update(fs.readFileSync(process.env.COUCOU_QA_EXE)).digest('hex');
   fs.mkdirSync(path.dirname(settingsFile),{recursive:true});fs.writeFileSync(settingsFile,JSON.stringify({language:'en',soundEnabled:false,autostart:false,hooksInstalled:true,openOnHover:true,activeIntegrations:[],mochiSkin:'diamond',mochiOutfit:'frogHat',mochiOutfitGlasses:'roundGlasses',mochiOutfitScarf:true,desktopMochi:{onDesktop:false,spot:null}}));
   launch();await wait(6000);assert.equal(app.exitCode,null,'Installed app remains running');proof.tests.installedAppStarts=true;closeHub();
