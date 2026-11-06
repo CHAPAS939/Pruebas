@@ -18,7 +18,7 @@ fn create(app: &AppHandle) -> Result<WebviewWindow,String> {
         ((work.size.width as f64/scale-40.0).clamp(480.0,1120.0),(work.size.height as f64/scale-100.0).clamp(360.0,780.0))
     }).unwrap_or((1120.0,780.0));
     let window=WebviewWindowBuilder::new(app,"mochi-studio",url)
-        .title("Mochi Studio — Coucou").inner_size(width,height).min_inner_size(width.min(760.0),height.min(560.0))
+        .title("Mochi Studio — Coucou · beta 1").inner_size(width,height).min_inner_size(width.min(760.0),height.min(560.0))
         .center().resizable(true).decorations(true).focused(false).visible(false)
         .additional_browser_args(crate::BROWSER_ARGS).build().map_err(|e|e.to_string())?;
     let this=window.clone();

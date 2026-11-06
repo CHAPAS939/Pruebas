@@ -9,7 +9,7 @@ const performanceResults={},proof={nativeApp:true,bridge:'real Tauri IPC',tests:
  let app,browser,fixture,recorder;const fixtureFile=path.join(out,'fixture.json');
  try{
   const data=path.join(out,'profile');fs.mkdirSync(path.join(data,'Coucou'),{recursive:true});
-  fs.writeFileSync(path.join(data,'Coucou','settings.json'),JSON.stringify({language:'en',soundEnabled:false,autostart:false,hooksInstalled:true,activeIntegrations:[],mochiSkin:'diamond',mochiOutfit:'witchHat',mochiOutfitGlasses:'roundGlasses',mochiOutfitScarf:true}));
+  fs.writeFileSync(path.join(data,'Coucou','settings.json'),JSON.stringify({language:'en',soundEnabled:false,autostart:false,hooksInstalled:true,activeIntegrations:[],mochiSkin:'diamond',mochiOutfit:'frogHat',mochiOutfitGlasses:'roundGlasses',mochiOutfitScarf:true}));
   app=spawn(path.resolve('windows/target/release/coucou.exe'),[],{env:{...process.env,APPDATA:data,LOCALAPPDATA:path.join(data,'local'),WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS:'--remote-debugging-port=9222'},stdio:'ignore'});
   for(let i=0;i<90;i++){try{browser=await chromium.connectOverCDP('http://127.0.0.1:9222');break}catch{await wait(1000)}}
   assert.ok(browser,'The actual WebView2 debug endpoint must become ready');
@@ -17,7 +17,7 @@ const performanceResults={},proof={nativeApp:true,bridge:'real Tauri IPC',tests:
   async function pageFor(name){for(let i=0;i<60;i++){const p=pages().find(x=>{try{const u=new URL(x.url());return name==='index.html'?/^\/(index.html)?$/.test(u.pathname)&&u.hostname.includes('tauri'):u.pathname.endsWith('/'+name)}catch{return false}});if(p){await p.waitForFunction(()=>!!window.__TAURI_INTERNALS__);return p}await wait(500)}throw Error(`Native window ${name} not found`)}
   const island=await pageFor('index.html');
   const invoke=(page,cmd,args={})=>page.evaluate(([name,data])=>window.__TAURI_INTERNALS__.invoke(name,data),[cmd,args]);
-  const boot=await invoke(island,'boot');assert.equal(boot.version,JSON.parse(fs.readFileSync('mochi-preview.json')).version);proof.version=boot.version;
+  const boot=await invoke(island,'boot');assert.equal(boot.version,JSON.parse(fs.readFileSync('mochi-preview.json')).application_version);proof.version=boot.version;
   await wait(3000);performanceResults.closedAtStartup=JSON.parse(ps('sample',{AppPid:app.pid}));
   await invoke(island,'open_mochi_studio');const studio=await pageFor('studio.html');
   const frame=()=>studio.frames().find(f=>f.url().includes('scene=home'));
