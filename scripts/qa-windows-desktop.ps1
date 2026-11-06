@@ -24,6 +24,17 @@ public class MochiQA {
   [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h,int c);
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
   [DllImport("user32.dll")] public static extern IntPtr SetThreadDpiAwarenessContext(IntPtr c);
+  [StructLayout(LayoutKind.Sequential)] public struct MouseInput { public int dx,dy;public uint mouseData,flags,time;public UIntPtr extra; }
+  [StructLayout(LayoutKind.Explicit)] public struct InputUnion { [FieldOffset(0)] public MouseInput mouse; }
+  [StructLayout(LayoutKind.Sequential)] public struct Input { public uint type;public InputUnion data; }
+  [DllImport("user32.dll",SetLastError=true)] public static extern uint SendInput(uint count,Input[] input,int size);
+  [DllImport("user32.dll")] public static extern int GetSystemMetrics(int index);
+  [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int key);
+  public static void Pointer(int x,int y,uint flags) {
+    var mi=new MouseInput {dx=(int)Math.Round(x*65535.0/(GetSystemMetrics(0)-1)),dy=(int)Math.Round(y*65535.0/(GetSystemMetrics(1)-1)),flags=flags|0x8000};
+    var input=new Input {type=0,data=new InputUnion {mouse=mi}};
+    if(SendInput(1,new[]{input},Marshal.SizeOf<Input>())!=1)throw new Exception("Native SendInput rejected mouse input: "+Marshal.GetLastWin32Error());
+  }
   public static Win[] Windows(int owner) {
     var list=new List<Win>();
     EnumWindows((h,l)=>{uint p;GetWindowThreadProcessId(h,out p);if(owner!=0 && p!=(uint)owner)return true;
@@ -73,12 +84,14 @@ switch ($Action) {
   }
   'state' { ConvertTo-Json -InputObject @([MochiQA]::Windows($AppPid)) -Depth 4 -Compress }
   'drag' {
-    [MochiQA]::SetCursorPos($X,$Y)|Out-Null;Start-Sleep -Milliseconds 1400
-    [MochiQA]::mouse_event(2,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 450
-    try {for($i=1;$i -le 32;$i++){[MochiQA]::SetCursorPos([int]($X+($EndX-$X)*$i/32),[int]($Y+($EndY-$Y)*$i/32))|Out-Null;Start-Sleep -Milliseconds 45}}
-    finally {[MochiQA]::mouse_event(4,0,0,0,[UIntPtr]::Zero)}
-    Start-Sleep -Milliseconds 700
+    [MochiQA]::Pointer($X,$Y,1);Start-Sleep -Milliseconds 1400
+    [MochiQA]::Pointer($X,$Y,3);Start-Sleep -Milliseconds 450
+    $Pressed=([MochiQA]::GetAsyncKeyState(1) -band 0x8000) -ne 0
+    try {for($i=1;$i -le 40;$i++){[MochiQA]::Pointer([int]($X+($EndX-$X)*$i/40),[int]($Y+($EndY-$Y)*$i/40),1);Start-Sleep -Milliseconds 55}}
+    finally {[MochiQA]::Pointer($EndX,$EndY,5)}
+    Start-Sleep -Milliseconds 900
     [MochiQA]::SetCursorPos(30,600)|Out-Null
+    @{method='Win32 SendInput';leftButtonObservedDown=$Pressed;from=@($X,$Y);to=@($EndX,$EndY)}|ConvertTo-Json -Compress
   }
   'move' { [MochiQA]::SetWindowPos([IntPtr]::new($Handle),[IntPtr]::Zero,$X,$Y,0,0,0x15)|Out-Null }
   'close' { [MochiQA]::PostMessage([IntPtr]::new($Handle),0x10,[IntPtr]::Zero,[IntPtr]::Zero)|Out-Null }

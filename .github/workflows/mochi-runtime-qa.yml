@@ -19,14 +19,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           github-token: ${{ github.token }}
-          run-id: 42296587760
+          run-id: 42304291267
           name: Coucou-Mochi-Windows-x64
           path: build/native-input
       - name: Install the actual beta and verify its dependencies
         shell: pwsh
         run: |
-          npm.cmd install --prefix "$env:RUNNER_TEMP/coucou-qa" --no-package-lock --ignore-scripts playwright@1.62.1
-          if ($LASTEXITCODE -ne 0) { throw 'Could not install CDP client' }
           $Target = Join-Path $env:RUNNER_TEMP 'Coucou-beta-installed'
           $Installer = Get-ChildItem build/native-input/*setup.exe
           $Process = Start-Process $Installer.FullName -ArgumentList @('/S', "/D=$Target") -Wait -PassThru
@@ -48,7 +46,6 @@ jobs:
           $Executable = $Executables[0].FullName
           Write-Host "Installed executable: $Executable"
           Write-Output "COUCOU_QA_EXE=$Executable" >> $env:GITHUB_ENV
-          Write-Output "COUCOU_QA_PLAYWRIGHT=$env:RUNNER_TEMP/coucou-qa/node_modules/playwright" >> $env:GITHUB_ENV
           Write-Host 'WebView2 installations:'
           Get-ChildItem "${env:ProgramFiles(x86)}/Microsoft/EdgeWebView/Application", "$env:LOCALAPPDATA/Microsoft/EdgeWebView/Application" -Directory -ErrorAction SilentlyContinue | Select-Object Name
       - name: Exercise the installed native app
@@ -103,7 +100,7 @@ jobs:
           import json, os
           from pathlib import Path
           proof=json.loads(Path('build/native-media/native-validation.json').read_text())
-          Path(os.environ['MEDIA'],'latest.json').write_text(json.dumps({'run_id':int(os.environ['GITHUB_RUN_ID']),'source_commit':'38f05b0e7a81cf2061bff1228b196ca7bfd9e9dc','path':'windows/'+os.environ['GITHUB_RUN_ID'],'passed':proof.get('passed') is True})+'\n')
+          Path(os.environ['MEDIA'],'latest.json').write_text(json.dumps({'run_id':int(os.environ['GITHUB_RUN_ID']),'source_commit':proof['source_commit'],'path':'windows/'+os.environ['GITHUB_RUN_ID'],'passed':proof.get('passed') is True})+'\n')
           PY
           git -C "$MEDIA" config user.name 'github-actions[bot]'
           git -C "$MEDIA" config user.email '41898282+github-actions[bot]@users.noreply.github.com'

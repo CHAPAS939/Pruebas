@@ -63,7 +63,7 @@ async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return u
   await until(()=>fs.existsSync(fixtureFile),'Native target windows not created');const targets=JSON.parse(fs.readFileSync(fixtureFile,'utf8').replace(/^\uFEFF/,''));
   const visibleFixtures=JSON.parse(ps('state',{AppPid:fixture.pid})).filter(w=>w.visible&&w.width>100&&w.height>100);assert.equal(visibleFixtures.length,2,'Both real fixture windows must be visible');proof.fixture_windows=visibleFixtures;
   const frames=path.join(out,'native-frames');recorder=spawn('pwsh',['-NoProfile','-ExecutionPolicy','Bypass','-File',helper,'-Action','record','-Out',frames],{stdio:'ignore',windowsHide:true});await wait(1800);
-  const target=targets[0];ps('drag',{X:grab.x,Y:grab.y,EndX:target.x+Math.round(target.width*.55),EndY:target.y+3});await wait(900);
+  const target=targets[0];proof.input_drag=JSON.parse(ps('drag',{X:grab.x,Y:grab.y,EndX:target.x+Math.round(target.width*.55),EndY:target.y+3}));await wait(900);
   const before=windows().find(w=>w.handle===mochi.handle);ps('capture',{Out:path.join(out,'02-native-grip.png')});
   ps('move',{Handle:target.handle,X:target.x+35,Y:target.y+25});await wait(900);const after=windows().find(w=>w.handle===mochi.handle);
   proof.attachment_trace={initial:mochi,before,after,target,settings:JSON.parse(fs.readFileSync(settingsFile)).desktopMochi};
