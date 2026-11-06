@@ -12,8 +12,13 @@ fn open(app: AppHandle) -> Result<(),String> {
     let mut url=WebviewUrl::App("studio.html".into());
     #[cfg(dev)]
     if let Some(mut address)=app.config().build.dev_url.clone(){address.set_path("/studio.html");address.set_query(None);url=WebviewUrl::External(address);}
+    // Leave room for the native frame and taskbar, including scaled 720p displays.
+    let (width,height)=app.primary_monitor().ok().flatten().map(|monitor|{
+        let work=monitor.work_area();let scale=monitor.scale_factor();
+        ((work.size.width as f64/scale-40.0).clamp(480.0,1120.0),(work.size.height as f64/scale-100.0).clamp(360.0,780.0))
+    }).unwrap_or((1120.0,780.0));
     WebviewWindowBuilder::new(&app,"mochi-studio",url)
-        .title("Mochi Studio — Coucou").inner_size(1120.0,780.0).min_inner_size(760.0,560.0)
+        .title("Mochi Studio — Coucou").inner_size(width,height).min_inner_size(width.min(760.0),height.min(560.0))
         .center().resizable(true).decorations(true).focused(true).visible(true)
         .additional_browser_args(crate::BROWSER_ARGS).build().map_err(|e|e.to_string())?;
     Ok(())

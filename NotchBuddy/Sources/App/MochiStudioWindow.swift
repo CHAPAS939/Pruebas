@@ -12,8 +12,10 @@ final class MochiStudioWindowController: NSWindowController, NSWindowDelegate {
     required init?(coder:NSCoder){return nil}
     func open(state:AppState){
         if window == nil {
-            let view=NSWindow(contentRect:NSRect(x:0,y:0,width:1120,height:780),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
-            view.title="Mochi Studio — Coucou";view.minSize=NSSize(width:760,height:560)
+            let area=(NSScreen.main ?? NSScreen.screens.first)?.visibleFrame ?? NSRect(x:0,y:0,width:1160,height:850)
+            let width=max(480,min(1120,area.width-40)),height=max(360,min(780,area.height-70))
+            let view=NSWindow(contentRect:NSRect(x:0,y:0,width:width,height:height),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
+            view.title="Mochi Studio — Coucou";view.minSize=NSSize(width:min(760,width),height:min(560,height))
             view.isReleasedWhenClosed=false;view.backgroundColor=NSColor(calibratedRed:0.09,green:0.10,blue:0.11,alpha:1)
             view.contentView=NSHostingView(rootView:StudioWindowContent(state:state,visibility:visibility));view.delegate=self;view.center();window=view
         }
