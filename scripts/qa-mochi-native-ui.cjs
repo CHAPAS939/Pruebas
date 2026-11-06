@@ -7,6 +7,7 @@ const proof={nativeApp:true,bridge:'native Windows UI Automation and physical in
 function command(exe,file,action,args={}){const a=['-NoProfile','-ExecutionPolicy','Bypass','-File',file,'-Action',action];for(const[k,v]of Object.entries(args))a.push('-'+k,String(v));const r=spawnSync(exe,a,{encoding:'utf8',timeout:30000,windowsHide:true});if(r.status!==0)throw Error(r.stderr||r.stdout||`Native ${action} failed`);return r.stdout.trim();}
 const ps=(action,args={})=>command('pwsh',helper,action,args);
 const uia=(action,args={})=>command('powershell.exe',path.resolve('scripts/qa-windows-uia.ps1'),action,args);
+async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return uia('invoke',{Handle:handle,Pattern:pattern})}catch(e){last=e;await wait(900)}}throw last;}
 (async()=>{
  let app,fixture,recorder;const fixtureFile=path.join(out,'fixture.json'),profile=path.join(out,'profile'),settingsFile=path.join(profile,'Coucou','settings.json');
  function launch(){app=spawn(path.resolve(process.env.COUCOU_QA_EXE),[],{cwd:path.dirname(process.env.COUCOU_QA_EXE),env:{...process.env,APPDATA:profile},stdio:'ignore',windowsHide:true});return app;}
@@ -17,21 +18,21 @@ const uia=(action,args={})=>command('powershell.exe',path.resolve('scripts/qa-wi
  async function openStudio(){
   const ws=windows(),island=ws.find(w=>w.title==='Coucou'&&w.width>=700&&w.width<800);assert.ok(island,'Native island window exists');
   ps('hover',{X:Math.round(island.x+island.width/2),Y:15});await wait(1000);
-  uia('invoke',{Handle:island.handle,Pattern:'Mochi.*room'});await wait(1800);
-  uia('invoke',{Handle:island.handle,Pattern:'^Open studio$'});await wait(2000);
+  await invoke(island.handle,'Mochi.*room');await wait(1800);
+  await invoke(island.handle,'^Open studio$');await wait(2000);
   return until(()=>windows().find(w=>w.title.includes('Mochi Studio')&&w.visible&&!w.minimized),'Native Studio did not become visible');
  }
  try{
   const manifest=JSON.parse(fs.readFileSync('build/native-input/build-manifest.json','utf8'));
-  proof.source_commit=manifest.source_commit;proof.version=manifest.version;
+  proof.source_commit=manifest.source_commit;proof.version=manifest.version;proof.harness_commit=spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).stdout.trim();
   proof.executable_sha256=crypto.createHash('sha256').update(fs.readFileSync(process.env.COUCOU_QA_EXE)).digest('hex');
   fs.mkdirSync(path.dirname(settingsFile),{recursive:true});fs.writeFileSync(settingsFile,JSON.stringify({language:'en',soundEnabled:false,autostart:false,hooksInstalled:true,openOnHover:true,activeIntegrations:[],mochiSkin:'diamond',mochiOutfit:'frogHat',mochiOutfitGlasses:'roundGlasses',mochiOutfitScarf:true,desktopMochi:{onDesktop:false,spot:null}}));
   launch();await wait(6000);assert.equal(app.exitCode,null,'Installed app remains running');proof.tests.installedAppStarts=true;closeHub();
   performanceResults.closedAtStartup=JSON.parse(ps('sample',{AppPid:app.pid}));
   let studio=await openStudio();
-  uia('invoke',{Handle:studio.handle,Pattern:'^Gamer$'});await wait(700);
-  uia('invoke',{Handle:studio.handle,Pattern:'^Wardrobe$'});await wait(700);
-  uia('invoke',{Handle:studio.handle,Pattern:'^Diamonds$'});await wait(1200);
+  await invoke(studio.handle,'^Gamer$');await wait(700);
+  await invoke(studio.handle,'^Wardrobe$');await wait(700);
+  await invoke(studio.handle,'^Diamonds$');await wait(1200);
   const saved=JSON.parse(fs.readFileSync(settingsFile));assert.equal(saved.mochiRoomStyle,'gamer');assert.equal(saved.mochiSkin,'diamond');proof.tests.nativeRoomAndWardrobePersist=true;
   ps('capture',{Out:path.join(out,'01-native-studio.png')});
   ps('hover',{X:30,Y:700});await wait(16000);performanceResults.studioOpen=JSON.parse(ps('sample',{AppPid:app.pid}));
@@ -39,7 +40,7 @@ const uia=(action,args={})=>command('powershell.exe',path.resolve('scripts/qa-wi
   ps('show',{Handle:studio.handle});await wait(1200);assert.ok(windows().find(w=>w.handle===studio.handle)?.visible&&!windows().find(w=>w.handle===studio.handle)?.minimized);proof.tests.nativeRestore=true;
   ps('close',{Handle:studio.handle});await wait(900);assert.equal(windows().find(w=>w.handle===studio.handle)?.visible,false);proof.tests.closeHidesReusableWindow=true;
   performanceResults.studioClosed=JSON.parse(ps('sample',{AppPid:app.pid}));
-  const reopened=await openStudio();assert.equal(reopened.handle,studio.handle);uia('invoke',{Handle:reopened.handle,Pattern:'^Room$'});proof.tests.reopenSameNativeWindow=true;
+  const reopened=await openStudio();assert.equal(reopened.handle,studio.handle);await invoke(reopened.handle,'^Room$');proof.tests.reopenSameNativeWindow=true;
   ps('close',{Handle:studio.handle});await stop();
   const persisted=JSON.parse(fs.readFileSync(settingsFile));persisted.desktopMochi={onDesktop:true,spot:{x:720,y:520,space:'physical'}};fs.writeFileSync(settingsFile,JSON.stringify(persisted));
   launch();await wait(6500);closeHub();
@@ -52,7 +53,7 @@ const uia=(action,args={})=>command('powershell.exe',path.resolve('scripts/qa-wi
   const before=windows().find(w=>w.handle===mochi.handle);ps('capture',{Out:path.join(out,'02-native-grip.png')});
   ps('move',{Handle:target.handle,X:target.x+35,Y:target.y+25});await wait(900);const after=windows().find(w=>w.handle===mochi.handle);
   assert.ok(Math.abs(after.x-before.x-35)<=3&&Math.abs(after.y-before.y-25)<=3,'Actual Mochi must attach and follow the native target window');proof.tests.automaticNativeGripAndFollow=true;ps('capture',{Out:path.join(out,'03-native-follow.png')});
-  ps('context',{X:Math.round(after.x+after.width/2),Y:Math.round(after.y+after.height/2)});uia('invoke',{Handle:0,Pattern:'^Jump to another window$'});await wait(1500);
+  ps('context',{X:Math.round(after.x+after.width/2),Y:Math.round(after.y+after.height/2)});await invoke(0,'^Jump to another window$');await wait(1500);
   const jumped=windows().find(w=>w.handle===mochi.handle);assert.ok(jumped.y<after.y-60,'Mochi must jump to the higher native target');proof.tests.nativeWindowJump=true;ps('capture',{Out:path.join(out,'04-native-jump.png')});
   performanceResults.perched=JSON.parse(ps('sample',{AppPid:app.pid}));fs.writeFileSync(path.join(frames,'stop'),'');await new Promise(r=>{recorder.once('exit',r);setTimeout(r,5000)});proof.passed=true;
  }catch(error){proof.passed=false;proof.errors.push(String(error.stack||error));try{ps('capture',{Out:path.join(out,'failure.png')});if(app){const ws=windows();console.log('Native windows:',JSON.stringify(ws));const studio=ws.find(w=>w.title.includes('Mochi Studio')&&w.visible),island=ws.find(w=>w.title==='Coucou'&&w.width===720);const handle=studio?.handle||island?.handle;if(handle){const tree=uia('tree',{Handle:handle});fs.writeFileSync(path.join(out,'accessibility-tree.json'),tree);console.log('Native controls:',tree.slice(-14000))}}}catch(e){console.log('Accessibility diagnostics:',e.message)}process.exitCode=1;
