@@ -20,7 +20,10 @@ async function invoke(handle,pattern){let last;for(let i=0;i<8;i++){try{return u
   ps('hover',{X:Math.round(island.x+island.width/2),Y:15});await wait(1000);
   await invoke(island.handle,'Mochi.*room');await wait(1800);
   await invoke(island.handle,'^Open studio$');await wait(2000);
-  return until(()=>windows().find(w=>w.title.includes('Mochi Studio')&&w.visible&&!w.minimized),'Native Studio did not become visible');
+  const studio=await until(()=>windows().find(w=>w.title.includes('Mochi Studio')&&w.visible&&!w.minimized),'Native Studio did not become visible');
+  // UIA does not move the pointer away as a user would. Fold the always-on-top
+  // island before clicking controls in the separate native Studio underneath it.
+  await invoke(island.handle,'^Close$');ps('hover',{X:30,Y:700});ps('show',{Handle:studio.handle});await wait(800);return studio;
  }
  try{
   const manifest=JSON.parse(fs.readFileSync('build/native-input/build-manifest.json','utf8'));
