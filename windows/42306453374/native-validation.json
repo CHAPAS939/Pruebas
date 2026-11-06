@@ -1,0 +1,106 @@
+{
+  "nativeApp": true,
+  "bridge": "native Windows UI Automation and physical input; no development bridge",
+  "tests": {
+    "installedAppStarts": true,
+    "nativeRoomAndWardrobePersist": true,
+    "nativeMinimize": true,
+    "nativeRestore": true,
+    "closeHidesReusableWindow": true,
+    "reopenSameNativeWindow": true,
+    "preferencesSurviveActualRestart": true
+  },
+  "errors": [
+    "AssertionError [ERR_ASSERTION]: Actual Mochi must attach and follow the native target window\n    at D:\\a\\Pruebas\\Pruebas\\scripts\\qa-mochi-native-ui.cjs:66:10"
+  ],
+  "source_commit": "38f05b0e7a81cf2061bff1228b196ca7bfd9e9dc",
+  "version": "0.6.0-beta.1",
+  "harness_commit": "9378dab50a8ba7eb5024d2687be2ca5921173414",
+  "executable_sha256": "54003228151f3c393a11849c5aed77c9ba1e1e258b585dca34a1b9e864529dda",
+  "desktop_preparation": [
+    "C:\\ProgramData\\GitHub\\HostedComputeAgent\\hosted-compute-agent",
+    "System Properties"
+  ],
+  "desktop_before_drag": {
+    "handle": 197198,
+    "title": "Mochi",
+    "x": 26,
+    "y": 26,
+    "width": 136,
+    "height": 120,
+    "visible": true,
+    "minimized": false,
+    "source": "island",
+    "grab": {
+      "x": 260,
+      "y": 101
+    }
+  },
+  "fixture_windows": [
+    {
+      "handle": 131758,
+      "title": "Preview",
+      "x": 520,
+      "y": 170,
+      "width": 460,
+      "height": 300,
+      "visible": true,
+      "minimized": false
+    },
+    {
+      "handle": 131728,
+      "title": "Design notes",
+      "x": 120,
+      "y": 290,
+      "width": 460,
+      "height": 300,
+      "visible": true,
+      "minimized": false
+    }
+  ],
+  "attachment_trace": {
+    "initial": {
+      "handle": 197198,
+      "title": "Mochi",
+      "x": 26,
+      "y": 26,
+      "width": 136,
+      "height": 120,
+      "visible": true,
+      "minimized": false
+    },
+    "before": {
+      "handle": 197198,
+      "title": "Mochi",
+      "x": 26,
+      "y": 26,
+      "width": 136,
+      "height": 120,
+      "visible": true,
+      "minimized": false
+    },
+    "after": {
+      "handle": 197198,
+      "title": "Mochi",
+      "x": 26,
+      "y": 26,
+      "width": 136,
+      "height": 120,
+      "visible": true,
+      "minimized": false
+    },
+    "target": {
+      "handle": 131728,
+      "x": 120,
+      "y": 290,
+      "width": 460,
+      "height": 300,
+      "title": "Design notes"
+    },
+    "settings": {
+      "onDesktop": false,
+      "spot": null
+    }
+  },
+  "passed": false
+}
