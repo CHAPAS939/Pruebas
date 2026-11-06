@@ -23,7 +23,7 @@ Los cambios se guardan localmente. El movimiento reducido detiene destellos y el
 
 ## Instaladores
 
-Los paquetes de la revisión `4562eb6fe3384bccf188d19c252e7e643491a1d8` están compilados y verificados en ambos sistemas. Descargas, uso y sumas SHA-256 en [INSTALLERS.md](INSTALLERS.md).
+Los paquetes de la revisión `e21aff253ead90e1c0fb3aef436f9c212149172c` están compilados y verificados en ambos sistemas. Descargas, uso y sumas SHA-256 en [INSTALLERS.md](INSTALLERS.md).
 
 - macOS 15+, Apple Silicon e Intel: DMG universal, firma ad-hoc sin notarizar.
 - Windows 10/11 x64: EXE, MSI y ZIP portable, sin firma comercial.
@@ -48,4 +48,4 @@ La prueba reproducible de la interfaz es `scripts/verify-mochi-studio.cjs` y req
 
 ## Origen
 
-Integración sobre Coucou `b1bc09de7f7c24a80bd8eca5729b8bee60f66402`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. Se ha compilado en la rama autorizada `build/coucou-mochi-installers` de `CHAPAS939/Pruebas`. El repositorio de Louis y la rama principal de Pruebas no se han modificado. Código base, personaje y recursos: Louis Raillé y colaboradores; no es una release oficial del proyecto.
+Integración sobre Coucou `b1bc09de7f7c24a80bd8eca5729b8bee60f66402`, conservando las contribuciones Home `006aa4d` y Perch `b815bc6`. La integración conserva los campos de versión del upstream, que aún describe 0.6 como Unreleased. Se ha compilado en la rama autorizada `build/coucou-mochi-installers` de `CHAPAS939/Pruebas`. El repositorio de Louis y la rama principal de Pruebas no se han modificado. Código base, personaje y recursos: Louis Raillé y colaboradores; no es una release oficial del proyecto.

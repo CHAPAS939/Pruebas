@@ -1,17 +1,25 @@
-# Coucou · Mochi Studio ampliado — instaladores de prueba
+# Coucou · Mochi Studio sobre Coucou 0.6 — instaladores de prueba
 
 Estudio ampliable, cámara giratoria, decoración con guías y colisiones, luz regulable y colores fieles al sujetarse a ventanas, integrados en la app completa de Coucou para Windows y macOS.
 
-Compilación y empaquetado nativos verificados en [GitHub Actions](https://github.com/CHAPAS939/Pruebas/actions/runs/42186724337). Ambos paquetes proceden de `4562eb6fe3384bccf188d19c252e7e643491a1d8`, sobre Coucou `74363634b037108393e450428e5f207515c2c29b`.
+Compilación y empaquetado nativos verificados en [GitHub Actions](https://github.com/CHAPAS939/Pruebas/actions/runs/42290466543). Ambos paquetes proceden de `e21aff253ead90e1c0fb3aef436f9c212149172c`, sobre Coucou `b1bc09de7f7c24a80bd8eca5729b8bee60f66402`.
 
 | Sistema | Descargar | Instalar |
 | --- | --- | --- |
-| macOS 15+, Apple Silicon e Intel | [ZIP con DMG universal](https://github.com/CHAPAS939/Pruebas/actions/runs/42186724337/artifacts/13488700247) | Descomprimir, abrir el DMG y arrastrar Coucou a Aplicaciones. |
-| Windows 10/11 x64 | [ZIP con EXE, MSI y portable](https://github.com/CHAPAS939/Pruebas/actions/runs/42186724337/artifacts/13488617233) | Descomprimir y ejecutar `Coucou-Mochi-Windows-x64-setup.exe`, o elegir el MSI. |
+| macOS 15+, Apple Silicon e Intel | [ZIP con DMG universal](https://github.com/CHAPAS939/Pruebas/actions/runs/42290466543/artifacts/13539543588) | Descomprimir, abrir el DMG y arrastrar Coucou a Aplicaciones. |
+| Windows 10/11 x64 | [ZIP con EXE, MSI y portable](https://github.com/CHAPAS939/Pruebas/actions/runs/42290466543/artifacts/13539698607) | Descomprimir y ejecutar `Coucou-Mochi-Windows-x64-setup.exe`, o elegir el MSI. |
 
 Cierra antes la versión anterior desde el icono de Coucou. GitHub requiere iniciar sesión para descargar artefactos; los enlaces caducan el 6 de diciembre de 2026. Cada ZIP incluye `build-manifest.json` y `SHA256SUMS.txt`.
 
 Son compilaciones de prueba: Windows no tiene firma comercial y macOS usa firma ad-hoc, sin notarizar. Los avisos de descarga o reputación pueden continuar. Esta actualización mantiene los identificadores de Coucou y sustituye la app si se instala en la misma ubicación. No es una release oficial de Louis.
+
+## Nueva base oficial
+
+Incluye la revisión completa `b1bc09de` de la rama oficial, con sus novedades 0.6: lanzador de sesiones y archivos sobre sesiones, mejoras de Flow y voz, permisos de agentes y correcciones de Windows. En Mac conserva también Coucoudoro, las nuevas capturas y el cansancio de Mochi. Cada función mantiene las plataformas que admite el original. El lanzador de sesiones y la habitación conviven en pestañas independientes.
+
+Studio y los objetos de escritorio de Windows se crean al arrancar siguiendo la corrección de WebView2 de la nueva base. Cerrar Studio lo oculta y pausa su escena; al abrirlo se recupera la misma ventana. Su memoria se reduce mientras permanece oculto.
+
+La rama original todavía etiqueta estas novedades como **0.6 Unreleased** y conserva versiones internas 0.5.8 en Mac y 0.5.9 en Windows. Esta preview mantiene esos campos originales; el commit y los manifiestos identifican la actualización integrada.
 
 ## Estudio ampliado y cámara
 
@@ -63,11 +71,12 @@ Clic derecho en el Mochi del escritorio → **Saltar a otra ventana** busca un d
 
 ## Verificación
 
-- Windows: compilación Release; **579 pruebas de la app**, **30 del relay**, **539 de interfaz** y **22 de la escena y los datos compartidos** aprobadas. Siete pruebas de la app están ignoradas. Instaladores EXE/NSIS, MSI y portable generados, con recursos comparados con el código fuente.
+- Windows: compilación Release; **618 pruebas de la app**, **35 del relay**, **569 de interfaz** y **22 de la escena y los datos compartidos** aprobadas. Siete pruebas de la app están ignoradas. Instaladores EXE/NSIS, MSI y portable generados, con recursos comparados con el código fuente.
 - Ventanas reales de Windows: **7 comprobaciones aprobadas**, con un proceso auxiliar ejecutado por separado. Incluyen una ventana sin foco, oclusión, minimizar/restaurar, cierre, geometría, DPI y prioridad de un borde válido frente al retorno a la barra.
+- Base 0.6: aprobadas las regresiones de WorkStreak, lanzamiento de sesiones, reglas de Antigravity, Flow, ejecución con herramientas de prueba, política de reseñas, 30 casos del filtro de revisión y motor Coucoudoro. También pasan localmente las pruebas modificadas de CLIRelay, actividad de GitHub y medidor del plan.
 - macOS: app universal compilada con Xcode para ARM64 e Intel, recursos comparados, firma ad-hoc verificada y DMG verificado y montado para repetir la comprobación de recursos y firma.
-- WebKit real de macOS: el estudio ampliado del paquete abre, renderiza la escena 3D y exporta un PNG válido de **274295 bytes** usando el mismo cargador local que la app.
-- Interfaz en Chromium: apertura del estudio desde la barra, vista ampliable, sincronización de preferencias entre ventanas, cambios reales de luz y temperatura, arrastre físico de cámara y zoom con rueda, guardado y recuperación de cámara y luz, colisiones, reacción de celebración y exploración, movimiento reducido y restauración al reiniciar. También pasan las regresiones de siete apariencias, conjuntos, actividades, arrastre físico de muebles, deshacer y PNG transparente de 1600 × 1600. Sin errores de JavaScript.
+- WebKit real de macOS: el estudio ampliado del paquete abre, renderiza la escena 3D y exporta un PNG válido de **275102 bytes** usando el mismo cargador local que la app.
+- Interfaz en Chromium: apertura del estudio desde la barra, vista ampliable, sincronización de preferencias entre ventanas, cambios reales de luz y temperatura, arrastre físico de cámara y zoom con rueda, guardado y recuperación de cámara y luz, colisiones, reacción de celebración y exploración, movimiento reducido y restauración al reiniciar. El nuevo lanzador original abre junto a la pestaña de la habitación sin ejecutar una sesión real durante la prueba. También pasan las regresiones de siete apariencias, conjuntos, actividades, arrastre físico de muebles, deshacer y PNG transparente de 1600 × 1600. Sin errores de JavaScript.
 - Color: el sombrero real conserva morado saturado; la muestra del material conserva RGB 90, 33, 181 con exposiciones 0,4, 1 y 2,5. Las pruebas reproducibles son `scripts/verify-mochi-colors.cjs`, `scripts/verify-mochi-studio-tools.cjs` y `scripts/verify-mochi-studio.cjs`.
 - El control final exige que ambos paquetes terminen correctamente en la misma ejecución y con el mismo código de origen.
 
@@ -76,10 +85,10 @@ Las pruebas de interfaz usan un puente nativo simulado. Las APIs, la compilació
 ## SHA-256
 
 ```text
-6b96d54a8471dfa20803c2ae58c14b539c9b6900bc8a7d1328d4d14a2b93e370  Coucou-Mochi-macOS-universal.dmg
-a3e030b4fc0e52c4aecfeffde5c5f3f8bae5360cc2a800e5c6f490dcad8bfbe3  Coucou-Mochi-Windows-x64-portable.zip
-8eb43841654a8beccf8e6a0fbbcc87f4ed7afcb69d2179f5d513cbd8768259db  Coucou-Mochi-Windows-x64-setup.exe
-ff915873c4cc6910015f4592388de5a1838cc77e7079336c87ef9a09ea070f46  Coucou-Mochi-Windows-x64.msi
+7afc6145befc54b2dcc2f053facd5dfb15fed2b8fd2aa3ab5b099a3b54955fa2  Coucou-Mochi-macOS-universal.dmg
+33c84359dddcc28d3819529cb1443f01a714a93d600aeab3e0a294aa57702449  Coucou-Mochi-Windows-x64-portable.zip
+9c4daf1a16d2fe0c12ef55b89dfe3d0b2cb252796e1f2c46881e584a45b01dbe  Coucou-Mochi-Windows-x64-setup.exe
+d1a1db76537a613b9860f25d448f81116537e54b783e1b9db0fe842f742adba9  Coucou-Mochi-Windows-x64.msi
 ```
 
 Código base, personaje y recursos: Louis Raillé y colaboradores. El repositorio original y la rama principal de `CHAPAS939/Pruebas` no se han modificado.
