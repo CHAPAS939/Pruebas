@@ -4,8 +4,13 @@ $ErrorActionPreference = 'Stop'
 $ExpectedLogin = 'CHAPAS939'
 if (-not (Get-Command gh -ErrorAction SilentlyContinue)) { throw 'Instala GitHub CLI desde https://cli.github.com/ y vuelve a ejecutar este archivo.' }
 function Read-GitHub([string]$Route) {
-    $Raw = & gh api $Route 2>$null
-    if ($LASTEXITCODE -ne 0) { return $null }
+    $PreviousPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        $Raw = & gh api $Route 2>$null
+        $Code = $LASTEXITCODE
+    } finally { $ErrorActionPreference = $PreviousPreference }
+    if ($Code -ne 0) { return $null }
     return ($Raw | ConvertFrom-Json)
 }
 function Write-GitHub([string]$Route, [string]$Method, [object]$Body) {
@@ -17,8 +22,11 @@ function Write-GitHub([string]$Route, [string]$Method, [object]$Body) {
         return ($Raw | ConvertFrom-Json)
     } finally { Remove-Item -LiteralPath $Temporary -Force }
 }
+$ErrorActionPreference = 'Continue'
 & gh auth status 2>$null
-if ($LASTEXITCODE -ne 0) {
+$AuthCode = $LASTEXITCODE
+$ErrorActionPreference = 'Stop'
+if ($AuthCode -ne 0) {
     & gh auth login --hostname github.com --git-protocol https --web
     if ($LASTEXITCODE -ne 0) { throw 'No se ha completado el inicio de sesión. No se ha cambiado el perfil.' }
 }
