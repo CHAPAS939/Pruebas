@@ -1,0 +1,18 @@
+name: Withdraw preview builds that share Coucou identifiers
+on:
+  push:
+    branches: [maintenance/retire-shared-identity]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  withdraw:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Retain the old beta as a private draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit mochi-studio-v0.6.0-beta.1 --repo "$GITHUB_REPOSITORY" --draft=true
